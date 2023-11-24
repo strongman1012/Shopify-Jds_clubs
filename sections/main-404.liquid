@@ -1,0 +1,23 @@
+<style>
+  .error-code {
+    color: rgba(var(--text-color) / 0.4);
+    font-size: 9.6rem;
+    line-height: 1;
+  }
+</style>
+
+<div class="container text-center">
+  <p class="error-code mb-0 font-bold">404</p>
+  <h1 class="h4 text-center">{{ 'templates.404.title' | t }}</h1>
+  <p>{{ 'templates.404.subtext' | t }}</p>
+  <p class="mt-12">
+    <a class="btn btn--primary" href="{{ routes.root_url }}">{{ 'templates.404.link' | t }}</a>
+  </p>
+</div>
+
+{% schema %}
+{
+  "name": "404",
+  "class": "cc-main-404 section section--template"
+}
+{% endschema %}

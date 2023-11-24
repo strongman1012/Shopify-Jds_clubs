@@ -1,0 +1,65 @@
+<div>
+   <img src="{{ section.settings.image_desktop | img_url : 'master' }}" alt="Section Image" class="desktop_image_class home-image2">
+</div>
+ 
+
+
+{% schema %}
+{
+  "name": "Home Image2",
+  "settings": [
+    {
+      "type": "text",
+      "label": "Title",
+      "id": "title",
+      "default": "Welcome to our custom section"
+    },
+        {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "Image",
+      "info": "For best results, use a landscape shaped image with a width of 1400px."
+    },
+        {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image (optional)",
+      "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+    },
+    {
+      "type": "url",
+      "id": "url",
+      "label": "Image link (optional)"
+    },
+        {
+      "type": "color",
+      "id": "tint_color",
+      "label": "Image tint color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Image tint opacity",
+      "default": 40
+    },
+    {
+      "type": "textarea",
+      "label": "Description",
+      "id": "description",
+      "default": "This is a custom section for showcasing unique content."
+    }
+  ],
+  "presets": [
+    {
+       "name": "Home-Image2",
+        "category": "Custom"
+    }
+  ]
+}
+
+{% endschema %}

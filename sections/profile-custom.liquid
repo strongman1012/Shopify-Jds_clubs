@@ -1,0 +1,134 @@
+<div class="container">
+  <div class="custom-cart-header" style="margin-top: 4rem;">
+    <div class="custom-cart-header-left">
+      <p class="custom-cart-header-title">Update Profile</p>
+    </div>
+    <div class="custom-cart-header-right"></div>
+  </div>
+  <div class="custom-profile-container">
+    <div class="custom-profile-1">
+      <div class="custom-profile-1-img">
+        <img
+          alt="Avatar"
+          src=""
+          id="previewImage">
+      </div>
+      <div class="custom-profile-1-btn mt-3">
+        <button class="btn--primary custom-profile-1-btn-upload">Upload Photo</button>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*">
+      </div>
+    </div>
+    <div class="custom-profile-2">
+      <div class="custom-profile-2-row">
+        <div class="custom-profile-2-col">
+          {% render 'profile-input', condition: 1, name: 'name', type: 'text' %}
+        </div>
+        <div class="custom-profile-2-col">
+          {% render 'profile-input', condition: 1, name: 'email', type: 'email' %}
+        </div>
+      </div>
+      <div class="custom-profile-2-row">
+        {% render 'profile-input', condition: 1, name: 'phone number', type: 'text' %}
+      </div>
+      <div class="custom-profile-2-row">
+        {% render 'profile-input', condition: 0, name: 'password', type: 'password' %}
+      </div>
+    </div>
+    <div class="custom-profile-3">
+      <img alt="Board" src="{{ section.settings.board | img_url: 'master' }}">
+      <div class="custom-profile-3-board">
+        <div class="custom-profile-title1">
+          Bronze member
+        </div>
+        <div class="custom-profile-title2">
+          See My Rewards
+        </div>
+        <div class="custom-profile-content1">Points :
+          <span class="custom-profile-content1-number">100</span>
+        </div>
+        <div class="custom-profile-content2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M13.6389 3.90917L12.0227 2.29297L5.25095 9.06204L2.0205 5.83189L0.404297 7.44809L5.25257 12.2964L6.88695 10.658L13.6389 3.90917Z"
+              fill="#2C7E3F" />
+          </svg>
+          <span>1X Point Multiplier</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="custom-cart-footer" style="margin-bottom: 4rem">
+    <button class="btn btn--primary custom-clear-all">
+      Cancel Edits
+    </button>
+    <button class="btn btn--primary btn--icon-with-text w-full custom-cart-checkout" name="checkout">
+      Save Profile
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.getElementById("fileInput");
+    const previewImage = document.getElementById("previewImage");
+
+    fileInput.addEventListener("change", function() {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewImage.style.display = "block";
+        };
+
+        reader.readAsDataURL(file);
+      } else {
+        previewImage.src = "";
+        previewImage.style.display = "none";
+      }
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "profile Update",
+    "tag": "section",
+    "class": "cc-collection-list",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Section header"
+      }, {
+        "type": "text",
+        "id": "title",
+        "label": "Heading",
+        "default": "Collections"
+      }, {
+        "type": "image_picker",
+        "id": "board",
+        "label": "Board"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Profile Update"
+      }
+    ],
+    "disabled_on": {
+      "groups": ["header", "footer", "aside"]
+    }
+  }
+{% endschema %}

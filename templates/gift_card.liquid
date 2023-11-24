@@ -1,0 +1,131 @@
+{%- liquid
+  layout none
+  assign rtl = false
+  assign rtl_iso_codes = 'ar,arc,dv,fa,ha,he,khw,ks,ku,ps,ur,yi' | split: ','
+
+  if rtl_iso_codes contains localization.language.iso_code
+    assign rtl = true
+  endif
+-%}
+
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" dir="{% if rtl %}rtl{% else %}ltr{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  {%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros | strip_html %}
+  <title>{{ 'gift_cards.issued.title' | t: value: formatted_initial_value, shop: shop.name }}</title>
+
+  {%- unless settings.body_font.system? -%}
+    <link rel="preload" href="{{ settings.body_font | font_url }}" as="font" type="font/woff2" crossorigin>
+  {%- endunless -%}
+
+  {%- unless settings.heading_font.system? -%}
+    <link rel="preload" href="{{ settings.heading_font | font_url }}" as="font" type="font/woff2" crossorigin>
+  {%- endunless -%}
+
+  {%- if canonical_url != blank -%}
+    <link rel="canonical" href="{{ canonical_url }}">
+  {%- endif -%}
+
+  {%- if settings.favicon != blank -%}
+    {%- liquid
+      assign image_type = settings.favicon | split: '?' | first | split: '.' | last | downcase
+      if image_type == 'svg'
+        assign image_type = 'svg+xml'
+      endif
+    -%}
+    <link rel="icon" href="{{ settings.favicon | image_url: width: 48, height: 48 }}" type="image/{{ image_type }}">
+  {%- endif -%}
+
+  <meta name="description" content="{{ 'gift_cards.issued.subtext' | t }}">
+
+  {%- style -%}
+    {{ settings.body_font | font_face: font_display: 'swap' -}}
+    {{ settings.body_font_bold | font_face: font_display: 'swap' -}}
+    {{ settings.heading_font | font_face: font_display: 'swap' -}}
+
+    :root {
+      --bg-color: {{ settings.bg_color.rgba }};
+      --heading-color: {{ settings.heading_color.rgb }};
+      --text-color: {{ settings.text_color.rgb }};
+      --link-color: {{ settings.link_color.rgb }};
+
+      --heading-font-family: {{ settings.heading_font.family }}, {{ settings.heading_font.fallback_families }};
+      --heading-font-style: {{ settings.heading_font.style }};
+      --heading-font-weight: {{ settings.heading_font.weight }};
+      --heading-type-scale: {{ settings.heading_type_scale }};
+      {%- if settings.heading_uppercase %}
+      --heading-text-transform: uppercase;
+      {%- else -%}
+      --heading-text-transform: none;
+      {%- endif %}
+      --body-font-family: {{ settings.body_font.family }}, {{ settings.body_font.fallback_families }};
+      --body-font-style: {{ settings.body_font.style }};
+      --body-font-weight: {{ settings.body_font.weight }};
+      --body-font-size: {{ settings.body_font_size }};
+
+      --btn-bg-color: {{ settings.button_bg_color.rgb }};
+      --btn-text-color: {{ settings.button_text_color.rgb }};
+      --btn-alt-bg-color: {{ settings.button_alt_bg_color.rgb }};
+      --btn-alt-text-color: {{ settings.button_alt_text_color.rgb }};
+      --btn-border-width: {{ settings.button_border_width | default: 1 }}px;
+
+      {%- if settings.button_border_width == '0' %}
+      --btn-padding-y: 10px;
+      {%- endif -%}
+
+      {%- if settings.button_border_radius > 1 %}
+      --btn-border-radius: {{ settings.button_border_radius | plus: settings.button_border_width }}px;
+      {%- endif -%}
+
+      {%- if settings.button_text_uppercase %}
+      --btn-text-transform: uppercase;
+      {%- endif %}
+    }
+  {%- endstyle -%}
+
+  <link rel="stylesheet" href="{{ 'gift-card.css' | asset_url }}">
+  <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer></script>
+
+  {{ content_for_header }}
+</head>
+
+<body>
+  <header class="header">
+    <span class="header__store-name h4">{{ shop.name }}</span>
+    <h1 class="h3">{{ 'gift_cards.issued.subtext' | t }}</h1>
+    <div class="header__value h4">
+      <p>
+        {%- if settings.currency_code_enabled -%}
+          {{ gift_card.initial_value | money_with_currency }}
+        {%- else -%}
+          {{ gift_card.initial_value | money }}
+        {%- endif -%}
+      </p>
+      {%- if gift_card.enabled == false or gift_card.expired -%}
+        {%- assign gift_card_expiry_date = gift_card.expires_on | date: "%d/%m/%y" -%}
+        <p>
+          {{- 'gift_cards.issued.expired' | t: expiry: gift_card_expiry_date -}}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- liquid
+      if settings.currency_code_enabled
+        assign gift_card_balance = gift_card.balance | money_with_currency
+      else
+        assign gift_card_balance = gift_card.balance | money
+      endif
+    -%}
+    {%- if gift_card.balance != gift_card.initial_value -%}
+      <p>{{ 'gift_cards.issued.remaining_html' | t: balance: gift_card_balance }}</p>
+    {%- endif -%}
+  </header>
+
+  <main class="gift-card">
+    {% section 'main-gift-card' %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.multi-column {
+  flex-grow: 1;
+  width: 100%;
+}
+.multi-column .card {
+  max-width: none;
+}
+.multi-column .card__info {
+  padding: calc(6 * var(--space-unit)) 0 0;
+}

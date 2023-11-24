@@ -1,0 +1,96 @@
+{%- comment -%}
+  Parameters:
+  - article {Object} - Article object.
+
+  Usage:
+  {% render 'structured-data-article', article: article %}
+{%- endcomment -%}
+
+{%- liquid
+  if article.image
+    assign article_image = article.image
+  else
+    assign article_image = page_image
+  endif
+-%}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "articleBody": {{ article.content | strip_html | json }},
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": {{ shop.url | append: article.url | json }}
+    },
+    "headline": {{ article.title | json }},
+    {%- if article.excerpt != blank -%}
+      "description": {{ article.excerpt | strip_html | json }},
+    {%- endif -%}
+    {%- if article_image -%}
+      "image": [
+        {{ article_image | image_url: width: article_image.width | prepend: "https:" | json }}
+      ],
+    {%- endif -%}
+    "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+    "dateCreated": {{ article.created_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+    "dateModified": {{ article.updated_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+    "author": {
+      "@type": "Person",
+      "name": {{ article.author | json }}
+    },
+    "publisher": {
+      "@type": "Organization",
+      {%- if page_image -%}
+        "logo": {
+          "@type": "ImageObject",
+          "url": {{ page_image | image_url: width: page_image.width | prepend: "https:" | json }},
+          "width": {{ page_image.width | json }},
+          "height": {{ page_image.height | json }}
+        },
+      {%- endif -%}
+      "name": {{ shop.name | json }},
+      {% capture sameAs_json %}
+        {%- if settings.social_twitter_url != blank -%}
+          {{ settings.social_twitter_url | json }},
+        {%- endif -%}
+        {%- if settings.social_facebook_url != blank -%}
+          {{ settings.social_facebook_url | json }},          
+        {%- endif -%}
+        {%- if settings.social_instagram_url != blank -%}
+          {{ settings.social_instagram_url | json }},
+        {%- endif -%}
+        {%- if settings.social_pinterest_url != blank -%}
+          {{ settings.social_pinterest_url | json }},
+        {%- endif -%}
+        {%- if settings.social_tiktok_url != blank -%}
+          {{ settings.social_tiktok_url | json }},
+        {%- endif -%}
+        {%- if settings.social_snapchat_url != blank -%}
+          {{ settings.social_snapchat_url | json }},      
+        {%- endif -%}
+        {%- if settings.social_tumblr__url != blank -%}
+          {{ settings.social_tumblr_url | json }},            
+        {%- endif -%}
+        {%- if settings.social_linkedin_url != blank -%}
+          {{ settings.social_linkedin_url | json }},
+        {%- endif -%}
+        {%- if settings.social_youtube_url != blank -%}
+          {{ settings.social_youtube_url | json }},
+        {%- endif -%}
+        {%- if settings.social_vimeo_url != blank -%}
+          {{ settings.social_vimeo_url | json }},
+        {%- endif -%}
+        {%- if settings.social_spotify_url != blank -%}
+          {{ settings.social_spotify_url | json }},
+        {%- endif -%}
+        {%- if settings.social_twitch_url != blank -%}
+          {{ settings.social_twitch_url | json }},
+        {%- endif -%}
+      {% endcapture %}
+      "sameAs": [
+        {{ sameAs_json | remove_last: ',' }}
+      ]
+    }
+  }
+</script>

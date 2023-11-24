@@ -1,0 +1,100 @@
+.qty-input {
+  --padding: var(--btn-padding-y, 12px);
+  --size: calc((var(--btn-border-width) + var(--padding)) * 2 + 1.4rem);
+}
+
+.qty-input__input {
+  width: var(--size);
+  margin: 0;
+  padding-top: var(--padding);
+  padding-bottom: var(--padding);
+  border: var(--btn-border-width) solid rgba(var(--input-text-color)/0.2);
+  text-align: center;
+}
+
+.qty-input__btn {
+  position: relative;
+  z-index: 1;
+  width: var(--size);
+  height: var(--size);
+  padding: 0;
+  border: var(--btn-border-width) solid rgba(var(--input-text-color)/0.2);
+  border-radius: var(--btn-border-radius, 0);
+  background-color: rgb(var(--input-bg-color));
+  color: rgb(var(--input-text-color));
+}
+
+.btn--minus::before, .btn--minus::after,
+.btn--plus::before,
+.btn--plus::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  width: 12px;
+  height: 2px;
+  transform: translate(50%, -50%);
+  background-color: currentColor;
+}
+.btn--minus::after,
+.btn--plus::after {
+  width: 2px;
+  height: 12px;
+}
+
+.btn--minus::after {
+  display: none;
+}
+
+.js .qty-input--combined {
+  border: var(--btn-border-width) solid rgba(var(--input-text-color)/0.2);
+  border-radius: var(--btn-border-radius, 0);
+  background-color: rgb(var(--input-bg-color));
+}
+.js .qty-input--combined:focus-within {
+  border-color: rgba(var(--input-text-color)/0.6);
+  box-shadow: 0 0 0 1px rgba(var(--input-text-color)/0.6);
+}
+.js .qty-input--combined .qty-input__input,
+.js .qty-input--combined .qty-input__btn {
+  border: 0;
+  background: none;
+  color: rgb(var(--input-text-color));
+}
+.js .qty-input--combined .qty-input__input {
+  padding: var(--padding) 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.js .qty-input--combined .qty-input__btn {
+  width: calc(var(--padding) * 2 + 1.4rem);
+  height: calc(var(--padding) * 2 + 1.4rem);
+}
+
+.qty-input {
+  height: 100%;
+}
+
+.qty-input__input {
+  flex: 1 1 auto;
+  width: 2.5em;
+}
+.no-js .qty-input__input {
+  width: 4em;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+.js .qty-input--combined:focus-within {
+  box-shadow: 0 0 0 0 rgba(var(--input-text-color)/0.6);
+}
+
+.qty-input--secondary-btn .qty-input {
+  --input-text-color: var(--btn-alt-text-color);
+  border-color: rgb(var(--btn-alt-text-color));
+  background-color: rgba(var(--btn-alt-bg-color)/var(--btn-alt-bg-alpha));
+}
+.qty-input--secondary-btn .qty-input:focus-within {
+  border-color: rgb(var(--btn-alt-text-color));
+  box-shadow: 0 0 0 1px rgb(var(--btn-alt-text-color));
+}

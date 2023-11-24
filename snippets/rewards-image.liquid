@@ -1,0 +1,6 @@
+{% if image %}
+  <img
+    src="{{ image | img_url : 'master' }}"
+    alt="{{ title }}"
+    class="rewards-card-image">
+{% endif %}

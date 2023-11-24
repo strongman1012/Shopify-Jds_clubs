@@ -1,0 +1,8 @@
+{%- if cart != empty -%}
+  <div class="header__cart-count absolute bg-theme-text text-theme-bg text-center">
+    {%- if cart.item_count < 10000 -%}
+      <span aria-hidden="true">{{ cart.item_count }}</span>
+    {%- endif -%}
+    <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+  </div>
+{%- endif -%}

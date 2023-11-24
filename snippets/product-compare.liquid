@@ -1,0 +1,67 @@
+{%- assign max_compare = settings.compare_max -%}
+
+<script type="application/json" id="compare-resources">
+  [
+    {"type": "css", "path": "{{ 'product-compare.css' | asset_url }}"},
+    {"type": "css", "path": "{{ 'modal.css' | asset_url }}"},
+    {"type": "js", "path": "{{ 'details-modal.js' | asset_url }}"},
+    {"type": "js", "path": "{{ 'compare-drawer.js' | asset_url }}"},
+    {"type": "js", "path": "{{ 'compare-modal.js' | asset_url }}"}
+  ]
+</script>
+
+<button class="btn btn--compare btn--icon-right js-open-compare-drawer is-out has-motion" id="compare-drawer-open" style="visibility: hidden;">
+  {{ 'products.compare.drawer.open_button' | t }} (<span class="js-compare-counter pointer-events-none"></span>)
+  {% render 'icon-chevron-down' %}
+</button>
+
+<compare-drawer class="drawer fixed top-0 right-0 flex flex-col w-full has-motion" data-name="product-compare"
+                role="dialog" tabindex="-1" aria-labelledby="compare-title" aria-modal="true" data-max-compare="{{ max_compare }}">
+  <header class="drawer__header flex items-center">
+    <h2 class="h5 mb-0" id="compare-title">
+      {{ 'products.compare.drawer.title' | t }} <span class="js-compare-counter"></span>/{{- max_compare -}}
+    </h2>
+    <button type="button" class="text-current js-close-compare md:hidden">
+      <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+      {% render 'icon-close' %}
+    </button>
+  </header>
+
+  <div class="drawer__content flex-auto">
+    <div class="loading-spinner" role="status">
+      <span class="sr-only">{{ 'accessibility.loading' | t }}</span>
+    </div>
+    <div class="revealable js-compare-basket"></div>
+  </div>
+
+  <footer class="drawer__footer">
+    <button class="btn btn--primary js-trigger-compare w-full">
+      {{ 'products.compare.drawer.compare_button' | t }}
+    </button>
+    <button class="link text-sm mt-4 text-current w-full js-clear-compare">
+      {{ 'products.compare.drawer.clear_all' | t }}
+    </button>
+  </footer>
+</compare-drawer>
+
+<compare-modal class="compare-modal js-compare-modal">
+  <details class="details-modal compare-details hidden">
+    <div class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center">
+      <div class="modal__window relative bg-theme-bg text-theme-text text-start overflow-hidden has-motion" role="dialog" aria-modal="true" tabindex="-1" aria-label="{{ 'products.compare.modal.title' | t }}">
+        <div class="modal__content">
+          <div class="compare-container">
+            <div class="loading-spinner" role="status">
+              <span class="sr-only">{{ 'accessibility.loading' | t }}</span>
+            </div>
+            <div class="revealable js-compare-area"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn--icon text-current fixed top-0 end js-compare-close">
+        {% render 'icon-close' %}
+        <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+      </button>
+    </div>
+  </details>
+</compare-modal>

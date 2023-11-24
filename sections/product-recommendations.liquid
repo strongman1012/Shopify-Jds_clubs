@@ -1,0 +1,190 @@
+{%- comment -%}theme-check-disable NestedSnippet{%- endcomment -%}
+
+{%- liquid
+  if section.settings.layout == 'carousel'
+    if section.settings.card_size == 'small'
+      assign grid_classes = 'grid-flow-col auto-cols-2 sm:auto-cols-3 lg:auto-cols-4 xl:auto-cols-5'
+    elsif section.settings.card_size == 'medium'
+      assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-3 xl:auto-cols-4'
+    else
+      assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-2 lg:auto-cols-3'
+    endif
+  else
+    if section.settings.card_size == 'small'
+      assign grid_classes = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+    elsif section.settings.card_size == 'medium'
+      assign grid_classes = 'grid-cols-1 md:grid-cols-3 xl:grid-cols-4'
+    else
+      assign grid_classes = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    endif
+  endif
+
+  assign grid_classes = grid_classes | prepend: 'grid gap-x-theme gap-y-10 '
+-%}
+
+{%- if settings.enable_quick_add -%}
+  <link
+    rel="stylesheet"
+    href="{{ 'quick-add.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'">
+  <link
+    rel="stylesheet"
+    href="{{ 'product.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign product_id = product.id
+  assign limit = section.settings.products_to_show
+
+  if section.settings.layout == 'carousel'
+    assign carousel = true
+  else
+    assign carousel = false
+  endif
+-%}
+
+<product-recommendations
+  class="section"
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product_id }}&limit={{ limit }}&intent=related"
+  data-product-id="{{ product_id }}">
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    {%- if section.settings.heading != blank -%}
+      <div class="container">
+        <h2 class="h4 section__heading {{ section.settings.heading_align }}">{{ section.settings.heading | escape }}</h2>
+      </div>
+    {%- endif -%}
+
+    {%- if carousel -%}
+      <carousel-slider class="carousel block" inactive>
+        <div class="container relative custom-product-recommendation">
+          <div class="slider" id="slider-{{ section.id }}">
+          {%- endif -%}
+
+          <div class="container products-grid-container">
+            <ul class="{% if carousel %}slider__grid {% endif %}{{ grid_classes }}{% if section.settings.card_size == 'small' and settings.card_contain %} small__grid{% endif %}" role="list">
+              {%- for product in recommendations.products -%}
+                <li {% if carousel %}class="slider__item"{% endif %}>
+                  {% render 'product-card-custom', product: product %}
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+
+          {%- if carousel -%}
+          </div>
+          {%- if settings.slider_show_arrows != 'never' -%}
+            <div class="slider-nav absolute top-middle end {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:block no-js-hidden visually-hidden">
+              <button
+                type="button"
+                class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon"
+                name="next"
+                aria-controls="slider-{{ section.id }}">
+                <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+                {% render 'icon-chevron-right' %}
+              </button>
+              <button
+                type="button"
+                class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon"
+                name="prev"
+                aria-controls="slider-{{ section.id }}">
+                <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+                {% render 'icon-chevron-left' %}
+              </button>
+            </div>
+          {%- endif -%}
+        </div>
+      </carousel-slider>
+    {%- endif -%}
+  {%- endif -%}
+</product-recommendations>
+
+
+{% schema %}
+  {
+    "name": "Product recommendations",
+    "tag": "section",
+    "class": "cc-product-recommendations",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Dynamic recommendations use order and product information to change and improve over time. [Learn more](https://help.shopify.com/en/themes/development/recommended-products)"
+      },
+      {
+        "type": "header",
+        "content": "Section header"
+      },
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "You may also like"
+      },
+      {
+        "type": "select",
+        "id": "heading_align",
+        "label": "Heading alignment",
+        "options": [
+          {
+            "value": "text-start",
+            "label": "Left"
+          }, {
+            "value": "text-center",
+            "label": "Center"
+          }, {
+            "value": "text-end",
+            "label": "Right"
+          }
+        ],
+        "default": "text-start"
+      }, {
+        "type": "header",
+        "content": "Layout"
+      }, {
+        "type": "radio",
+        "id": "layout",
+        "label": "Layout",
+        "options": [
+          {
+            "value": "carousel",
+            "label": "Carousel"
+          }, {
+            "value": "grid",
+            "label": "Grid"
+          }
+        ],
+        "default": "carousel"
+      }, {
+        "type": "select",
+        "id": "card_size",
+        "label": "Product card size",
+        "options": [
+          {
+            "value": "small",
+            "label": "Small"
+          }, {
+            "value": "medium",
+            "label": "Medium"
+          }, {
+            "value": "large",
+            "label": "Large"
+          }
+        ],
+        "default": "small"
+      }, {
+        "type": "range",
+        "id": "products_to_show",
+        "label": "Maximum products to show",
+        "min": 2,
+        "max": 8,
+        "step": 1,
+        "default": 8
+      }
+    ]
+  }
+{% endschema %}

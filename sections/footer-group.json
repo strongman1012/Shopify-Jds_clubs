@@ -1,0 +1,131 @@
+{
+  "type": "footer",
+  "name": "Footer Group",
+  "sections": {
+    "57db1817-928a-4a4f-9947-3e542abb06be": {
+      "type": "icons-with-text",
+      "blocks": {
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "heading": "Free shipping",
+            "text": "<p>On all orders to worldwide<\/p>",
+            "link": ""
+          }
+        },
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-2": {
+          "type": "item",
+          "settings": {
+            "icon": "price_tag",
+            "heading": "Special offers",
+            "text": "<p>Regular sales and discounts<\/p>",
+            "link": ""
+          }
+        },
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-3": {
+          "type": "item",
+          "settings": {
+            "icon": "return",
+            "heading": "Easy returns",
+            "text": "<p>Hassle free returns policy<\/p>",
+            "link": ""
+          }
+        },
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-4": {
+          "type": "item",
+          "settings": {
+            "icon": "chat_bubble",
+            "heading": "Chat facility",
+            "text": "<p>Talk to a real person<\/p>",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-1",
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-2",
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-3",
+        "sections--20651225547027__57db1817-928a-4a4f-9947-3e542abb06be-item-4"
+      ],
+      "settings": {
+        "heading": "",
+        "heading_align": "text-start",
+        "icon_size": 36,
+        "icon_position": "beside",
+        "section_height": "small",
+        "color_scheme": "3",
+        "full_width": true,
+        "dividers": "border-top",
+        "prevent_animation": false
+      }
+    },
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/Footer_image_7.png",
+            "image_width": 150,
+            "heading": "Need help?",
+            "text": "",
+            "button_label": "CONTACT US",
+            "button_link": "shopify:\/\/pages\/contact",
+            "show_social": true,
+            "text_align": "text-start"
+          }
+        },
+        "link-list-2": {
+          "type": "link_list",
+          "settings": {
+            "heading": "CUSTOMER SERVICE",
+            "menu": "footer1"
+          }
+        },
+        "e4c26c49-dbdc-4620-b2fc-f833fb8eb1c9": {
+          "type": "link_list",
+          "settings": {
+            "heading": "COMPANY",
+            "menu": "footer2"
+          }
+        },
+        "a29dd387-f627-4ca5-af4d-d442ce6f954d": {
+          "type": "link_list",
+          "settings": {
+            "heading": "CONTACT INFO",
+            "menu": "footer3"
+          }
+        },
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {
+            "heading": "SUBSCRIBE",
+            "text": "",
+            "collapse_mobile": false
+          }
+        }
+      },
+      "block_order": [
+        "text",
+        "link-list-2",
+        "e4c26c49-dbdc-4620-b2fc-f833fb8eb1c9",
+        "a29dd387-f627-4ca5-af4d-d442ce6f954d",
+        "newsletter"
+      ],
+      "settings": {
+        "show_back_to_top": false,
+        "show_payment_icons": true,
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "secondary_menu": "",
+        "bg_color": "#161616",
+        "text_color": "#ffffff"
+      }
+    }
+  },
+  "order": [
+    "57db1817-928a-4a4f-9947-3e542abb06be",
+    "footer"
+  ]
+}

@@ -1,0 +1,189 @@
+{%- comment -%}theme-check-disable ImgLazyLoading{%- endcomment -%}
+{%- comment -%}
+Parameters:
+- image {Object} - Image object.
+- widths {String} - Comma separated list of image widths for the 'srcset' attribute (optional).
+- mobile_widths {String} - Comma separated list of image widths for a mobile specific source tag (optional).
+- quality {Number} - The relative quality of the of the image to load as a decimal (optional, defaults to 0.75).
+The higher the number, the sharper (but larger) the image will be.
+- src_width {Number} - Width for the 'src' attribute.
+- srcset_2x {Boolean} - Srcset should only be a 2x version of the src_width (optional, default is false).
+- src_placeholder {Boolean} - Add a blank src placeholder when image is lazy load (optional, default is false).
+- sizes {String} - Content for the 'sizes' attribute (optional).
+- lazy_load {Boolean} - Image should be lazy load (optional, default is true).
+- class {String} - Class name(s) for the 'class' attribute (optional).
+- attributes {String} - Additional attributes (optional).
+- alt_text {String} - Custom text for the 'alt' attribute (optional).
+- disable_focal_point {Boolean} - Disables the focussing of a spot on the image (optional, default is false).
+
+Usage:
+{% render 'image',
+image: image,
+widths: '480, 640, 960, 1280',
+src_width: 1280,
+sizes: sizes,
+class: 'img-fit'
+%}
+{%- endcomment -%}{%- liquid
+  if srcset_2x
+    assign image_width = src_width
+    assign src_width_2x = src_width | times: 2
+
+    if image.width >= src_width_2x
+      capture srcset
+        echo image | image_url: width: src_width | append: ', '
+        echo image | image_url: width: src_width_2x | append: ' 2x'
+      endcapture
+
+      assign src_width = src_width_2x
+      assign image_width = src_width_2x
+    endif
+  else if widths
+    assign input_srcset = widths | remove: ' ' | split: ','
+
+    for size in input_srcset
+      assign size_int = size | times: 1
+
+      if forloop.first and image.width < size_int
+        assign output_srcset = image.width
+        break
+      endif
+
+      if image.width >= size_int
+        unless forloop.first
+          assign output_srcset = output_srcset | append: ','
+        endunless
+
+        assign output_srcset = output_srcset | append: size
+      else
+        break
+      endif
+    endfor
+
+    assign output_srcset = output_srcset | split: ','
+
+    if quality
+      assign quality = quality | times: settings.image_quality
+    else
+      assign quality = settings.image_quality
+    endif
+
+    for size in output_srcset
+      capture srcset
+        echo srcset
+        unless forloop.first
+          echo ', '
+        endunless
+        assign output_image_width = size | times: quality
+        echo image | image_url: width: output_image_width | append: ' ' | append: size | append: 'w'
+      endcapture
+
+      if forloop.last
+        assign image_width = output_image_width
+      endif
+    endfor
+
+    if mobile_widths
+      assign mobile_input_srcset = mobile_widths | remove: ' ' | split: ','
+
+      for size in mobile_input_srcset
+        assign size_int = size | times: 1
+
+        if forloop.first and image.width < size_int
+          assign mobile_output_srcset = image.width
+          break
+        endif
+
+        if image.width >= size_int
+          unless forloop.first
+            assign mobile_output_srcset = mobile_output_srcset | append: ','
+          endunless
+
+          assign mobile_output_srcset = mobile_output_srcset | append: size
+        else
+          break
+        endif
+      endfor
+
+      assign mobile_output_srcset = mobile_output_srcset | split: ','
+
+      for size in mobile_output_srcset
+        capture mobile_srcset
+          echo mobile_srcset
+          unless forloop.first
+            echo ', '
+          endunless
+          echo image | image_url: width: size | append: ' ' | append: size | append: 'w'
+        endcapture
+
+        if forloop.last
+          assign mobile_image_width = size
+        endif
+      endfor
+    endif
+  endif
+
+  assign image_height = image_width | divided_by: image.aspect_ratio | round
+  assign js_class = class
+
+  unless lazy_load == false
+    assign lazy_load = true
+
+    if class
+      assign js_class = class | append: ' no-js-hidden'
+    else
+      assign js_class = 'no-js-hidden'
+    endif
+  endunless
+
+  assign disable_focal_point = disable_focal_point | default: false
+-%}
+  {%- capture placeholder_image -%}
+  data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20
+  {{ image_width }}
+  %20
+  {{ image_height }}
+'%3E%3C/svg%3E
+{%- endcapture -%}
+
+  {%- if image and src_width -%}
+    {%- if mobile_srcset -%}
+      <picture>
+    <source
+        {% if lazy_load %}data-{% endif %}
+        srcset="{{ mobile_srcset }}"
+        media="(max-width: 600px)"
+        width="{{ mobile_image_width }}"
+        height="{{ mobile_image_width | divided_by: image.aspect_ratio | round }}"> {%- endif -%}
+
+    <img
+      {% if srcset %}{% if lazy_load %}data-{% endif %}srcset="{{ srcset }}"{% endif -%}
+      {% if sizes and srcset %}sizes="{{ sizes }}"{% endif -%}
+      {% if lazy_load %}data-{% endif %}
+      src="{{ image | image_url: width: src_width }}"
+      {% if lazy_load and src_placeholder %}src="{{ placeholder_image }}"{% endif -%}
+      {% if js_class %}class="{{ js_class }}"{% endif -%}
+      {% if attributes %}{{ attributes }}{% endif -%}
+      {% if disable_focal_point == false and image.presentation %}style="object-position: {{ image.presentation.focal_point }}"{% endif -%}
+      loading="{% if lazy_load %}lazy{% else %}eager{% endif %}"
+      width="{{ image_width }}"
+      height="{{ image_height }}"
+      alt="{{ alt_text | default: image.alt | escape }}">
+
+    {%- if mobile_srcset -%}
+    </picture>
+  {%- endif -%}
+
+  {%- if lazy_load -%}
+    <noscript>
+      <img
+        src="{{ image | image_url: width: src_width }}"
+        loading="{% if lazy_load %}lazy{% else %}eager{% endif %}"
+        {% if class %}class="{{ class }}"{% endif -%}
+        {% if disable_focal_point == false and image.presentation %}style="object-position: {{ image.presentation.focal_point }}"{% endif -%}
+        width="{{ image_width }}"
+        height="{{ image_height }}"
+        alt="{{ alt_text | default: image.alt | escape }}">
+    </noscript>
+  {%- endif -%}
+{%- endif -%}

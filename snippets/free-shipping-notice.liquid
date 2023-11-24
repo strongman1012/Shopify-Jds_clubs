@@ -1,0 +1,58 @@
+{%- comment -%}
+  Parameters:
+  - align_start {Boolean} - Align progress bar and text to the start.
+  - bar_position {String} - Progress bar position 'top' or 'bottom' (optional, default is 'bottom').
+
+  Usage:
+  {% render 'free-shipping-notice', text_start: true %}
+{%- endcomment -%}
+
+{%- liquid
+  assign minimums_array = settings.free_shipping_minimum | newline_to_br | strip_newlines | split: '<br />'
+  assign current_min = nil
+  assign show_notice = false
+
+  for min in minimums_array
+    assign parts = min | split: ':'
+
+    if parts.size == 2 and parts[0] == cart.currency.iso_code
+      assign current_min = parts
+      break
+    elsif parts.size == 3 and parts[0] == localization.country.iso_code and parts[1] == cart.currency.iso_code
+      assign current_min = parts
+      break
+    endif
+  endfor
+
+  if current_min != nil
+    assign minimum_value = current_min | last
+    assign show_notice = true
+  endif
+
+  assign free_shipping_minimum = minimum_value | times: 100
+  assign color_scheme = settings.free_shipping_color_scheme
+-%}
+<div id="free-shipping-notice" class="free-shipping-notice">
+  {%- if show_notice and cart != empty -%}
+    <div class="free-shipping-container{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}" style="background: #fff !important;">
+      <div class="block{% unless align_start %} mx-auto{% endunless %} text-theme-heading" data-minimum="{{ free_shipping_minimum }}">
+        {%- if bar_position == 'top' -%}
+          <div class="free-shipping-notice__bar mb-3" style="--progress: {{ cart.total_price | times: 1.0 | divided_by: minimum_value | at_most: 100 }}%"></div>
+        {%- endif -%}
+
+        <div class="free-shipping-notice__heading mb-2{% unless align_start %} text-center{% endunless %}">
+          {%- if cart.total_price >= free_shipping_minimum -%}
+            <strong>{{ 'cart.general.free_shipping' | t }}</strong>
+          {%- else -%}
+            {%- capture deficit %}{{ cart.total_price | minus: free_shipping_minimum | abs | money }}{% endcapture -%}
+            {{- 'cart.general.free_shipping_deficit_html' | t: amount: deficit -}}
+          {%- endif -%}
+        </div>
+
+        {%- unless bar_position == 'top' -%}
+          <div class="free-shipping-notice__bar mt-3" style="--progress: {{ cart.total_price | times: 1.0 | divided_by: minimum_value | at_most: 100 }}%"></div>
+        {%- endunless -%}
+      </div>
+    </div>
+  {%- endif -%}
+</div>

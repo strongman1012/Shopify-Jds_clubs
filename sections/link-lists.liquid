@@ -1,0 +1,452 @@
+<link rel="stylesheet" href="{{ 'multi-column.css' | asset_url }}">
+
+{%- if section.blocks.size > 0 -%}
+  {%- liquid
+    # constants
+    assign breakpoint_sm = 600
+    assign breakpoint_md = 769
+    assign breakpoint_lg = 1024
+
+    if section.settings.layout == 'carousel'
+      assign carousel = true
+      if section.settings.column_size == 'small'
+        assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-2 md:auto-cols-3 lg:auto-cols-4 '
+      elsif section.settings.column_size == 'medium'
+        assign grid_classes = 'grid-flow-col auto-cols-1 md:auto-cols-2 lg:auto-cols-3'
+      else
+        assign grid_classes = 'grid-flow-col auto-cols-1 md:auto-cols-2'
+      endif
+
+    else
+      assign carousel = false
+    endif
+
+    assign color_scheme = section.settings.color_scheme
+
+    if section.settings.image_ratio == 'shortest'
+      assign image_ratio = 0
+      for block in section.blocks
+        if block.settings.image.aspect_ratio > image_ratio
+          assign image_ratio = block.settings.image.aspect_ratio
+        endif
+      endfor
+    elsif section.settings.image_ratio == 'tallest'
+      assign image_ratio = 99
+      for block in section.blocks
+        if block.settings.image.aspect_ratio < image_ratio
+          assign image_ratio = block.settings.image.aspect_ratio
+        endif
+      endfor
+    else
+      assign image_ratio = section.settings.image_ratio
+    endif
+  -%}
+
+  {%- if carousel == false -%}
+    {% style %}
+      {% if section.settings.column_size == 'small' %}
+        @media (min-width: {{ breakpoint_sm }}px) {
+          #{{ section.id }} .multi-column {
+            width: calc(50% - var(--column-gap));
+          }
+        }
+        @media (min-width: {{ breakpoint_md }}px) {
+          #{{ section.id }} .multi-column {
+            width: calc((100% / 3) - var(--column-gap));
+          }
+        }
+        @media (min-width: {{ breakpoint_lg }}px) {
+          #{{ section.id }} .multi-column {
+            width: calc(25% - var(--column-gap));
+          }
+        }
+      {% else %}
+        @media (min-width: {{ breakpoint_md }}px) {
+          #{{ section.id }} .multi-column {
+            width: calc(50% - var(--column-gap));
+          }
+        }
+        {% if section.settings.column_size == 'medium' %}
+          @media (min-width: {{ breakpoint_lg }}px) {
+            #{{ section.id }} .multi-column {
+              width: calc((100% / 3) - var(--column-gap));
+            }
+          }
+        {% endif %}
+      {% endif %}
+    {% endstyle %}
+  {%- endif -%}
+
+  <div class="section" id="{{ section.id }}">
+    {%- if section.settings.title != blank or section.settings.button_label != blank -%}
+      <div class="container">
+        <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          {%- if section.settings.title != blank -%}
+            <h2 class="h4 section__heading mb-0 flex-auto {{ section.settings.heading_align }}">
+              {{- section.settings.title | escape -}}
+            </h2>
+          {%- endif -%}
+
+          {%- if section.settings.button_label != blank -%}
+            <a href="{{ section.settings.button_link }}" class="link">{{ section.settings.button_label | escape }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if carousel -%}
+      <carousel-slider class="carousel block" inactive>
+        <div class="container relative">
+          <div class="slider" id="slider-{{ section.id }}">
+    {%- endif -%}
+
+    <div class="container">
+      <ul class="{% if carousel %}slider__grid grid {{ grid_classes }}{% else %} flex flex-wrap{% endif %} gap-x-theme gap-y-theme" role="list">
+        {%- for block in section.blocks -%}
+          <li class="multi-column block-{{ block.id }}{% if carousel %} slider__item{% endif %}" {{ block.shopify_attributes }}{% if settings.animations_enabled != "disabled" %} data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+            <div class="card {% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %} relative flex flex-col h-full">
+              {%- if block.settings.image != blank -%}
+                {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1, md: 2 %}{% endcapture -%}
+                <div class="card__media media relative w-full" style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">
+                  {% render 'image',
+                    image: block.settings.image,
+                    widths: '460, 700, 860, 1296',
+                    src_width: 700,
+                    sizes: sizes,
+                    class: 'img-fit'
+                  %}
+                </div>
+              {%- endif -%}
+
+              <div class="pb-6 flex flex-col flex-auto items-start{% if section.settings.column_align == 'center' %} text-center{% endif %}">
+                {%- if block.settings.heading != blank -%}
+                  <div class="pl-6 pr-6 card__title-wrapper w-full" style="background-color: {{ block.settings.heading_bg_color }};">
+                    <h3 class="h6 card__title" style="color: {{ block.settings.heading_text_color }};">{{ block.settings.heading | escape }}</h3>
+                  </div>
+                {%- endif -%}
+
+                {%- if block.settings.menu != blank -%}
+                  <ul class="pl-6 pr-6 card__link-list w-full flex-auto" role="list">
+                    {%- for link in block.settings.menu.links -%}
+                      <li>
+                        <a href="{{ link.url }}" class="card__link-list-item block border-bottom text-inherit hover:underline">{{ link.title }}</a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  <ul class="pl-6 pr-6 card__link-list w-full flex-auto" role="list">
+                    {%- for i in (1..5) -%}
+                      <li>
+                        <span class="card__link-list-item block border-bottom text-inherit hover:underline">Link list item {{ i }}</span>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+
+                {%- if block.settings.button_label != blank -%}
+                  <div class="pl-6 pr-6 mt-6 w-full">
+                    <a {% if block.settings.button_link != blank %}href="{{ block.settings.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %} {% if block.settings.button_label != blank %} class="flex items-center text-current{% if section.settings.column_align == 'center' %} w-full justify-center{% endif %}"{% endif %}>
+                      <span class="card__button btn {{ section.settings.button_style }} btn--icon has-ltr-icon">{%- render 'icon-arrow-right' -%}</span>
+                      {%- if block.settings.button_label != blank -%}
+                        <span class="pl-4 pr-4 text-h6 mb-0">{{- block.settings.button_label | escape -}}</span>
+                      {%- endif -%}
+                    </a>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    {%- if carousel -%}
+          </div>
+          {%- if settings.slider_show_arrows != 'never' -%}
+            <div class="slider-nav absolute top-middle end {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:block no-js-hidden">
+              <button type="button" class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}">
+                <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+                {% render 'icon-chevron-right' %}
+              </button>
+              <button type="button" class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}">
+                <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+                {% render 'icon-chevron-left' %}
+              </button>
+            </div>
+          {%- endif -%}
+        </div>
+      </carousel-slider>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Link lists",
+  "class": "cc-link-list",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Link lists"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "View more label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "View more link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "radio",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        },
+        {
+          "value": "grid",
+          "label": "Grid"
+        }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "select",
+      "id": "column_size",
+      "label": "Column size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "select",
+      "id": "column_align",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "shortest",
+          "label": "Height of shortest image"
+        },
+        {
+          "value": "tallest",
+          "label": "Height of tallest image"
+        },
+        {
+          "value": "1.77",
+          "label": "Landscape"
+        },
+        {
+          "value": "1",
+          "label": "Square"
+        },
+        {
+          "value": "0.75",
+          "label": "Portrait"
+        }
+      ],
+      "default": "1.77"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button",
+      "options": [
+        {
+          "value": "btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn--primary"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Column",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Column"
+        },
+        {
+          "type": "color",
+          "id": "heading_bg_color",
+          "label": "Column heading background color",
+          "default": "#2e2e2e"
+        },
+        {
+          "type": "color",
+          "id": "heading_text_color",
+          "label": "Column heading text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu to show as link list",
+          "info": "Nested menu items will not be displayed."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Optional button",
+          "info": "Button will display as an arrow with the label next to it."
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Link lists",
+      "blocks": [
+        {
+          "type": "column",
+          "settings": {
+            "heading": "Column",
+            "button_link": "#"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "heading": "Column",
+            "heading_bg_color": "#484848",
+            "button_link": "#"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "heading": "Column",
+            "heading_bg_color": "#6e6e6e",
+            "button_link": "#"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "heading": "Column",
+            "heading_bg_color": "#9F9F9F",
+            "button_link": "#"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

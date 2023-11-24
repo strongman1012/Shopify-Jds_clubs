@@ -1,0 +1,50 @@
+<div class="card{% if link_url %} hover:grow-media{% endif %} card--promo{% if card_size == 'small' %} card--promo-small{% endif %} relative flex flex-col h-full{% if color_scheme != "none" %} color-scheme color-scheme--{{ color_scheme }}{% else %} card-promo--noscheme{% endif %}">
+  {%- if image -%}
+    {%- liquid
+      assign image_ratio_int = image_ratio
+      if image_ratio_int == "natural" or image_ratio_int == "fill"
+        assign image_ratio_int = image.aspect_ratio
+      endif
+    -%}
+    {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1 %}{% endcapture -%}
+    <div class="card__media card--promo__media relative{% if image_ratio == "fill" %} promo--grow{% endif %}">
+      <div class="media relative{% if image_ratio == "fill" %} h-full{% endif %}" tabindex="-1" style="padding-top: {{ 1 | divided_by: image_ratio_int | times: 100 }}%;">
+        {% render 'image',
+          image: image,
+          src_width: 460,
+          widths: '320, 460, 600, 700, 800, 900, 1200',
+          src_placeholder: true,
+          sizes: sizes,
+          class: "img-fit"
+        -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="card--promo__info card__info{% unless image_ratio == "fill" %} flex flex-col promo--grow{% endunless %}">
+    <div class="mb-4 last:mb-0{% if button_bottom_align %} promo--grow{% endif %}">
+      {%- if title != blank -%}
+        <h2 class="card__title h5">
+          {%- if button_label == blank and link_url -%}
+            <a href="{{ link_url }}" class="{% unless content contains "<a" %}card-link {% endunless %}text-current">{{ title | escape }}</a>
+          {%- else -%}
+            {{ title | escape }}
+          {%- endif -%}
+        </h2>
+      {%- endif -%}
+
+      {%- if content != blank -%}
+        <div class="card--promo__content relative rte">
+          {{- content -}}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if button_label != blank -%}
+      <a class="{{ button_style }} w-full" {% if link_url != blank %}href="{{ link_url }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+        {{- button_label | escape -}}
+      </a>
+    {%- endif -%}
+  </div>
+
+</div>

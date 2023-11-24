@@ -1,0 +1,80 @@
+<div class="section customer">
+  <div class="container">
+    <div class="section__header reading-width text-center">
+      <h1>{{ 'customer.activate_account.title' | t }}</h1>
+      <p>{{ 'customer.activate_account.subtext' | t }}</p>
+    </div>
+
+    {%- form 'activate_customer_password', class: 'form form-width mx-auto' -%}
+      {%- if form.errors -%}
+        <div class="alert mb-8 bg-error-bg text-error-text" tabindex="-1" autofocus>
+          <h2 class="h5 text-current">{{ 'contact.form.error_heading' | t }}</h2>
+          <ul class="styled-list">
+            {%- for field in form.errors -%}
+              <li>
+                {%- if field == 'form' -%}
+                  {{ form.errors.messages[field] }}
+                {%- else -%}
+                  <a class="link text-current" href="#{{ field }}">
+                    {{- form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] -}}
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <div class="form__field required">
+        <label class="label" for="password">
+          {{- 'customer.activate_account.password' | t -}}
+        </label>
+        <input type="password"
+               class="input w-full"
+               id="password"
+               name="customer[password]"
+               autocomplete="new-password"
+               {%- if form.errors contains 'password' %}
+                 aria-invalid="true"
+                 aria-describedby="password-error"
+               {%- endif %}
+               aria-required="true"
+               required>
+        {%- if form.errors contains 'password' -%}
+          <p class="form__field-error" id="password-error">
+            {{ form.errors.translated_fields['password'] | capitalize }}
+            {{ form.errors.messages['password'] }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div class="form__field required">
+        <label class="label" for="password-confirm">
+          {{- 'customer.activate_account.password_confirm' | t -}}
+        </label>
+        <input type="password"
+               class="input w-full"
+               id="password-confirm"
+               name="customer[password_confirmation]"
+               autocomplete="new-password"
+               {%- if form.errors contains 'password' %}
+                 aria-invalid="true"
+                 aria-describedby="password-confirm-error"
+               {%- endif %}
+               aria-required="true"
+               required>
+        {%- if form.errors contains 'password_confirmation' -%}
+          <p class="form__field-error" id="password-confirm-error">
+            {{ form.errors.translated_fields['password_confirmation'] | capitalize }}
+            {{ form.errors.messages['password_confirmation'] }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div class="form__actions mt-6">
+        <button class="btn btn--primary">{{ 'customer.activate_account.submit' | t }}</button>
+        <button class="btn btn--secondary" name="decline">{{ 'customer.activate_account.cancel' | t }}</button>
+      </div>
+    {%- endform -%}
+  </div>
+</div>

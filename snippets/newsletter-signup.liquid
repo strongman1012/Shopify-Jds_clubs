@@ -1,0 +1,109 @@
+{%- comment -%}
+Parameters:
+- id {String} - Unique ID.
+- tags {String} - Contact tags (optional, default is 'newsletter').
+- hide_label {Boolean} - Visually hide the label (optional, default is true).
+- combined {Boolean} - Input and button should be combined in a single row (optional, default is true).
+- arrow_button {Boolean} - Use an arrow icon button instead of text for the button (optional, default is false).
+- return_to {String} - Specify the URL to return to once submitted
+
+Usage:
+{% render 'newsletter-signup',
+id: 'footer-signup',
+tags: 'newsletter, footer',
+hide_label: true
+%}
+{%- endcomment -%}
+
+{%- liquid
+  if class == blank
+    assign class = 'form'
+  endif
+
+  if tags == blank
+    assign tags = 'newsletter'
+  endif
+
+  if hide_label != false
+    assign hide_label = true
+  endif
+
+  assign form_id = id | append: "_form"
+-%}
+
+{% form 'customer', class: class, id: form_id %}
+  <input
+    type="hidden"
+    name="contact[tags]"
+    value="prospect, {{ tags }}">
+
+  {% if return_to %}
+    <input
+      type="hidden"
+      name="return_to"
+      value="{{ return_to }}?customer_posted=true">
+  {% endif %}
+
+  <div class="{% if combined == false %}mb-4{% else %}form__field{% endif %}">
+    <label class="label{% if hide_label %} visually-hidden{% endif %}" for="{{ id }}">
+      {{- 'newsletter.label' | t -}}
+    </label>
+
+    {%- unless combined == false -%}
+      <div class="input-with-button{% unless arrow_button %} input-with-button--md-up{% endunless %}">
+      {%- endunless -%}
+
+      <input
+        type="email"
+        class="input w-full focus-inset"
+        id="{{ id }}"
+        name="contact[email]"
+        value="{{ form.email }}"
+        placeholder="Email"
+        autocomplete="email"
+        {%- if form.posted_successfully? %}
+        aria-describedby="{{ id }}-success"
+        {%- elsif form.errors %}
+        aria-invalid="true"
+        aria-describedby="{{ id }}-error"
+        autofocus
+        {%- endif %}
+        aria-required="true"
+        required>
+
+      {%- unless combined == false -%}
+        {%- if arrow_button -%}
+          <button class="btn focus-inset has-ltr-icon">
+            <span class="visually-hidden">{{- 'newsletter.button_label' | t -}}</span>
+            {% render 'icon-arrow-right' %}
+          </button>
+        {%- else -%}
+          <button class="btn btn--primary">{{ 'newsletter.button_label' | t }}</button>
+        {%- endif -%}
+      </div>
+    {%- endunless -%}
+
+    {%- if form.errors -%}
+      <p class="form__field-error" id="{{ id }}-error">
+        {{ form.errors.translated_fields['email'] | capitalize }}
+        {{ form.errors.messages['email'] }}
+      </p>
+    {%- endif -%}
+  </div>
+
+  {%- if form.posted_successfully? -%}
+    <div
+      class="alert bg-success-bg text-success-text"
+      id="{{ id }}-success"
+      tabindex="-1"
+      autofocus>
+      {{ 'newsletter.success' | t }}
+    </div>
+  {%- endif -%}
+
+  {%- if combined == false -%}
+    <div class="form__actions">
+      <button class="btn btn--primary w-full">{{ 'newsletter.button_label' | t }}</button>
+    </div>
+  {%- endif -%}
+{% endform %}

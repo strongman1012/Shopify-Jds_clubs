@@ -1,0 +1,417 @@
+<link rel="stylesheet" href="{{ 'hotspots-image.css' | asset_url }}">
+<script src="{{ 'hotspots-image.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign hotspot_color_brightness = section.settings.hotspot_color | color_brightness
+  assign image = section.settings.image | default: section.settings.product.featured_image
+  assign title = section.settings.title | default: section.settings.product.title
+  assign description = section.settings.description | default: section.settings.product.description
+-%}
+
+{% style %}
+  #{{ section.id }} {
+    --hotspot-color: {{ section.settings.hotspot_color.rgb }};
+    {%- if hotspot_color_brightness > 128 %}
+      --hotspot-cross-color: #000;
+    {%- else -%}
+      --hotspot-cross-color: #fff;
+    {%- endif %}
+  }
+{% endstyle %}
+
+{%- if section.settings.show_content -%}
+  {% capture section_content_html %}
+    <div class="product-features__text {{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:center{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+      <div class="card card--wide h-full{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}">
+        <div class="card__info reading-width--inline{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">
+          {%- if title != blank -%}
+            <h2 class="section__block section__block--heading {{ section.settings.heading_size }}">
+              {{- title | escape -}}
+            </h2>
+          {%- endif -%}
+
+          {%- if description != blank -%}
+            <div class="section__block overflow-auto rte{% if section.settings.enlarge_text %} enlarge-text{% endif %}">
+              {{ description }}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.button_label != blank -%}
+            <div class="section__block section__block--button">
+              <a class="{{ section.settings.button_style }} relative block{% if section.settings.button_style != 'link' %} btn--arrow-with-text{% endif %}{% if color_scheme == 'none' and section.settings.layout == 'text_first' %} mb-10{% endif %}" {% if section.settings.product != blank %}href="{{ section.settings.product.url }}"{% elsif section.settings.button_link != blank %}href="{{ section.settings.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+                {{- section.settings.button_label | escape -}}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {% endcapture %}
+{%- endif -%}
+
+<div class="container" id="{{ section.id }}">
+  <div class="section">
+    {%- if section.settings.layout == 'text_first' and section.settings.show_content == true -%}
+      {{ section_content_html }}
+    {%- endif -%}
+    <div class="product-features relative">
+      <hotspots-image class="product-features__image block relative overflow-hidden"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+        {%- if image != blank -%}
+          {%- capture sizes -%}
+            {%- render 'sizes-attribute', min: 'page', sm: 'page', md: false, lg: false, xl: '1400px', max: false -%}
+          {%- endcapture -%}
+          {% render 'image',
+            image: image,
+            widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+            src_width: 1200,
+            sizes: sizes,
+            quality: 1,
+            class: 'block mx-auto w-full'
+          %}
+        {%- else -%}
+          <div class="media relative" style="padding-top: 56.25%;">
+            {{ 'product-2' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+          </div>
+        {%- endif -%}
+
+        {%- for block in section.blocks -%}
+          <div class="hotspot absolute" data-x="{{ block.settings.hotspot_x }}" data-y="{{ block.settings.hotspot_x }}" style="top: {{ block.settings.hotspot_y }}%; left: {{ block.settings.hotspot_x }}%">
+            <button type="button" class="hotspot__btn relative tap-target no-js-hidden" aria-expanded="false">
+              <span class="visually-hidden">
+                {{- 'accessibility.view_details' | t }}
+              </span>
+              {% render 'icon-plus' %}
+            </button>
+            <div class="hotspot__card hotspot__card--wide absolute no-js-hidden {{ block.settings.content_align }}" aria-hidden="true">
+              {%- if block.settings.image != empty -%}
+                {%- liquid
+                  if block.settings.image.width > 320
+                    assign src_width = 320
+                  else
+                    assign src_width = block.settings.image.width
+                  endif
+                -%}
+                {% render 'image', image: block.settings.image, src_width: src_width, srcset_2x: true, class: 'mb-4' %}
+              {%- endif -%}
+              {%- if block.settings.heading != empty -%}
+                <h6>{{ block.settings.heading }}</h6>
+              {%- endif -%}
+              {%- if block.settings.text != empty -%}
+                <div class="rte">
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {% endfor %}
+      </hotspots-image>
+    </div>
+    {%- if section.settings.layout == 'text_last' and section.settings.show_content == true -%}
+      {{ section_content_html }}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product features",
+  "tag": "section",
+  "class": "cc-product-features",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "info": "Product image may be enlarged. You can replace the default product image with the 'Image' setting."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_content",
+      "label": "Show product information",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "text_first",
+          "label": "Above image"
+        },
+        {
+          "value": "text_last",
+          "label": "Below image"
+        }
+      ],
+      "default": "text_first"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "h6",
+          "label": "Extra extra small"
+        },
+        {
+          "value": "h5",
+          "label": "Extra small"
+        },
+        {
+          "value": "h4",
+          "label": "Small"
+        },
+        {
+          "value": "h3",
+          "label": "Medium"
+        },
+        {
+          "value": "h2",
+          "label": "Large"
+        },
+        {
+          "value": "h1",
+          "label": "Extra large"
+        },
+        {
+          "value": "h0",
+          "label": "Extra extra large"
+        }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "checkbox",
+      "id": "enlarge_text",
+      "label": "Enlarge text",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Custom content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Replaces the default product image. For best results, use a landscape shaped image with a width of 1920px."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "info": "Replaces the product title",
+      "default": "Product features"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Text",
+      "info": "Replaces the product description"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "The button will link to the product if a link is not added."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Hotspot color",
+      "default": "#070707"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    }
+  ],
+  "max_blocks": 5,
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "For best results, use a square image 200px wide."
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Feature name"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Add some text describing the product feature.</p>"
+        },
+        {
+          "type": "select",
+          "id": "content_align",
+          "label": "Content alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "range",
+          "id": "hotspot_x",
+          "label": "Horizontal position",
+          "min": 10,
+          "max": 90,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "hotspot_y",
+          "label": "Vertical position",
+          "min": 10,
+          "max": 90,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product features",
+      "settings": {
+        "title": "Product features"
+      },
+      "blocks": [
+        {
+          "type": "feature",
+          "settings": {
+            "hotspot_x": 28,
+            "hotspot_y": 38
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "hotspot_x": 60,
+            "hotspot_y": 23
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "hotspot_x": 73,
+            "hotspot_y": 54
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

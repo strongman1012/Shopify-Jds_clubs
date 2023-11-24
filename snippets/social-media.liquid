@@ -1,0 +1,219 @@
+{%- comment -%}
+  Parameters:
+  - class {String} - Custom class name(s) for the list element (optional).
+  - icon {Object} - Custom icon object (optional).
+  - icon_height {Number} - Custom icon height (optional, default is 24).
+
+  Usage:
+  {% render 'social-media',
+  class: 'justify-center',
+  icon: settings.social_custom_icon
+  icon_height: 24
+  %}
+  {%- endcomment -%}{%- liquid
+  if class
+    assign class = class | prepend: ' '
+  endif
+-%}
+
+  <ul class="social inline-flex flex-wrap{{ class }}">
+
+    {%- if settings.social_instagram_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_instagram_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-instagram' -%}
+          <span class="visually-hidden">Instagram</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_facebook_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_facebook_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-facebook' -%}
+          <span class="visually-hidden">Facebook</span>
+        </a>
+      </li>
+    {%- endif -%}
+    {%- if settings.social_twitter_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_twitter_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-twitter' -%}
+          <span class="visually-hidden">Twitter</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_pinterest_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_pinterest_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-pinterest' -%}
+          <span class="visually-hidden">Pinterest</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_tiktok_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_tiktok_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-tiktok' -%}
+          <span class="visually-hidden">TikTok</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_snapchat_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_snapchat_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-snapchat' -%}
+          <span class="visually-hidden">Snapchat</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_tumblr_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_tumblr_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-tumblr' -%}
+          <span class="visually-hidden">Tumblr</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_youtube_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_youtube_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-youtube' -%}
+          <span class="visually-hidden">YouTube</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_vimeo_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_vimeo_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-vimeo' -%}
+          <span class="visually-hidden">Vimeo</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_linkedin_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_linkedin_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-linkedin' -%}
+          <span class="visually-hidden">Linkedin</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_whatsapp_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_whatsapp_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-whatsapp' -%}
+          <span class="visually-hidden">WhatsApp</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_wechat_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_wechat_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-wechat' -%}
+          <span class="visually-hidden">WeChat</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_twitch_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_twitch_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-twitch' -%}
+          <span class="visually-hidden">Twitch</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_spotify_url != blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_spotify_url }}"
+          target="_blank"
+          rel="noopener">
+          {%- render 'icon-spotify' -%}
+          <span class="visually-hidden">Spotify</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.social_custom_url != blank -%}
+      {%- liquid
+      unless icon_height
+        assign icon_height = 24
+      endunless
+      assign icon_height = icon_height | times: 2
+    -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="{{ settings.social_custom_url }}"
+          target="_blank"
+          rel="noopener">
+          {{ icon | image_url: height: icon_height | image_tag: loading: 'lazy' }}
+        </a>
+      </li>
+    {%- endif -%}
+  </ul>

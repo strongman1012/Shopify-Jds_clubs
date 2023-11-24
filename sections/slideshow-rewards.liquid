@@ -1,0 +1,857 @@
+<link rel="stylesheet" href="{{ 'slideshow.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}">
+
+{%- if section.blocks.size > 1 -%}
+  <script src="{{ 'slideshow.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  # constants
+  assign gutter_lg = 64
+  assign breakpoint_sm = 600
+  assign breakpoint_xxl = 1536
+
+  assign breakpoint_sm_down = breakpoint_sm | minus: 0.02
+  assign breakpoint_page = settings.max_page_width | default: 1320 | plus: gutter_lg | plus: gutter_lg
+
+  assign color_scheme = section.settings.color_scheme
+  assign bg_color = false
+
+  if color_scheme == 'default'
+    assign bg_color = settings.bg_color
+  elsif color_scheme == '1'
+    assign bg_color = settings.color_scheme_1_bg_grad | default: settings.color_scheme_1_bg
+  elsif color_scheme == '2'
+    assign bg_color = settings.color_scheme_2_bg_grad | default: settings.color_scheme_2_bg
+  elsif color_scheme == '3'
+    assign bg_color = settings.color_scheme_3_bg_grad | default: settings.color_scheme_3_bg
+  endif
+
+  if bg_color == 'rgba(0,0,0,0)'
+    assign bg_color = false
+  endif
+-%}
+
+{%- style -%}
+  #{{ section.id }} {
+    background: none;
+
+    {%- if section.settings.height_mode == 'fixed' and section.settings.mobile_stacked -%}
+      --image-height: {{ section.settings.fixed_height_mobile }}px;
+    {%- endif -%}
+
+    {%- if section.settings.autoplay -%}
+      --duration: {{ section.settings.autoplay_speed }}s;
+      --play-state: paused;
+    {%- endif -%}
+  }
+
+  {%- if section.settings.height_mode == 'fixed' -%}
+    {%- if section.settings.mobile_stacked -%}
+      @media (max-width: {{ breakpoint_sm_down }}px) {
+        #{{ section.id }} .image-banner__image { height: {{ section.settings.fixed_height_mobile }}px; }
+      }
+    {%- else -%}
+      #{{ section.id }} .image-banner { min-height: {{ section.settings.fixed_height_mobile }}px; }
+    {%- endif -%}
+
+    @media (min-width: {{ breakpoint_sm }}px) {
+      #{{ section.id }} .image-banner {
+        min-height: calc({{ section.settings.fixed_height_mobile }}px + ({{ section.settings.fixed_height_desktop }} - {{ section.settings.fixed_height_mobile }}) * ((100vw - {{ breakpoint_sm }}px) / {{ breakpoint_xxl | minus: breakpoint_sm }}));
+      }
+    }
+    @media (min-width: {{ breakpoint_page }}px) {
+      #{{ section.id }} .image-banner { min-height: {{ section.settings.fixed_height_desktop }}px; }
+    }
+  {%- elsif section.settings.height_mode == 'auto' -%}
+    {%- liquid
+      if section.blocks.first.settings.image_desktop != blank
+        assign img_padding = 1 | divided_by: section.blocks.first.settings.image_desktop.aspect_ratio | times: 100 | append: '%'
+      else
+        assign img_padding = '56.25%'
+      endif
+
+      if section.blocks.first.settings.image_mobile != blank
+        assign m_img_padding = 1 | divided_by: section.blocks.first.settings.image_mobile.aspect_ratio | times: 100 | append: '%'
+      else
+        assign m_img_padding = img_padding
+      endif
+    -%}
+
+    #{{ section.id }} .image-banner::after,
+    #{{ section.id }} .media::after { content: ''; padding-top: {{ img_padding }}; }
+
+    {%- if section.settings.mobile_stacked -%}
+      @media (max-width: {{ breakpoint_sm }}px) {
+        #{{ section.id }} { --image-height: {{ m_img_padding }}; }
+        #{{ section.id }} .image-banner::after,
+        #{{ section.id }} .media::after {
+          content: '';
+          padding-top: 0;
+        }
+      }
+    {%- elsif section.blocks.first.settings.image_mobile != blank -%}
+      @media (max-width: {{ breakpoint_sm }}px) {
+        #{{ section.id }} .image-banner::after,
+        #{{ section.id }} .media::after { content: ''; padding-top: {{ m_img_padding }}; }
+      }
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if section.settings.tint_opacity > 0 -%}
+    #{{ section.id }} .media::after {
+      background-color: rgba({{ section.settings.tint_color.red }}, {{ section.settings.tint_color.green }}, {{ section.settings.tint_color.blue }}, {{ section.settings.tint_opacity | divided_by: 100.0 }});
+    }
+  {%- endif -%}
+
+  {%- if bg_color -%}
+    #{{ section.id }} .text-overlay { background: {{ bg_color }}; }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div class="slideshow-section section {% if section.settings.full_width %}section--full-width{% else %}container{% endif %}{% if section.settings.mobile_stacked and section.settings.height_mode != 'screen' %} mobile-stacked{% endif %}{% unless color_scheme == 'default' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}" id="{{ section.id }}">
+  <slide-show class="block relative overflow-hidden" role="region" aria-roledescription="{{ 'sections.slideshow.carousel' | t }}" aria-label="{{ section.settings.accessibility_info | escape }}" data-autoplay="{{ section.settings.autoplay }}" data-speed="{{ section.settings.autoplay_speed }}" data-transition="{{ section.settings.transition }}">
+    <div class="custom-form-board-login">
+      <div class="my-custom-rewards-board">
+        <span class="custom-form-rewards-text1">Hi Teddy!</span>
+      </div>
+      <div class="my-custom-rewards-board mt-5">
+        <span class="custom-form-rewards-text2">You have 100 points</span>
+      </div>
+      <div class="mt-5">
+        <button class="btn--primary custom-form-rewards-btn1">Redeem Now</button>
+      </div>
+      <div class="mt-3">
+        <button class="btn--primary custom-form-rewards-btn2">Rewards History</button>
+      </div>
+    </div>  
+    <div class="slideshow flex" id="slideshow-{{ section.id }}" aria-live="polite" aria-atomic="true">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign img = block.settings.image_desktop
+          assign m_img = block.settings.image_mobile
+          assign overlay_position = block.settings.overlay_position | split: ' '
+          assign lazy_load = true
+          if forloop.first and section.settings.prevent_animation
+            assign lazy_load = false
+          endif
+        -%}
+        <div class="slideshow__slide{% if section.blocks.size == 1 %} slideshow__slide--no-pagination{% endif %}{% if forloop.first %} is-active{% endif %} image-banner flex w-full {{ overlay_position | last }} {{ section.settings.height_mode }}-height" id="{{ section.id }}_{{ forloop.index }}"
+             role="group" aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
+             aria-label="{{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}"
+             {%- unless forloop.first %}tabindex="-1"{% endunless %}
+             {%- if request.design_mode %}data-index="{{ forloop.index0 }}"{% endif %}
+             {{ block.shopify_attributes }}>
+
+          <div class="image-banner__image media media--has-overlay absolute top-0 left-0 w-full h-full has-motion">
+            {%- if img != blank -%}
+              {%- liquid
+                if section.settings.full_width
+                  if section.settings.height_mode == 'screen'
+                    assign sizes = '(max-aspect-ratio: 1/2) 50vh, 100vw'
+                  endif
+                else
+                  capture sizes
+                    render 'sizes-attribute'
+                  endcapture
+                endif
+
+                if m_img != blank
+                  assign desktop_image_class = 'img-fit hidden sm:block'
+                else
+                  assign desktop_image_class = 'img-fit'
+                endif
+              -%}
+
+              {%- if m_img != blank -%}
+                {%- render 'image',
+                  image: m_img,
+                  widths: '480, 980, 1200, 1400',
+                  src_width: 980,
+                  src_placeholder: true,
+                  sizes: sizes,
+                  class: 'img-fit sm:hidden',
+                  lazy_load: lazy_load
+                -%}
+              {%- endif -%}
+
+              {%- render 'image',
+                image: img,
+                widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+                src_width: 1400,
+                src_placeholder: true,
+                sizes: sizes,
+                quality: 1,
+                class: desktop_image_class,
+                lazy_load: lazy_load
+              -%}
+            {%- else -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+            {%- endif -%}
+          </div>
+          
+          {%- if block.settings.heading != blank or block.settings.subheading != blank or block.settings.text != blank or block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+            <div class="slideshow__text container flex {{ overlay_position | first }}{% if block.settings.mob_center_text %} md-down:center{% endif %}{% unless bg_color %}{% if section.settings.full_width or section.settings.mobile_stacked %} md-down:p-xl{% endif %}{% endunless %}"{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate{% endif %}>
+              <div class="text-overlay{% if bg_color %} text-overlay--bg{% endif %} {{ block.settings.overlay_text_align }}{% if block.settings.mob_center_text %} md-down:text-center{% endif %}{% if section.settings.color_scheme != "white" %}{% if section.settings.full_width or section.settings.mobile_stacked %} md-down:p-xl{% endif %}{% endif %} has-motion">
+                {%- if block.settings.subheading != blank -%}
+                  <p class="text-overlay__block subheading">
+                    {{- block.settings.subheading | escape -}}
+                  </p>
+                {%- endif -%}
+
+                {%- if block.settings.heading != blank -%}
+                  <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="text-overlay__heading {{ block.settings.heading_size }}">
+                    {% render 'multiline-text' with block.settings.heading %}
+                  </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+                {%- endif -%}
+
+                {%- if block.settings.text != blank -%}
+                  <div class="text-overlay__block rte{% if block.settings.enlarge_text %} enlarge-text{% endif %}">
+                    {{ block.settings.text }}
+                  </div>
+                {%- endif -%}
+
+                {%- if block.settings.countdown_show -%}
+                  {%- if block.settings.countdown_end_date != blank -%}
+                    <script src="{{ 'countdown-timer.js' | asset_url }}" defer="defer"></script>
+                  {%- endif -%}
+                  {% if block.settings.use_custom_colors %}
+                    {% style %}
+                      #{{ section.id }}_{{ forloop.index }} .countdown__number {
+                        --text-color: {{ block.settings.bg_color.rgb }};
+                        --bg-color: {{ block.settings.count_color.rgba }};
+                      }
+
+                      {%- if block.settings.use_custom_colors and block.settings.bg_grad != blank -%}
+                        #{{ section.id }}_{{ forloop.index }} .countdown__number {
+                          background: {{ block.settings.bg_grad }};
+                        }
+                      {%- endif -%}
+                    {% endstyle %}
+                  {% endif %}
+                  <div class="text-overlay__block countdown__block no-js-hidden pb-2{% if block.settings.use_custom_colors %} countdown-timer__custom-colors{% endif %}{% if block.settings.enlarge_end_text %} countdown-large-endtext{% endif %}">
+                    {% render 'countdown-timer',
+                      end_date: block.settings.countdown_end_date,
+                      end_time: block.settings.countdown_end_time,
+                      end_text: block.settings.countdown_end_text,
+                      end_midnight: true,
+                      hide_on_end: block.settings.countdown_hide_on_end
+                    %}
+                  </div>
+                {%- endif -%}
+
+                {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+                  <div class="text-overlay__buttons inline-flex flex-wrap items-start mt-4 {% if block.settings.overlay_text_align == 'text-start' %} justify-start{% elsif block.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if block.settings.mob_center_text %} md-down:center{% endif %}">
+                    {%- if block.settings.button_1_label != blank -%}
+                      <a class="{{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                        {{- block.settings.button_1_label | escape -}}
+                      </a>
+                    {%- endif -%}
+
+                    {%- if block.settings.button_2_label != blank -%}
+                      <a class="{{ block.settings.button_2_style }}" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                        {{- block.settings.button_2_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if section.blocks.size > 1 -%}
+      <div class="slideshow-ctrl container absolute flex {{ section.settings.nav_position }} w-full pointer-events-none no-js-hidden">
+        {%- if section.settings.nav_style == 'slideshow_nav_dots' or section.settings.nav_style == 'slideshow_nav_lines' -%}
+          <div class="slideshow-pagination flex items-center">
+            {%- for block in section.blocks -%}
+              <button class="page-btn" data-index="{{ forloop.index0 }}" aria-controls="slideshow-{{ section.id }}"{% if forloop.first %} aria-current="true"{% endif %}>
+                <span class="visually-hidden">{{ 'sections.slideshow.load_slide' | t }} {{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}</span>
+                {%- if section.settings.nav_style == 'slideshow_nav_lines' -%}
+                  <span class="page-btn__line block relative overflow-hidden pointer-events-none"></span>
+                {%- else -%}
+                  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" class="page-btn__circle block pointer-events-none">
+                    <circle class="page-btn__fg-circle" cx="15" cy="15" r="3.5" />
+                    <circle class="page-btn__bg-circle" cx="15" cy="15" r="6" />
+                  </svg>
+                {%- endif -%}
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.nav_style == 'arrows' or section.settings.autoplay -%}
+          <div class="slideshow-nav flex items-center">
+            {%- if section.settings.nav_style == 'arrows' -%}
+              <button type="button" class="slideshow-nav__btn btn hidden md:block has-ltr-icon" name="prev" aria-controls="slideshow-{{ section.id }}">
+                <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+                {% render 'icon-chevron-left' %}
+              </button>
+
+              <div class="slideshow-nav__counter">
+                <span class="slideshow-nav__counter-current">1</span>
+                <span aria-hidden="true"> / </span>
+                <span class="visually-hidden">{{ 'general.slider.of' | t }}</span>
+                <span class="slideshow-nav__counter-total">{{ section.blocks.size }}</span>
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.autoplay -%}
+              <div class="slideshow-nav__autoplay flex items-center {% unless section.settings.slider_pause %}hidden{% endunless %}">
+                <button type="button" class="slideshow-nav__btn autoplay-btn btn">
+                  <span class="pause-icon block pointer-events-none">
+                    <span class="visually-hidden">{{ 'sections.slideshow.pause' | t }}</span>
+                    {% render 'icon-pause' %}
+                  </span>
+                  <span class="play-icon block pointer-events-none">
+                    <span class="visually-hidden">{{ 'sections.slideshow.play' | t }}</span>
+                    {% render 'icon-video' %}
+                  </span>
+                </button>
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.nav_style == 'arrows' -%}
+              <button type="button" class="slideshow-nav__btn btn hidden md:block has-ltr-icon" name="next" aria-controls="slideshow-{{ section.id }}">
+                <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+                {% render 'icon-chevron-right' %}
+              </button>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </slide-show>
+</div>
+
+{% schema %}
+{
+  "name": "Slideshow",
+  "tag": "section",
+  "class": "cc-slideshow",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "height_mode",
+      "label": "Image height",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Height of first image"
+        },
+        {
+          "value": "fixed",
+          "label": "Fixed height (set below)"
+        },
+        {
+          "value": "screen",
+          "label": "Full screen height"
+        }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 400,
+      "max": 750,
+      "step": 10,
+      "unit": "px",
+      "label": "Minimum fixed height on large screens",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 250,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Minimum fixed height on mobile",
+      "default": 350
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_stacked",
+      "label": "Show text below image on mobile",
+      "info": "Does not apply to \"Full screen height\".",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Slideshow appearance"
+    },
+    {
+      "type": "select",
+      "id": "nav_style",
+      "label": "Pagination style",
+      "options": [
+        {
+          "value": "arrows",
+          "label": "Arrows and numbers"
+        },
+        {
+          "value": "slideshow_nav_dots",
+          "label": "Dots"
+        },
+        {
+          "value": "slideshow_nav_lines",
+          "label": "Lines"
+        }
+      ],
+      "default": "slideshow_nav_lines"
+    },
+    {
+      "type": "select",
+      "id": "nav_position",
+      "label": "Pagination position",
+      "options": [
+        {
+          "value": "justify-start",
+          "label": "Left"
+        },
+        {
+          "value": "justify-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-end",
+          "label": "Right"
+        }
+      ],
+      "default": "justify-center"
+    },
+    {
+      "type": "select",
+      "id": "transition",
+      "label": "Slide transition",
+      "options": [
+        {
+          "value": "slide-fade",
+          "label": "Slide and fade"
+        },
+        {
+          "value": "slide",
+          "label": "Slide"
+        },
+        {
+          "value": "fade",
+          "label": "Fade"
+        }
+      ],
+      "default": "slide-fade"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "slider_pause",
+      "label": "Show pause button",
+      "info": "Only applies when auto-rotate is turned on.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change slides every",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "white"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "tint_color",
+      "label": "Image tint color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "%",
+      "label": "Image tint opacity",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Accessibility / SEO"
+    },
+    {
+      "type": "text",
+      "id": "accessibility_info",
+      "label": "Slideshow description",
+      "info": "Describe the slideshow for customers using screen readers."
+    },
+    {
+      "type": "checkbox",
+      "id": "prevent_animation",
+      "label": "Load the section without animation",
+      "info": "If this section is visible when the page loads, enabling this setting can reduce CLS and may improve site speed scores. [Read more](https://cleancanvas.co.uk/support/enterprise/performance-guide)",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image_desktop",
+          "label": "Image",
+          "info": "For best results, use a landscape shaped image with a minimum width of 3200px."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Mobile image (optional)",
+          "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+        },
+        {
+          "type": "header",
+          "content": "Text overlay"
+        },
+        {
+          "type": "select",
+          "id": "overlay_position",
+          "label": "Overlay position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-center items-center"
+        },
+        {
+          "type": "select",
+          "id": "overlay_text_align",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-center"
+        },
+        {
+          "type": "checkbox",
+          "id": "mob_center_text",
+          "label": "Center text on mobile",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "info": "Shown above the main heading.",
+          "default": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "info": "Enter <br> for a line-break.",
+          "default": "Slideshow"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h5",
+              "label": "Extra small"
+            },
+            {
+              "value": "h4",
+              "label": "Small"
+            },
+            {
+              "value": "h3",
+              "label": "Medium"
+            },
+            {
+              "value": "h2",
+              "label": "Large"
+            },
+            {
+              "value": "h1",
+              "label": "Extra large"
+            },
+            {
+              "value": "h0",
+              "label": "Extra extra large"
+            }
+          ],
+          "default": "h0"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share announcements and information with your customers and welcome them to your store.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button 1 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button 1 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button 2 label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button 2 link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button 2 style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "header",
+          "content": "Countdown timer"
+        },
+        {
+          "type": "checkbox",
+          "id": "countdown_show",
+          "label": "Show countdown timer",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "countdown_end_date",
+          "label": "End date",
+          "info": "Format: YYYY-MM-DD. If you don't enter a date, midnight tonight will be used."
+        },
+        {
+          "type": "text",
+          "id": "countdown_end_time",
+          "label": "End time (optional)",
+          "info": "Format: 17:00 (24 hour clock). Uses the store's timezone."
+        },
+        {
+          "type": "richtext",
+          "id": "countdown_end_text",
+          "label": "End text",
+          "info": "This shows when the date and time elapses."
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_end_text",
+          "label": "Enlarge end text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "countdown_hide_on_end",
+          "label": "Hide the timer when the date and time elapses",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "use_custom_colors",
+          "label": "Use custom colors",
+          "info": "Uses colors specified below.",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "count_color",
+          "label": "Count number",
+          "default": "#fff"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Count background/colon",
+          "default": "#070707"
+        },
+        {
+          "type": "color_background",
+          "id": "bg_grad",
+          "label": "Count background gradient",
+          "info": "If set, replaces the background color."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Slideshow-Rewords",
+      "blocks": [
+        {
+          "type": "slide" 
+        },
+        {
+          "type": "slide"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

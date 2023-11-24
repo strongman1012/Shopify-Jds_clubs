@@ -1,0 +1,342 @@
+{%- if product -%}
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'image' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          {%- if product.featured_media -%}
+            {%- assign img = product.featured_media.preview_image -%}
+            <div class="media relative{% if settings.blend_product_images %} image-blend{% endif %}" style="padding-top: {{ 1 | divided_by: img.aspect_ratio | times: 100 }}%;">
+              <img data-srcset="{%- if img.width < 400 %}{{ img | image_url }} {{ img.width }}w{% endif -%}
+                                {%- if img.width >= 640 %}{{ img | image_url: width: 640 }} 640w{% endif -%}
+                                {%- if img.width >= 800 %}, {{ img | image_url: width: 800 }} 800w{% endif -%}"
+                   src="{{ img | image_url: width: 640 }}"
+                   loading="lazy"
+                   class="img-fit"
+                   width="{{ img.width }}"
+                   height="{{ img.height }}"
+                   alt="{{ img.alt | escape }}">
+            </div>
+          {%- else -%}
+            {{- settings.compare_empty_field_text -}}
+          {%- endif -%}
+        </div>
+
+      {%- when 'vendor' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          <span class="product-vendor">
+            {{ product.vendor }}
+          </span>
+        </div>
+
+      {%- when 'title' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          <h2 class="product-title h5 mb-0">{{ product.title | escape }}</h2>
+        </div>
+
+      {%- when 'description' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col rte compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          {%- if block.settings.truncate_description -%}
+            {{ product.description | strip_html | truncatewords: block.settings.words_to_show }}
+          {%- else -%}
+            {{ product.description }}
+          {%- endif -%}
+        </div>
+
+      {%- when 'price' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          <div class="product-price">
+            {% render 'price', product: product %}
+          </div>
+        </div>
+
+      {%- when 'variants' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }} compare-col--{{ product.id }}--variants{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          {%- unless product.has_only_default_variant -%}
+            {%- for option in product.options_with_values -%}
+              {%- capture option_id -%}{{ section.id }}-{{ option.name | handle }}{%- endcapture -%}
+              <p class="compare-label font-bold">{{ option.name }}</p>
+
+              <div class="compare-value">
+                {%- if settings.swatch_option_name and settings.card_colors_style != 'none' and settings.swatch_option_name contains option.name -%}
+                  {%- if settings.card_colors_style == 'swatches' or settings.card_colors_style == 'variant-images' -%}
+                    {%- render 'compare-swatches', product: product, option: option, section: section -%}
+                  {%- else -%}
+                    {%- if option.values.size == 1 -%}
+                      <p class="mt-2">{{ 'sections.collection.colors_single' | t }}</p>
+                    {%- else -%}
+                      <p class="mt-2">{{ 'sections.collection.colors_count' | t: count: option.values.size }}</p>
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- else -%}
+                  <ul class="compare-value--options">
+                    {%- for value in option.values -%}
+                      <li>{{ value }}</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          {%- endunless -%}
+        </div>
+
+      {%- when 'rating' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          {%- if product.metafields.reviews.rating.value != blank -%}
+            {% render 'rating',
+              rating_value: product.metafields.reviews.rating.value,
+              rating_count: product.metafields.reviews.rating_count
+            %}
+          {%- endif -%}
+        </div>
+
+      {%- when 'type' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          <p class="compare-label font-bold">{{- 'products.product.type' | t -}}</p>
+          <p class="compare-value">
+            {%- if product.type != blank -%}
+              {{- product.type -}}
+            {%- else -%}
+              {{- settings.compare_empty_field_text -}}
+            {%- endif -%}
+          </p>
+        </div>
+
+      {%- when 'metafield' -%}
+        {%- if block.settings.metafields -%}
+          {%- assign metafield_array = block.settings.metafields | newline_to_br | strip_newlines | split: '<br />' -%}
+          {%- for key_value in metafield_array -%}
+            {%- liquid
+              assign parts = key_value | split: ':'
+              assign label = parts.first | strip | replace: '"', ''
+              assign metafield_key = parts.last | strip | downcase
+              assign metafield_key_parts = metafield_key | split: "."
+              assign metafield_namespace_index = metafield_key_parts | size | minus: 2
+              assign metafield_key = metafield_key_parts | last
+              assign metafield_namespace = metafield_key_parts[metafield_namespace_index]
+              assign metafield = product.metafields[metafield_namespace][metafield_key]
+
+              capture metafield_output
+                if metafield.type contains "list."
+                  for item in metafield.value
+                    assign metafield_type = metafield.type | replace: "list.", ""
+                    assign comma = ""
+                    if forloop.last == false
+                      assign comma = ", "
+                    endif
+                    render 'render-metafield', metafield: metafield, metafield_type: metafield_type, metafield_value: item, comma: comma
+                    if forloop.last == false and metafield_type == "file_reference"
+                      echo "<div class='mt-2'></div>"
+                    endif
+                  endfor
+                else
+                  if metafield.value
+                    render 'render-metafield', metafield: metafield, metafield_type: metafield.type, metafield_value: metafield.value
+                  else
+                    echo settings.compare_empty_field_text
+                  endif
+                endif
+              endcapture
+            -%}
+            <div data-compare-key="compare-metafield-{{ forloop.index }}" class="compare-col{% unless forloop.last %} compare-col--{{ block.settings.line }}{% endunless %} compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}"{% if metafield_output == blank or metafield_output contains "Liquid error" or metafield_output == settings.compare_empty_field_text %} data-is-empty-metafield="true"{% endif %} {{ block.shopify_attributes }}>
+              <p class="compare-label font-bold">{{ label }}</p>
+              <div class="compare-value">
+                {%- liquid
+                  if metafield_output contains "Liquid error"
+                    echo metafield | metafield_tag
+                  else
+                    echo metafield_output
+                  endif
+                -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+
+  <div data-compare-key="compare-actions" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }} compare-col--{{ product.id }}--actions" {{ block.shopify_attributes }}>
+    <a href="{{ product.url }}" class="btn btn--primary btn--compare-view w-full">
+      {{ 'products.compare.modal.view_product' | t }}
+    </a>
+
+    <button class="link text-sm mt-4 w-full js-compare-col-remove" data-product-id="{{ product.id }}">
+      {{ 'products.compare.modal.remove_product' | t }}
+    </button>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product compare",
+  "class": "cc-compare",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "This section lets you control what information is shown for each product within the compare popup. To preview the compare popup, perform a compare on a Collection Page or Search Page."
+    },
+    {
+      "type": "paragraph",
+      "content": "See \"Theme Settings > Product Compare\" for more settings."
+    }
+  ],
+  "max_blocks": 16,
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Featured image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "vendor",
+      "name": "Vendor",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "type",
+      "name": "Type",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "variants",
+      "name": "Variants",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "truncate_description",
+          "label": "Truncate description",
+          "info": "This will remove HTML from the description.",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "words_to_show",
+          "label": "Words to show",
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "rating",
+      "name": "Rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line below",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "metafield",
+      "name": "Metafields",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Include a list of labels and product metafield keys below, separated by a colon, one per line. E.g. Trim color:custom.trim_color. [Read more](https://cleancanvas.co.uk/support/enterprise/templates/collection-page/comparison-grid)"
+        },
+        {
+          "type": "textarea",
+          "id": "metafields",
+          "label": "Metafields"
+        },
+        {
+          "type": "select",
+          "id": "line",
+          "label": "Line between metafields",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "solid",
+              "label": "Solid"
+            },
+            {
+              "value": "dotted",
+              "label": "Dotted"
+            }
+          ],
+          "default": "dotted"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

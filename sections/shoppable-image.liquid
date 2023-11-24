@@ -1,0 +1,314 @@
+<link rel="stylesheet" href="{{ 'hotspots-image.css' | asset_url }}">
+<script src="{{ 'hotspots-image.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign hotspot_color_brightness = section.settings.hotspot_color | color_brightness
+-%}
+
+{% style %}
+  #{{ section.id }} {
+    --hotspot-color: {{ section.settings.hotspot_color.rgb }};
+    {%- if hotspot_color_brightness > 128 %}
+      --hotspot-cross-color: #000;
+    {%- else -%}
+      --hotspot-cross-color: #fff;
+    {%- endif %}
+  }
+{% endstyle %}
+
+<div class="container" id="{{ section.id }}">
+  <div class="section">
+    <div class="shoppable-image{% if section.settings.layout == 'image_last' %} flex-row-reverse{% endif %}">
+      <hotspots-image class="shoppable-image__image block relative overflow-hidden"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+        {%- if section.settings.image != blank -%}
+          {%- capture sizes -%}
+            {%- render 'sizes-attribute', min: 'page', sm: 'page', md: false, lg: false, xl: '896px', max: false -%}
+          {%- endcapture -%}
+
+          {% render 'image',
+            image: section.settings.image,
+            widths: '690, 896, 1408, 1792, 1920',
+            src_width: 896,
+            sizes: sizes,
+            class: 'block mx-auto w-full'
+          %}
+        {%- else -%}
+          <div class="media relative" style="padding-top: 56.25%;">
+            {{ 'collection-2' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+          </div>
+        {%- endif -%}
+
+        {%- for block in section.blocks -%}
+          {%- assign product = block.settings.product -%}
+
+          <div class="hotspot absolute" data-x="{{ block.settings.hotspot_x }}" data-y="{{ block.settings.hotspot_x }}" style="top: {{ block.settings.hotspot_y }}%; left: {{ block.settings.hotspot_x }}%">
+            <button type="button" class="hotspot__btn relative tap-target no-js-hidden" aria-expanded="false">
+              <span class="visually-hidden">
+                {{- 'accessibility.view_details' | t }}{% if product and product != empty %} - {{ product.title }}{% endif -%}
+              </span>
+              {% render 'icon-plus' %}
+            </button>
+            <div class="hotspot__card absolute no-js-hidden" aria-hidden="true">
+              {%- if product and product != empty -%}
+                {%- if section.settings.show_vendor -%}
+                  <p class="card__vendor mb-0">{{ product.vendor }}</p>
+                {%- endif -%}
+                <p class="h5">
+                  <a href="{{ product.url }}" class="card-link text-current">{{ product.title }}</a>
+                </p>
+                <hr class="mt-4 mb-4">
+                {%- render 'price', product: product -%}
+              {%- else -%}
+                <p class="h5">{{ 'onboarding.product.title' | t }}</p>
+                <hr class="mt-4 mb-4">
+                <div class="card__price theme-money">
+                  {%- render 'price' -%}
+                </div>
+              {%- endif -%}
+            </div>
+            {%- if product and product != empty -%}
+              <noscript>
+                <a class="hotspot__btn tap-target flex justify-center items-center" href="{{ product.url }}" title="{{ product.title }}">
+                  {% render 'icon-plus' %}
+                </a>
+              </noscript>
+            {%- endif -%}
+          </div>
+        {% endfor %}
+      </hotspots-image>
+
+      {%- if section.settings.show_content -%}
+        <div class="shoppable-image__text"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          <div class="card card--wide h-full {% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}">
+            <div class="card__info{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">
+              {%- if section.settings.heading != blank -%}
+                <h2 class="section__block section__block--heading h4">
+                  {{- section.settings.heading | escape -}}
+                </h2>
+              {%- endif -%}
+
+              {%- if section.settings.text != blank -%}
+                <div class="section__block rte">
+                  {{ section.settings.text }}
+                </div>
+              {%- endif -%}
+
+              {%- if section.settings.button_label != blank -%}
+                <div class="section__block section__block--button">
+                  <a class="relative {{ section.settings.button_style }}{% if section.settings.button_style != 'link' %} btn--arrow-with-text{% endif %}" {% if section.settings.button_link != blank %}href="{{ section.settings.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+                    {{- section.settings.button_label | escape -}}
+                  </a>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Shoppable image",
+  "tag": "section",
+  "class": "cc-shoppable-image",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "For best results, use a landscape shaped image with a width of 1920px. Smaller images may be enlarged."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Image position on large screens",
+      "options": [
+        {
+          "value": "image_first",
+          "label": "Left"
+        },
+        {
+          "value": "image_last",
+          "label": "Right"
+        }
+      ],
+      "default": "image_first"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "info": "Shown in product popups",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_content",
+      "label": "Show text",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "mob_center_text",
+      "label": "Center text on mobile",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shoppable image"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Create a Shop the Look section to assist with upselling or helping customers with purchasing complementary products.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Hotspot color",
+      "default": "#070707"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button",
+      "options": [
+        {
+          "value": "link",
+          "label": "Link"
+        },
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "hotspot",
+      "name": "Hotspot",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "id": "hotspot_x",
+          "label": "Horizontal position",
+          "min": 10,
+          "max": 90,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "hotspot_y",
+          "label": "Vertical position",
+          "min": 10,
+          "max": 90,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoppable image",
+      "blocks": [
+        {
+          "type": "hotspot",
+          "settings": {
+            "hotspot_x": 28,
+            "hotspot_y": 38
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "hotspot_x": 60,
+            "hotspot_y": 23
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "hotspot_x": 73,
+            "hotspot_y": 54
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

@@ -1,0 +1,85 @@
+<div class="container rewards-tractor-container">
+  <div class="horizontal-tractor mx-auto">
+    <div class="horizontal-tractor-image">
+      <img
+        src="{{ section.settings.image_desktop | img_url : 'master' }}"
+        alt="Section Image1"
+        class="desktop_image_class"
+        style="width: 100%;">
+    </div>
+    <div class="horizontal-tractor-blank" style="position: relative;">
+      <div class="rewards-tractor-board">
+        <div style="position: relative;">
+          <a href="#" class="rewards-tractor-title">{{ section.settings.title }}</a>
+          <p class="rewards-tractor-title1">{{ section.settings.title1 }}</p>
+          <p class="rewards-tractor-content1">{{ section.settings.content1 }}</p>
+          <div class="rewards-tractor-email">
+            {% render 'rewards-newsletter-signup', arrow_button: true %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% schema %}
+  {
+    "name": "Rewards Tractor",
+    "settings": [
+      {
+        "type": "text",
+        "label": "Title",
+        "id": "title",
+        "default": "Welcome to our custom section"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop",
+        "label": "Image",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile",
+        "label": "Mobile image (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      },
+      {
+        "type": "url",
+        "id": "url",
+        "label": "Image1 link (optional)"
+      }, {
+        "type": "text",
+        "id": "title1",
+        "label": "Title1",
+        "default": "Title"
+      }, {
+        "type": "text",
+        "id": "content1",
+        "label": "Content1",
+        "default": "Content"
+      }, {
+        "type": "color",
+        "id": "tint_color",
+        "label": "Image tint color",
+        "default": "#000000"
+      }, {
+        "type": "range",
+        "id": "tint_opacity",
+        "min": 0,
+        "max": 80,
+        "step": 5,
+        "unit": "%",
+        "label": "Image tint opacity",
+        "default": 40
+      }
+    ],
+    "presets": [
+      {
+        "name": "Rewards-Tractor",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}

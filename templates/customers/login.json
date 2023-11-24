@@ -1,0 +1,138 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-login",
+      "disabled": true,
+      "settings": {
+      }
+    },
+    "7c2e6944-9725-44c8-9814-ea5be362b43a": {
+      "type": "slideshow-login",
+      "blocks": {
+        "template--20651225252115__7c2e6944-9725-44c8-9814-ea5be362b43a-slide-2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE3.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE3.png",
+            "overlay_position": "justify-start items-start",
+            "overlay_text_align": "text-start",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "Login",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>Pharetra interdum metus sed nunc quam tellus dolor.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "template--20651225252115__7c2e6944-9725-44c8-9814-ea5be362b43a-slide-1": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE_fb8e2b68-6513-476e-95cc-79bfbda4cfd2.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE.png",
+            "overlay_position": "justify-start items-start",
+            "overlay_text_align": "text-start",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "Login",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>Pharetra interdum metus sed nunc quam tellus dolor.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "c94cfbb6-9852-4028-a4d1-d635d8f83661": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE4.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE4.png",
+            "overlay_position": "justify-start items-start",
+            "overlay_text_align": "text-start",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "Login",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>Pharetra interdum metus sed nunc quam tellus dolor.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        }
+      },
+      "block_order": [
+        "template--20651225252115__7c2e6944-9725-44c8-9814-ea5be362b43a-slide-2",
+        "template--20651225252115__7c2e6944-9725-44c8-9814-ea5be362b43a-slide-1",
+        "c94cfbb6-9852-4028-a4d1-d635d8f83661"
+      ],
+      "settings": {
+        "height_mode": "auto",
+        "fixed_height_desktop": 490,
+        "fixed_height_mobile": 280,
+        "mobile_stacked": false,
+        "nav_style": "slideshow_nav_lines",
+        "nav_position": "justify-center",
+        "transition": "slide-fade",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "accessibility_info": "",
+        "prevent_animation": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "7c2e6944-9725-44c8-9814-ea5be362b43a"
+  ]
+}

@@ -1,0 +1,29 @@
+.media-with-text__text {
+  padding-top: calc(8 * var(--space-unit));
+}
+
+@media (min-width: 769px) {
+  .media-with-text {
+    display: flex;
+    max-width: 1088px;
+    margin: 0 auto;
+  }
+  .media-with-text__media {
+    align-items: flex-end;
+    width: 50%;
+  }
+  .media-with-text__text {
+    max-width: calc(416px + var(--gutter));
+    margin-inline-start: auto;
+    margin-inline-end: auto;
+    padding-top: 0;
+    padding-inline-start: var(--gutter);
+  }
+  .media-with-text--reverse {
+    flex-direction: row-reverse;
+  }
+  .media-with-text--reverse .media-with-text__text {
+    padding-inline-start: 0;
+    padding-inline-end: var(--gutter);
+  }
+}

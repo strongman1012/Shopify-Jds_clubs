@@ -1,0 +1,48 @@
+.search__speech {
+  position: absolute;
+  top: calc(50% - 22px);
+  min-height: 44px;
+  margin-inline-end: 2px;
+  padding: 10px calc(5 * var(--space-unit));
+  border-radius: var(--input-border-radius, 0);
+  color: currentColor;
+  cursor: pointer;
+}
+.search__speech.search__speech-listening {
+  animation: colorPulse 2s infinite;
+  opacity: 1;
+}
+.search__speech svg {
+  width: 24px;
+  transition: color 0.3s;
+}
+
+.search--speech .search__reset {
+  right: 63px;
+}
+.search--speech .search__reset::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: -8px;
+  width: 1px;
+  height: 24px;
+  opacity: 0.3;
+  background: currentColor;
+}
+[dir=rtl] .search--speech .search__reset {
+  right: auto;
+}
+[dir=rtl] .search--speech .search__reset::after {
+  right: auto;
+  left: -8px;
+}
+
+@media (max-width: 768.98px) {
+  .search__speech {
+    padding-inline-end: 15px;
+  }
+  .search--speech .search__input:not(.search__input--dirty) {
+    padding-inline-end: 54px;
+  }
+}

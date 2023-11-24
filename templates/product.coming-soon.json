@@ -1,0 +1,217 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "product-labels": {
+          "type": "product-labels",
+          "settings": {
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+          }
+        },
+        "rating": {
+          "type": "rating",
+          "settings": {
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": false
+          }
+        },
+        "message": {
+          "type": "message",
+          "settings": {
+            "icon": "calendar",
+            "title": "<h6>Coming Soon!<\/h6><p>We're so excited about our upcoming releases that we just couldn't keep them under wraps anymore! Drop us your email in the box below, and we'll let you know when it's good to go :)<\/p>",
+            "close": "none",
+            "show_over_media": false,
+            "visibility_duration": 7,
+            "bg_color": "#f5f5f5",
+            "text_color": "#000000"
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "show_backorder_text": false
+          }
+        },
+        "divider-1": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "product-signup": {
+          "type": "product-signup",
+          "settings": {
+            "heading": "",
+            "text": "<p>Sign up to be the first to know when it's here<\/p>"
+          }
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "product-labels",
+        "title",
+        "rating",
+        "price",
+        "message",
+        "variant-picker",
+        "divider-1",
+        "product-signup",
+        "share"
+      ],
+      "settings": {
+        "sticky_atc_panel": true,
+        "hover_zoom": "large",
+        "media_thumbs": "always"
+      }
+    },
+    "video": {
+      "type": "video",
+      "blocks": {
+        "video-heading": {
+          "type": "heading",
+          "settings": {
+            "heading_size": "h2",
+            "heading_h1": false
+          }
+        },
+        "video-text": {
+          "type": "text",
+          "settings": {
+            "enlarge_text": true
+          }
+        }
+      },
+      "block_order": [
+        "video-heading",
+        "video-text"
+      ],
+      "settings": {
+        "video_size": "md",
+        "video_autoplay": true,
+        "text_align": "text-center",
+        "color_scheme": "default"
+      }
+    },
+    "details": {
+      "type": "product-details",
+      "blocks": {
+        "tabs": {
+          "type": "tabs",
+          "settings": {
+            "style": "collapsible",
+            "show_description": true,
+            "show_specification": true,
+            "show_reviews": true,
+            "spec_right_align": true,
+            "spec_show_empty_metafields": false
+          }
+        }
+      },
+      "block_order": [
+        "tabs"
+      ],
+      "settings": {
+      }
+    },
+    "scrolling-banner": {
+      "type": "scrolling-banner",
+      "blocks": {
+        "scrolling-banner-text-1": {
+          "type": "text",
+          "settings": {
+            "text": "Coming Soon!",
+            "link": "",
+            "font": "heading",
+            "heading_size": "h1"
+          }
+        },
+        "scrolling-banner-text-2": {
+          "type": "text",
+          "settings": {
+            "text": "Coming Soon!",
+            "link": "",
+            "font": "body",
+            "heading_size": "h1"
+          }
+        }
+      },
+      "block_order": [
+        "scrolling-banner-text-1",
+        "scrolling-banner-text-2"
+      ],
+      "settings": {
+        "section_height": "medium",
+        "spacing": 60,
+        "speed": 10,
+        "direction": "normal",
+        "pausable": true,
+        "color_scheme": "2",
+        "dividers": "none"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "blocks": {
+        "newsletter-heading-1": {
+          "type": "heading",
+          "settings": {
+            "heading": "Be the first to know!",
+            "heading_size": "h3"
+          }
+        },
+        "newsletter-text-2": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Sign up for updates, and we'll let you know when it's arrived.<\/p>",
+            "enlarge_text": false
+          }
+        },
+        "newsletter-form-3": {
+          "type": "form",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "newsletter-heading-1",
+        "newsletter-text-2",
+        "newsletter-form-3"
+      ],
+      "settings": {
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "heading_align": "text-start",
+        "layout": "carousel",
+        "card_size": "small",
+        "products_to_show": 8
+      }
+    }
+  },
+  "order": [
+    "main",
+    "video",
+    "details",
+    "scrolling-banner",
+    "newsletter",
+    "recommendations"
+  ]
+}

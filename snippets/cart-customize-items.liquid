@@ -1,0 +1,274 @@
+{%- comment -%}
+  Parameters:
+  - is_drawer {Boolean} - Is cart drawer.
+
+  Usage:
+  {% render 'cart-items', is_drawer: true %}
+{%- endcomment -%}
+
+{%- if cart != empty -%}
+  <script src="{{ 'cart-items.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  if is_drawer
+    assign section_id = 'cart-drawer'
+  else
+    assign section_id = section.id
+  endif
+-%}
+
+<cart-items id="cart-items" data-section="{{ section_id }}" data-empty="{% if cart == empty %}true{% else %}false{% endif %}">
+  {%- if cart == empty -%}
+    <div class="flex flex-col justify-center items-center h-full js-cart-empty">
+      <p>{{ 'cart.general.empty' | t }}</p>
+
+      {%- if settings.cart_empty_shop_link -%}
+        <a class="btn btn--primary" href="{{ settings.cart_empty_shop_link }}">
+          {{- 'cart.general.start_shopping' | t -}}
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if cart != empty -%}
+    <table class="cart-items w-full">
+      {% comment %} <thead class="visually-hidden">
+        <tr>
+          <th colspan="2">{{ 'cart.items.product' | t }}</th>
+          <th>{{ 'cart.items.price' | t }}</th>
+          <th>{{ 'cart.items.quantity' | t }}</th>
+        </tr>
+      </thead> {% endcomment %}
+      <tbody>
+        {%- for item in cart.items -%}
+          {%- liquid
+            if item.variant.compare_at_price > item.variant.price
+              assign variant_price_reduced = true
+            else
+              assign variant_price_reduced = false
+            endif
+          -%}
+          <tr class="customize-cart-item-board" id="cart-item-{{ item.index | plus: 1 }}" data-product-id="{{ item.product_id }}" data-variant-id="{{ item.variant_id }}">
+            <td class="flex justify-between customize-cart-item-left">
+              <div class="customize-cart-item-left-1">
+                <input type="checkbox">
+              </div>
+              <div class="customize-cart-item-left-2">
+                <a href="{{ item.url }}" class="block {% if settings.blend_product_images %} image-blend{% endif %}">
+                  {%- if item.image -%}
+                    {%- capture sizes -%}
+                      {%- render 'sizes-attribute', min: '64px', sm: '128px', md: false, lg: false, xl: false, max: false -%}
+                    {%- endcapture -%}
+                    {{ item.image | image_url: width: 180 | image_tag: widths: '64, 128, 180', sizes: sizes, loading: 'lazy' }}
+                  {%- else -%}
+                    <div class="media relative" style="padding-top: 100%;">
+                      {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                    </div>
+                  {%- endif -%}
+                </a>
+              </div>
+            </td>  
+            <td class="customize-cart-item-right">
+              <div class="flex flex-wrap justify-between">
+                <div class="customize-cart-item-right_1">
+                  {%- if section.settings.show_vendor and item.vendor != blank -%}
+                    <div class="text-theme-light text-sm mb-2">
+                      {{ item.vendor }}
+                    </div>
+                  {%- endif -%}
+    
+                  <div class="flex justify-between">
+                    <a class="cart-item__title m-0 font-bold text-current js-item-name" href="{{ item.url }}">
+                      {{- item.product.title | escape -}}
+                    </a>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M5.17115 6.22115C5.92126 5.47127 6.93849 5.05001 7.99915 5.05001C9.0598 5.05001 10.077 5.47127 10.8271 6.22115L11.9991 7.39215L13.1711 6.22115C13.5401 5.83911 13.9815 5.53438 14.4695 5.32475C14.9575 5.11511 15.4824 5.00477 16.0135 5.00015C16.5447 4.99554 17.0714 5.09674 17.563 5.29787C18.0545 5.49899 18.5012 5.796 18.8767 6.17157C19.2523 6.54714 19.5493 6.99375 19.7504 7.48534C19.9516 7.97692 20.0528 8.50364 20.0481 9.03476C20.0435 9.56588 19.9332 10.0908 19.7236 10.5788C19.5139 11.0668 19.2092 11.5082 18.8271 11.8772L11.9991 18.7062L5.17115 11.8772C4.42126 11.127 4 10.1098 4 9.04915C4 7.9885 4.42126 6.97126 5.17115 6.22115Z" fill="#B0BABF"/>
+                    </svg>
+                  </div>     
+    
+                  <div class="cart-item__info">
+                    <div class="flex justify-between">
+                      {%- if variant_price_reduced or item.original_line_price != item.final_line_price -%}
+                        <dl class="m-0">
+                          <span><b>Price:</b></span>
+                          <dt class="visually-hidden">
+                            {{- 'products.product.price.sale_price' | t -}}
+                          </dt>
+                          <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_item_price" data-item-key="{{item.key}}" style="display:none !important;"></span>
+                          <dd class="price__current inline m-0 font-bold customize-cart-summary-sub_total-price">
+                            {{- item.final_price | money -}}
+                          </dd>
+                          <dt class="visually-hidden">
+                            {{- 'products.product.price.regular_price' | t -}}
+                          </dt>
+                          <dd class="inline m-0 customize-cart-summary-sub_total-price">
+                            {%- if variant_price_reduced -%}
+                              <s class="price__was">{{ item.variant.compare_at_price | money }}</s>
+                            {%- else -%}
+                              <s class="price__was">{{ item.original_price | money }}</s>
+                            {%- endif -%}
+                          </dd>
+                        </dl>
+                      {%- else -%}
+                      <div>
+                        <span><b>Price:</b></span>
+                        <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_item_price" data-item-key="{{item.key}}" style="display:none !important;"></span>
+                        <strong class="price__current customize-cart-summary-sub_total-price">
+                          {{- item.original_price | money -}}
+                        </strong>
+                      </div>
+                      {%- endif -%}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M8 4C7.46957 4 6.96086 4.21071 6.58579 4.58579C6.21071 4.96086 6 5.46957 6 6V18C6 18.5304 6.21071 19.0391 6.58579 19.4142C6.96086 19.7893 7.46957 20 8 20H16C16.5304 20 17.0391 19.7893 17.4142 19.4142C17.7893 19.0391 18 18.5304 18 18V9.414C17.9999 8.88361 17.7891 8.37499 17.414 8L14 4.586C13.625 4.2109 13.1164 4.00011 12.586 4H8ZM13 10C13 9.73478 12.8946 9.48043 12.7071 9.29289C12.5196 9.10536 12.2652 9 12 9C11.7348 9 11.4804 9.10536 11.2929 9.29289C11.1054 9.48043 11 9.73478 11 10V12H9C8.73478 12 8.48043 12.1054 8.29289 12.2929C8.10536 12.4804 8 12.7348 8 13C8 13.2652 8.10536 13.5196 8.29289 13.7071C8.48043 13.8946 8.73478 14 9 14H11V16C11 16.2652 11.1054 16.5196 11.2929 16.7071C11.4804 16.8946 11.7348 17 12 17C12.2652 17 12.5196 16.8946 12.7071 16.7071C12.8946 16.5196 13 16.2652 13 16V14H15C15.2652 14 15.5196 13.8946 15.7071 13.7071C15.8946 13.5196 16 13.2652 16 13C16 12.7348 15.8946 12.4804 15.7071 12.2929C15.5196 12.1054 15.2652 12 15 12H13V10Z" fill="#B0BABF"/>
+                      </svg>
+                    </div>
+
+                    <div>
+                      <a href="{{ item.product.url }}#yotpoReviewsWidget">
+                        <div
+                          class="yotpo bottomLine"
+                          data-product-id="{{ item.product.id }}"
+                          data-url="{{ item.product.url }}"></div>
+                      </a>
+                    </div>     
+                    
+                    {%- if item.variant.available and item.unit_price_measurement -%}
+                      <div class="unit-price">
+                        <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+                        <span class="unit-price__price">{{ item.variant.unit_price | money }}</span>
+                        <span class="unit-price__separator">{{ 'products.product.price.unit_price_separator' | t }}</span>
+                        <span class="unit-price__unit">
+                          {%- if item.variant.unit_price_measurement.reference_value != 1 -%}
+                            {{- item.variant.unit_price_measurement.reference_value -}}
+                          {%- endif -%}
+                          {{ item.variant.unit_price_measurement.reference_unit }}
+                        </span>
+                      </div>
+                    {%- endif -%}
+    
+                    {%- if item.product.template_suffix contains 'preorder' -%}
+                      <div class="mt-2">
+                        <span class="product-label product-label--preorder">
+                          {% if settings.preorder_label_icon != "none" %}
+                            {% render 'icon', icon: settings.preorder_label_icon, width: 14, height: 14 %}
+                          {% endif %}
+                          {{- 'products.product.preorder' | t -}}
+                        </span>
+                      </div>
+                    {%- endif -%}
+    
+                    {%- if item.product.has_only_default_variant == false or item.properties.size != 0 or item.selling_plan_allocation != nil -%}
+                      <div class="cart-item__variants text-sm">
+                        <dl class="mt-2 mb-0">
+                          {%- if item.product.has_only_default_variant == false -%}
+                            {%- for option in item.options_with_values -%}
+                              <div>
+                                <dt class="inline"><strong>{{ option.name }}: </strong></dt>
+                                <dd class="inline m-0">{{ option.value }}</dd>
+                              </div>
+                            {%- endfor -%}
+                          {%- endif -%}
+    
+                          <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_item_properties" style="display:none !important;"></span>
+                          {% assign propertySize = item.properties | size %}
+                          {% if propertySize > 0 %}
+                            {% for p in item.properties %}
+                              {% assign first_character_in_key = p.first | truncate: 1, '' %}
+                              {% unless p.last == blank or first_character_in_key == '_' %}
+                                {{ p.first }}:
+                                {% if p.last contains '/uploads/' %}
+                                  <a href="{{ p.last }}">{{ p.last | split: '/' | last }}</a>
+                                {% else %}
+                                  {{ p.last }}
+                                {% endif %}
+                              {% endunless %}
+                            {% endfor %}
+                          {% endif %}
+                        </dl>
+                        {%- if item.selling_plan_allocation != nil -%}
+                          <p class="mt-2 mb-0">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+    
+                    {%- if section.settings.show_backorder_text -%}
+                      {% render 'backorder', product: item.product, variant: item.variant %}
+                    {%- endif -%}
+    
+                    {%- if item.discounts.size > 0 -%}
+                      <ul class="mt-3 mb-2 font-bold" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                        {%- for discount in item.discounts -%}
+                          <li class="mt-2">
+                            <div class="discount text-sm inline-flex items-center">
+                              {% render 'icon-tags' %} {{- discount.title | escape_once -}}
+                            </div>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+                  </div>
+                </div>
+                <div class="customize-cart-item-right_2">
+                  <div class="flex items-center mt-4">
+                    {% render 'quantity-input-cart-item', is_cart: true, item: item, layout_style: 'combined' %}
+                    {% comment %} <a class="cart-item__remove btn btn--icon text-current tap-target js-remove-item" href="{{ item.url_to_remove }}" data-index="{{ item.index | plus: 1 }}" aria-label="{{- 'cart.items.remove' | t -}}"{% if settings.preload_links %} data-no-instant{% endif %}>
+                      {% render 'icon-trash' %}
+                    </a> {% endcomment %}
+                    <div class="cart-item__loader relative is-loading" hidden></div>
+                  </div>
+                  <div class="alert mt-6 bg-error-bg text-error-text cart-item__error" id="line-item-error-{{ item.index | plus: 1 }}" role="alert" hidden></div>
+                </div>
+              </div>
+            </td>  
+
+          </tr>
+          <tr class="customize-cart-item-total-board">
+            <td colspan="2" class="text-right customize-cart-item-total-title">Total</td>
+          </tr>
+          <tr class="customize-cart-item-total-board">
+            <td colspan="2" class="text-right customize-cart-item-total-price">
+              {%- if variant_price_reduced or item.original_line_price != item.final_line_price -%}
+                <dl class="m-0 flex justify-end">
+                  <dt class="visually-hidden">
+                    {{- 'products.product.price.sale_price' | t -}}
+                  </dt>
+                  <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_item_total" data-item-key="{{item.key}}" style="display:none !important;"></span>
+                  <dd class="price__current m-0 font-bold">
+                    {{- item.final_line_price | money -}}
+                  </dd>
+                  <dt class="visually-hidden">
+                    {{- 'products.product.price.regular_price' | t -}}
+                  </dt>
+                  <dd class="m-0">
+                    {%- if variant_price_reduced -%}
+                      <s class="price__was">{{ item.variant.compare_at_price | times: item.quantity | money }}</s>
+                    {%- else -%}
+                      <s class="price__was">{{ item.original_line_price | money }}</s>
+                    {%- endif -%}
+                  </dd>
+                </dl>
+              {%- else -%}
+                <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_item_total" data-item-key="{{item.key}}" style="display:none !important;"></span>
+                <strong class="price__current">
+                  {{- item.original_line_price | money -}}
+                </strong>
+              {%- endif -%}
+            </td>
+          </tr>
+        {%- endfor -%}
+      </tbody>
+    </table>
+  {%- endif -%}
+
+  <p class="visually-hidden" id="cart-live-region-text" role="status" aria-live="polite">
+    {{ 'cart.summary.subtotal' | t }}: {{ cart.total_price | money_with_currency }}
+  </p>
+  <p class="visually-hidden" id="cart-line-item-status" role="status" aria-live="polite" aria-hidden="true">
+    {{- 'accessibility.loading' | t -}}
+  </p>
+
+  {%- if is_drawer -%}
+    <div class="alert mt-6 bg-error-bg text-error-text" id="cart-errors" role="alert" hidden></div>
+  {%- endif -%}
+</cart-items>

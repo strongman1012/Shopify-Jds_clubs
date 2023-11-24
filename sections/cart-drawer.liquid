@@ -1,0 +1,79 @@
+{%- comment %}theme-check-disable NestedSnippet{%- endcomment -%}
+{%- unless request.page_type == 'cart' or settings.cart_type == 'page' -%}
+  {%- render 'cart-drawer' -%}
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "class": "cc-cart-drawer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Cart items"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_backorder_text",
+      "label": "Show backorder text",
+      "default": true,
+      "info": "Only shows for products which use Shopify inventory tracking and can be purchased when out of stock."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Drawer footer"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_order_note",
+      "label": "Show order note",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shipping_text_notice",
+      "label": "Show shipping/tax notice",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_additional_checkout_buttons",
+      "label": "Show additional checkout options",
+      "default": true,
+      "info": "Display other gateways and quick checkout buttons. [Learn more](https://help.shopify.com/en/manual/payments/accelerated-checkouts)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_checkout_button",
+      "label": "Show checkout button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "stick_footer",
+      "label": "Fix the footer to the bottom of the drawer when it scrolls",
+      "info": "If you have a lot of content in the footer, you may want to turn this off to show more cart items.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shipping_calculator",
+      "label": "Show shipping calculator",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "shipping_calculator_default_country",
+      "label": "Shipping calculator default country",
+      "info": "If the customer is logged-in, their default shipping address details will be selected.",
+      "default": "United States"
+    }
+  ]
+}
+{% endschema %}

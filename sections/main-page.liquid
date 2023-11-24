@@ -1,0 +1,58 @@
+{{ 'article.css' | asset_url | stylesheet_tag }}
+
+<div class="container">
+  {%- if section.settings.show_page_title -%}
+    <div class="reading-width rte mb-6 md:mb-8 mt-10 md:mt-16 mx-auto">
+      <h1 class="page__title lg:mt-8 {{ section.settings.heading_align }}">{{ page.title | escape }}</h1>
+    </div>
+  {%- endif -%}
+
+  <div class="page__content reading-width rte article-content mt-12 mx-auto">
+    {{ page.content }}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.page__content table').forEach((table) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'scrollable-table';
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Page",
+  "class": "cc-main-page section section--template",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_page_title",
+      "label": "Show the default page heading",
+      "info": "If hidden, you should provide a primary page heading (h1 tag) in another section with h1 capability (e.g. image banner, slideshow or background video) for SEO purposes.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    }
+  ]
+}
+{% endschema %}

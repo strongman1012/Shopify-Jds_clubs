@@ -1,0 +1,37 @@
+.icons-with-text .carousel[inactive] .icons-with-text--narrow {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.icons-with-text .icon {
+  flex-shrink: 0;
+}
+
+.icons-with-text .slider-nav {
+  right: calc(-1 * var(--gutter));
+  left: calc(-1 * var(--gutter));
+}
+.icons-with-text .slider-nav__btn {
+  padding: 0;
+}
+.icons-with-text .slider__item {
+  scroll-snap-align: end;
+}
+.icons-with-text .slider--no-scrollbar .slider__grid {
+  width: 100%;
+}
+
+.icons-with-text__text:not(.text-center) {
+  margin-inline-start: 20px;
+}
+
+.icons-with-text--narrow {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+  .icons-with-text .slider-nav__btn {
+    padding: 0 10px;
+  }
+}

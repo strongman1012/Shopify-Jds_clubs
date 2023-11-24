@@ -1,0 +1,9 @@
+<div class="custom-article-latest-board">
+  <a href="{{ article.url }}" class="custom-article-latest-img">
+    <img src="{{ article.image | img_url : 'master' }}" class="custom-article-latest-img-1">
+  </a>
+  <div class="custom-article-latest-detail">
+    <a href="{{ article.url }}" class="custom-article-latest-detail-1">{{ article.title | escape }}</a>
+    <label class="custom-article-latest-detail-2">{{ article.published_at | time_tag: format: 'date' }}</label>
+  </div>
+</div>

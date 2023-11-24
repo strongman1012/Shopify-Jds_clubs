@@ -1,0 +1,217 @@
+{%- comment -%}
+  Parameters:
+  - media {Object} - Media object.
+  - media_ratio {Number} - Media aspect ratio.
+  - media_crop {String} - If media should crop to fill available spacfe (Options: none, top, center)
+  - loop {Boolean} - Enable video looping.
+  - lazy_load {Boolean} - Lazy load the media.
+  - zoom {String} - The level of zoom to apply to the image. (Options: off, medium, large, original)
+  - featured_product {Boolean} - Media is for a 'Featured product' section (optional, default is false).
+
+  Usage:
+  {% render 'product-media',
+    media: media,
+    media_ratio: media_ratio,
+    media_crop: 'top',
+    loop: section.settings.enable_video_looping,
+    lazy_load: false,
+    zoom: section.settings.hover_zoom
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  if featured_product
+    assign widths = '536, 800, 1072, 1280'
+    assign src_width = 1280
+    assign sizes_lg = false
+    assign sizes_xl = '640px'
+    assign sizes_max = false
+  elsif section.settings.media_layout == 'stacked'
+    if section.settings.media_size == 'large'
+      assign widths = '430, 640, 860'
+      assign src_width = 860
+      assign sizes_lg = 'calc((50vw - 80px) / 2)'
+      assign sizes_xl = 'calc((100vw - 640px) / 2)'
+      if section.settings.media_ratio == 'natural' or media_crop != 'none' or section.settings.media_ratio == '0.75' or section.settings.media_ratio == '1'
+        assign sizes_max = '500px'
+      else
+        assign sizes_max = '430px'
+      endif
+    else
+      assign widths = '300, 430, 520, 640'
+      assign src_width = 640
+      assign sizes_lg = 'calc((50vw - 80px) / 2)'
+      assign sizes_xl = 'calc((50vw - 128px) / 2)'
+      if section.settings.media_ratio == 'natural' or media_crop != 'none' or section.settings.media_ratio == '0.75' or section.settings.media_ratio == '1'
+        assign sizes_max = '450px'
+      else
+        assign sizes_max = '300px'
+      endif
+    endif
+  else
+    if section.settings.media_size == 'large'
+      if section.settings.media_ratio == 'natural' or media_crop != 'none' or section.settings.media_ratio == '0.75' or section.settings.media_ratio == '1'
+        assign sizes_xl = 'calc(100vw - 400px)'
+        assign sizes_lg = 'calc(100vw - 300px)'
+        assign widths = '640, 900, 1100, 1406'
+        assign src_width = 1406
+        assign sizes_max = '930px'
+      else
+        assign sizes_lg = false
+        assign sizes_xl = 'calc(100vw - 624px)'
+        assign widths = '640, 900, 1406, 1726'
+        assign src_width = 1726
+        assign sizes_max = '600px'
+      endif
+    else
+      assign widths = '640, 900, 1214'
+      assign sizes_xl = 'calc(50vw)'
+      assign sizes_lg = 'calc(50vw)'
+      assign src_width = 1214
+      if section.settings.media_ratio == 'natural' or media_crop != 'none' or section.settings.media_ratio == '0.75' or section.settings.media_ratio == '1'
+        assign sizes_max = '800px'
+      else
+        assign sizes_max = '607px'
+      endif
+    endif
+  endif
+
+  if section.settings.media_ratio != 'natural'
+    if media_crop == 'top'
+      assign img_class = 'product-image img-fit object-top w-full'
+    elsif media_crop == 'center'
+      assign img_class = 'product-image img-fit w-full'
+    else
+      assign img_class = 'product-image img-fit img-fit--contain w-full'
+    endif
+  else
+    assign img_class = 'product-image img-fit img-fit--contain w-full'
+  endif
+
+  if zoom != 'off'
+    case zoom
+      when 'original'
+        assign zoom_level = media.preview_image.width
+        if zoom_level > 5760
+          assign zoom_level = 5760
+        endif
+
+      when 'medium'
+        assign zoom_level = 1000
+
+      when 'large'
+        assign zoom_level = 1500
+    endcase
+  endif
+-%}
+
+{%- capture sizes -%}
+  {%- render 'sizes-attribute', min: 'page', sm: 'page', md: 'calc(50vw - 64px)', lg: sizes_lg, xl: sizes_xl, max: sizes_max -%}
+{%- endcapture -%}
+
+{%- if media.media_type == 'image' -%}
+  <div class="media relative{% if settings.blend_product_images %} image-blend{% endif %}" style="padding-top: {{ 1 | divided_by: media_ratio | times: 100 }}%;">
+    {%- if zoom_level -%}
+      {%- liquid
+        if media_crop != "none"
+          assign height = zoom_level | divided_by: media_ratio
+          assign image_url = media.preview_image | image_url: width: zoom_level, height: height, crop: media_crop
+        else
+          assign image_url = media.preview_image | image_url: width: zoom_level
+        endif
+      -%}
+
+      <a href="{{ image_url }}" rel="nofollow" class="media--cover media--zoom media--zoom-not-loaded inline-flex overflow-hidden absolute top-0 left-0 w-full h-full js-zoom-link" target="_blank">
+    {%- else -%}
+        <div class="media--cover overflow-hidden absolute top-0 left-0 w-full h-full">
+    {%- endif -%}
+
+    {% render 'image',
+      image: media,
+      widths: widths,
+      mobile_widths: '690, 800',
+      src_width: src_width,
+      sizes: sizes,
+      lazy_load: lazy_load,
+      class: img_class,
+      disable_focal_point: true
+    %}
+
+    {%- if zoom_level -%}
+        <img class="zoom-image{% if media_crop == "none" %} zoom-image--contain top-0{% endif %} absolute left-0 right-0 pointer-events-none js-zoom-image no-js-hidden"
+             src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20{{ zoom_level }}%20{{ zoom_level | divided_by: media_ratio }}'%3E%3C/svg%3E" loading="lazy"
+             data-src="{{ image_url }}" width="{{ zoom_level }}" height="{{ zoom_level | divided_by: media_ratio }}"
+             data-original-width="{{ media.preview_image.width }}" data-original-height="{{ media.preview_image.height }}">
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- else -%}
+  {%- if media.media_type == 'model' -%}
+    <product-model class="block relative no-js-hidden" style="padding-top: {{ 1 | divided_by: media_ratio | times: 100 }}%" data-media-id="{{ media.id }}">
+  {%- else -%}
+    <deferred-media class="block relative no-js-hidden" style="padding-top: {{ 1 | divided_by: media_ratio | times: 100 }}%" data-media-id="{{ media.id }}">
+  {%- endif -%}
+
+  <button type="button" class="media-poster absolute top-0 left-0 flex justify-center items-center w-full h-full js-load-media">
+    {%- if media.media_type == 'model' -%}
+      <span class="visually-hidden">{{ 'products.product.media.play_model' | t }}</span>
+      <span class="media-poster__btn absolute flex items-center justify-center pointer-events-none">
+        {%- render 'icon-3d-model' -%}
+      </span>
+    {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+      <span class="visually-hidden">{{ 'products.product.media.play_video' | t }}</span>
+      <span class="media-poster__btn absolute flex items-center justify-center pointer-events-none">
+        {%- render 'icon-video' -%}
+      </span>
+    {%- endif -%}
+
+    {% render 'image',
+      image: media.preview_image,
+      widths: widths,
+      mobile_widths: '690, 800',
+      src_width: src_width,
+      sizes: sizes,
+      lazy_load: lazy_load,
+      class: img_class,
+      alt_text: media.alt,
+      disable_focal_point: true
+    %}
+  </button>
+
+  <template>
+    {%- liquid
+      case media.media_type
+        when 'external_video'
+          assign video_class = 'js-' | append: media.host
+          if media.host == 'youtube'
+            echo media | external_video_url: autoplay: true, loop: loop, playlist: media.external_id | external_video_tag: class: video_class, loading: 'lazy'
+          else
+            echo media | external_video_url: autoplay: true, loop: loop | external_video_tag: class: video_class, loading: 'lazy'
+          endif
+        when 'video'
+          echo media | media_tag: image_size: "1726x", autoplay: true, loop: loop, controls: true, preload: 'none'
+        when 'model'
+          echo media | media_tag: image_size: "1726x", toggleable: true
+      endcase
+    -%}
+  </template>
+
+  {%- if media.media_type == 'model' -%}
+    </product-model>
+    {%- if section.settings.media_layout == 'stacked' and xr_button -%}
+      <button type="button"
+              class="media-xr-button btn btn--primary btn--icon-with-text w-full hidden md:block"
+              data-shopify-model3d-id="{{ media.id }}"
+              data-shopify-title="title"
+              data-shopify-xr
+              data-shopify-xr-hidden>
+        {% render 'icon-3d-model' %}
+        {{ 'products.product.xr_button' | t }}
+      </button>
+    {%- endif -%}
+  {%- else -%}
+    </deferred-media>
+  {%- endif -%}
+{%- endif -%}

@@ -1,0 +1,342 @@
+{%- if section.settings.heading != blank or section.blocks.size > 0 -%}
+  {%- liquid
+    # constants
+    assign breakpoint_sm = 600
+    assign breakpoint_md = 769
+
+    assign color_scheme = section.settings.color_scheme
+    assign bg_color = false
+
+    if color_scheme == '1'
+      assign bg_color = settings.color_scheme_1_bg
+    elsif color_scheme == '2'
+      assign bg_color = settings.color_scheme_2_bg
+    elsif color_scheme == '3'
+      assign bg_color = settings.color_scheme_3_bg
+    endif
+
+    if bg_color == settings.bg_color or bg_color == 'rgba(0,0,0,0)'
+      assign bg_color = false
+    endif
+
+    assign image_height = 0
+    for block in section.blocks
+      if block.settings.image != blank
+        assign h = section.settings.icon_size | divided_by: block.settings.image.aspect_ratio | round
+        if h > image_height
+          assign image_height = h
+        endif
+      else
+        if section.settings.icon_size > image_height
+          assign image_height = section.settings.icon_size
+        endif
+      endif
+    endfor
+  -%}
+
+  {%- style -%}
+    #section-{{ section.id }} .logo-list { column-gap: {{ section.settings.spacing }}px; }
+    @media (max-width: {{ breakpoint_md }}px) {
+      #section-{{ section.id }} .logo-list { column-gap: {{ section.settings.spacing | times: 0.66 }}px; }
+    }
+    @media (max-width: {{ breakpoint_sm }}px) {
+      #section-{{ section.id }} .logo-list { column-gap: {{ section.settings.spacing | times: 0.33 }}px; }
+    }
+    {% for block in section.blocks %}
+      #block-{{ block.id }} { width: {{ block.settings.logo_width }}px; }
+    {% endfor %}
+    {%- if section.settings.layout == 'carousel' -%}
+      {%- assign carousel = true -%}
+      #section-{{ section.id }} .logo-list { grid-template-columns: {% for block in section.blocks %} {{ block.settings.logo_width }}px {% endfor %}; }
+    {%- else -%}
+      {%- assign carousel = false -%}
+    {%- endif -%}
+  {%- endstyle -%}
+
+  {%- unless section.settings.full_width -%}
+    <div class="container">
+  {%- endunless -%}
+
+  <div class="section section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% unless color_scheme == 'none' %} color-scheme color-scheme--no-btns color-scheme--{{ color_scheme }}{% endunless %}" id="section-{{ section.id }}">
+    {%- if section.settings.title != blank or section.settings.button_label != blank -%}
+      <div class="container">
+        <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          {%- if section.settings.title != blank -%}
+            <h2 class="h4 section__heading mb-0 flex-auto {{ section.settings.heading_align }}">
+              {{- section.settings.title | escape -}}
+            </h2>
+          {%- endif -%}
+
+          {%- if section.settings.button_label != blank -%}
+            <a href="{{ section.settings.button_link }}" class="link">{{ section.settings.button_label | escape }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+     {%- endif -%}
+
+      {%- if carousel -%}
+        <carousel-slider class="carousel block lg:overflow-hidden" inactive>
+          <div class="relative container">
+            <div class="slider" id="slider-{{ section.id }}">
+      {%- endif -%}
+
+      <div class="container">
+        <ul class="logo-list{% if carousel %} slider__grid grid{% endif %}{% if section.settings.layout == 'grid' %} grid grid-cols-2 sm:flex sm:flex-wrap {{ section.settings.logo_grid_align }}{% endif %} gap-x-theme gap-y-theme" role="list"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          {%- for block in section.blocks -%}
+            <li class="{% if carousel %}slider__item {% endif %}flex items-center justify-center" {{ block.shopify_attributes }}>
+              <div class="logo-list__logo {% if carousel %}w-full {% endif %}text-center" id="block-{{ block.id }}">
+                {%- if block.settings.image != blank -%}
+                  {%- if block.settings.url != blank -%}
+                    <a class="block" href="{{ block.settings.url }}">
+                  {%- endif -%}
+
+                  {% render 'image',
+                    image: block.settings.image,
+                    src_width: block.settings.logo_width,
+                    srcset_2x: true,
+                    class: 'w-auto'
+                  %}
+
+                  {%- if block.settings.url != blank -%}
+                    </a>
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="media relative" style="padding-top: 100%;">
+                    {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                  </div>
+                {%- endif -%}
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      {%- if carousel -%}
+            </div>
+            {%- if settings.slider_show_arrows != 'never' -%}
+              <div class="slider-nav absolute top-middle end {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:block no-js-hidden">
+                <button type="button" class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}">
+                  <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+                  {% render 'icon-chevron-right' %}
+                </button>
+                <button type="button" class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}">
+                  <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+                  {% render 'icon-chevron-left' %}
+                </button>
+              </div>
+            {%- endif -%}
+          </div>
+        </carousel-slider>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- unless section.settings.full_width -%}
+    </div>
+  {%- endunless -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Logo list",
+  "tag": "section",
+  "class": "cc-logo-list",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Logo list"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "View more label",
+      "default": "Optional link"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "View more link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "radio",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        },
+        {
+          "value": "grid",
+          "label": "Grid"
+        }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Maximum space between logos",
+      "default": 40
+    },
+    {
+      "type": "select",
+      "id": "logo_grid_align",
+      "label": "Grid alignment",
+      "options": [
+        {
+          "value": "justify-start",
+          "label": "Left"
+        },
+        {
+          "value": "justify-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-end",
+          "label": "Right"
+        }
+      ],
+      "default": "justify-center"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
+    }
+  ],
+  "max_blocks": 12,
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link (optional)"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "min": 50,
+          "max": 260,
+          "step": 5,
+          "unit": "px",
+          "label": "Maximum logo width",
+          "default": 120
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo list",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

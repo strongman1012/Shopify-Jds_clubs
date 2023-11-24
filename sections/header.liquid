@@ -1,0 +1,1771 @@
+{% # theme-check-disable LiquidTag, TemplateLength %}
+
+{%- liquid
+  assign has_mega_nav_pills = false
+  assign has_mega_nav_columns = false
+  assign has_mega_nav_sidebar = false
+
+  if section.blocks.size > 0
+    for block in section.blocks
+      if block.type == "pills"
+        assign has_mega_nav_pills = true
+      elsif block.type == "columns"
+        assign has_mega_nav_columns = true
+      elsif block.type == "sidebar"
+        assign has_mega_nav_sidebar = true
+      endif
+    endfor
+  endif
+
+  assign search_is_minimised = false
+  if section.settings.minimise_search_mobile or section.settings.minimise_search_desktop
+    assign search_is_minimised = true
+  endif
+-%}
+
+{%- style -%}
+  .header {
+  --bg-color: {{ section.settings.bg_color.rgba }};
+  --text-color: {{ section.settings.text_color.rgb }};
+  --nav-bg-color: {{ section.settings.bg_color.rgb }};
+  --nav-text-color: {{ section.settings.text_color.rgb }};
+  --nav-child-bg-color:  {{ section.settings.bg_color.rgb }};
+  --nav-child-text-color: {{ section.settings.text_color.rgb }};
+  --header-accent-color: {{ section.settings.accent_color.rgb }};
+  {% unless section.settings.logo %}
+    --logo_type_scale: var(--body-font-size) * {{ section.settings.logo_type_scale }};
+    --logo_font-size: calc((var(--logo_type_scale) / 1.5) * var(--fluid-1-5));
+  {% endunless %}
+  {% if settings.cart_shaking and cart != empty %}
+    --shake-delay: 4s;
+  {% endif %}
+  }
+{%- endstyle -%}
+
+<store-header class="header bg-theme-bg text-theme-text{% if section.settings.enable_sticky or search_is_minimised %} has-motion{% endif %}{% if search_is_minimised %} search-is-collapsed{% endif %}"
+  {%- if section.settings.enable_sticky -%} data-is-sticky="true"{%- endif -%}
+  {%- if search_is_minimised -%} data-is-search-minimised="true"{%- endif -%}
+  style="--header-transition-speed: 300ms;" id="store-header">
+  <header class="header__grid container flex flex-wrap items-center">
+    <div class="logo flex js-closes-menu">
+      {%- if request.page_type == 'index' and section.settings.logo_h1 -%}
+        <h1 class="logo__h1 m-0">
+      {%- endif -%}
+        <a class="logo__link inline-block" href="{{ routes.root_url }}">
+          {%- if section.settings.logo != blank -%}
+            {%- liquid
+              assign logo_width = section.settings.logo_width
+              if section.settings.logo.width < logo_width
+                assign logo_width = section.settings.logo.width
+              endif
+              assign alt_text = section.settings.logo.alt | default: shop.name
+            -%}
+            <span class="flex store-logo-img">
+              {% render 'image',
+                image: section.settings.logo,
+                src_width: logo_width,
+                srcset_2x: true,
+                lazy_load: false,
+                alt_text: alt_text
+              %}
+            </span>
+          {%- else -%}
+            <span class="logo__text h2 text-theme-text m-0">{%- if section.settings.logo_text != blank -%}{{- section.settings.logo_text -}}{%- else -%}{{ shop.name }}{%- endif -%}</span>
+          {%- endif -%}
+        </a>
+      {%- if request.page_type == 'index' and section.settings.logo_h1 -%}
+        </h1>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.enable_search -%}
+      {%- if settings.enable_predictive_search -%}
+        <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}" media="print" onload="this.media='all'">
+        <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+        <script src="{{ 'tabs.js' | asset_url }}" defer="defer"></script>
+      {%- endif -%}
+
+      <div class="header__search{% if section.settings.minimise_search_mobile %} header__search--collapsible-mob{% endif %}{% if section.settings.minimise_search_desktop %} header__search--collapsible-desktop{% endif %}{% if search_is_minimised %} js-search-bar{% endif %} js-closes-menu"{% if search_is_minimised %} id="search-bar"{% endif %}>
+        {% render 'predictive-search', id: 'header-search' %}
+      </div>
+    {%- endif -%}
+
+    <div class="header__icons flex justify-end mis-auto js-closes-menu">
+      {%- if section.settings.enable_search and search_is_minimised -%}
+        <a class="header__icon {% if section.settings.minimise_search_mobile and section.settings.minimise_search_desktop == false %}md:hidden {% elsif section.settings.minimise_search_mobile == false and section.settings.minimise_search_desktop %}hidden md:block{% endif %} js-show-search" href="{{ routes.search_url }}" aria-controls="search-bar">
+          {% render 'icon-search' %}
+          <span class="visually-hidden">{{ 'general.icon_labels.search' | t }}</span>
+        </a>
+      {%- endif -%}
+
+        {%- if customer -%}
+          <a class="header__icon text-current" href="{{ routes.account_url }}">
+            {% render 'icon-customer' %}
+            <span class="visually-hidden">{{ 'sections.header.account' | t }}</span>
+          </a>
+        {%- else -%}
+          <a class="header__icon text-current" href="{{ routes.account_login_url }}">
+            {% render 'icon-customer' %}
+            <span class="visually-hidden">{{ 'sections.header.log_in' | t }}</span>
+          </a>
+        {%- endif -%}
+
+      <a class="header__icon{% if settings.cart_shaking and cart != empty %} header__icon--cart-shake has-motion{% endif %} relative text-current" id="cart-icon" href="{{ routes.cart_url }}"{% if settings.cart_shaking and cart != empty %} data-shake-frequency="{{ settings.cart_shaking_frequency }}"{% endif %}{% if settings.preload_links %} data-no-instant{% endif %}>
+        {%- if settings.cart_icon == 'bag' -%}
+          {%- render 'icon-bag' -%}
+          <span class="visually-hidden">{{ 'sections.header.bag' | t }}</span>
+        {%- elsif settings.cart_icon == 'basket' -%}
+          {%- render 'icon-basket' -%}
+          <span class="visually-hidden">{{ 'sections.header.basket' | t }}</span>
+        {%- else -%}
+          {%- render 'icon-cart' -%}
+          <span class="visually-hidden">{{ 'sections.header.cart' | t }}</span>
+        {%- endif -%}
+
+        <div id="cart-icon-bubble">
+
+          {%- if cart != empty -%}
+            <div class="header__cart-count absolute bg-theme-text text-theme-bg text-center">
+              {%- if cart.item_count < 10000 -%}
+                <span aria-hidden="true" class="header__cart-count-number">{{ cart.item_count }}</span>
+              {%- endif -%}
+              <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+            </div>
+          {%- endif -%}
+        </div>
+      </a>
+    </div>
+
+    {%- if section.settings.menu != blank -%}
+      {%- assign total_promo_count = 0 -%}
+      {%- assign featured_links = section.settings.menu_featured_link | downcase | replace: ', ', ',' | replace: ' ,', ',' | split: ',' -%}
+      <main-menu class="main-menu{% if section.settings.mobile_menu_position == "burger-left" %} main-menu--left-mob{% endif %}" data-menu-sensitivity="200">
+        <details class="main-menu__disclosure{% if section.settings.enable_sticky %} has-motion{% endif %}" open>
+          <summary class="main-menu__toggle md:hidden">
+            <span class="main-menu__toggle-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ 'general.icon_labels.menu' | t }}</span>
+          </summary>
+          <div class="main-menu__content has-motion">
+            <nav aria-label="{{ 'accessibility.main_navigation' | t }}">
+              <ul class="main-nav">
+                {%- for link in section.settings.menu.links -%}
+                  {%- assign link_title_downcase = link.title | downcase -%}
+                  <li>
+                    {%- if link.links == blank -%}
+                      <a class="main-nav__item main-nav__item--primary{% if link.current %} is-active{% endif %}{% if featured_links contains link_title_downcase %} main-nav__link--featured{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
+                        {{- link.title | escape -}}
+                      </a>
+                    {%- else -%}
+                      {%- liquid
+                        assign mega_nav = false
+                        assign link_title_downcase = link.title | strip | downcase
+                        for block in section.blocks
+                          assign mega_name_titles = block.settings.title | downcase | replace: ', ', ',' | replace: ' ,', ',' | split: ','
+                          if mega_name_titles contains link_title_downcase
+                            assign mega_nav = block
+                            break
+                          endif
+                        endfor
+                      -%}
+
+                      <details{% if mega_nav %} class="js-mega-nav" {{ mega_nav.shopify_attributes }}{% endif %}>
+                        <summary class="main-nav__item--toggle relative js-nav-hover js-toggle">
+                          <a class="main-nav__item main-nav__item--primary main-nav__item-content{% if link.current %} is-active{% endif %}{% if featured_links contains link_title_downcase %} main-nav__link--featured{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
+                            {{ link.title | escape }}{% render 'icon-chevron-down' %}
+                          </a>
+                        </summary>
+                        {%- liquid
+                          assign child_nav_classes = ""
+                          assign grandchild_nav_classes = ""
+                          assign flex_auto = false
+                          assign has_badges = false
+                          assign mega_nav_has_columns = false
+
+                          if mega_nav.type == "columns" or mega_nav.type == "sidebar"
+                            assign mega_nav_has_columns = true
+                          endif
+
+                          if mega_nav == false
+                            assign child_nav_classes = "child-nav--dropdown"
+                          else
+                            assign has_grandchildren_menus = false
+                            for child_link in link.links
+                              if child_link.links != blank
+                                assign has_grandchildren_menus = true
+                                break
+                              endif
+                            endfor
+
+                            assign promo_count = 0
+                            if mega_nav.settings.promo1_content != blank or mega_nav.settings.promo1_image != blank
+                              assign promo_count = promo_count | plus: 1
+                            endif
+                            if mega_nav.settings.promo2_content != blank or mega_nav.settings.promo2_image != blank
+                              assign promo_count = promo_count | plus: 1
+                            endif
+                            if mega_nav.settings.promo3_content != blank or mega_nav.settings.promo3_image != blank
+                              assign promo_count = promo_count | plus: 1
+                            endif
+                            assign total_promo_count = total_promo_count | plus: promo_count
+
+                            assign badge_colors = ""
+                            if mega_nav_has_columns
+                              if mega_nav.settings.badge1_link != blank and mega_nav.settings.badge1_text != blank
+                                assign has_badges = true
+                                assign badge1 = mega_nav.settings.badge1_link | downcase | replace: ', ', ',' | replace: ' ,', ',' | split: ','
+                                assign badge_colors = "--badge-1-color:" | append: mega_nav.settings.badge1_color.rgb | append: ";"
+                              endif
+
+                              if mega_nav.settings.badge2_link != blank and mega_nav.settings.badge2_text != blank
+                                assign has_badges = true
+                                assign badge2 = mega_nav.settings.badge2_link | downcase | replace: ', ', ',' | replace: ' ,', ',' | split: ','
+                                assign badge_colors = badge_colors | append: "--badge-2-color:" | append: mega_nav.settings.badge2_color.rgb | append: ";"
+                              endif
+
+                              if mega_nav.settings.badge3_link != blank and mega_nav.settings.badge3_text != blank
+                                assign has_badges = true
+                                assign badge3 = mega_nav.settings.badge3_link | downcase | replace: ', ', ',' | replace: ' ,', ',' | split: ','
+                                assign badge_colors = badge_colors | append: "--badge-3-color:" | append: mega_nav.settings.badge3_color.rgb | append: ";"
+                              endif
+                            endif
+
+                            assign num_columns = link.links | size
+                            if mega_nav.type == "columns"
+                              if num_columns < 4 and promo_count > 0
+                                assign child_nav_classes = "md:flex md:nav-gap-x-16"
+                                assign flex_auto = true
+                              else
+                                assign child_nav_classes = "md:grid md:nav-gap-x-16 md:nav-gap-y-4 md:grid-cols-3"
+                                if mega_nav.settings.promo_position == "bottom" or promo_count == 0
+                                  assign child_nav_classes = child_nav_classes | append: " lg:grid-cols-4"
+                                else
+                                  assign child_nav_classes = child_nav_classes | append: " self-start xl:grid-cols-4"
+                                endif
+                              endif
+                            elsif mega_nav.type == "sidebar"
+                              assign grandchild_nav_classes = "md:grid md:nav-gap-x-8 md:nav-gap-y-4 md:nav-grid-cols-4"
+                            endif
+                          endif
+                        -%}
+                        <div class="main-nav__child{% if mega_nav %} mega-nav mega-nav--{{ mega_nav.type }}{% if has_grandchildren_menus == false %} mega-nav--no-grandchildren{% endif %}{% endif %} has-motion">
+                          {% if mega_nav %}<div class="container{% if promo_count > 0 %} mega-nav--promos-{{ mega_nav.settings.promo_position }}{% endif %}">{% endif %}
+                            <ul class="child-nav{% if child_nav_classes %} {{ child_nav_classes }}{% endif %}">
+                              <li class="md:hidden">
+                                <button type="button" class="main-nav__item main-nav__item--back relative js-back">
+                                  <div class="main-nav__item-content text-start">
+                                    {% render 'icon-chevron-left' %} {{- 'general.navigation.back' | t -}}
+                                  </div>
+                                </button>
+                              </li>
+
+                              <li class="md:hidden">
+                                <a href="{{ link.url }}" class="main-nav__item child-nav__item large-text main-nav__item-header">
+                                  {{- link.title | escape -}}
+                                </a>
+                              </li>
+
+                              {%- for child_link in link.links -%}
+                                {%- liquid
+                                  assign child_link_title_downcase = child_link.title | downcase
+                                  assign collection_image = false
+
+                                  if has_grandchildren_menus == false and mega_nav.type == "pills"
+                                    assign pills_without_grandchildren = true
+                                  else
+                                    assign pills_without_grandchildren = false
+                                  endif
+
+                                  if mega_nav and mega_nav.settings.collection_images != "none" and pills_without_grandchildren == false and child_link.type == 'collection_link'
+                                    assign collection_image = true
+                                    if mega_nav.settings.collection_images == "standard"
+                                      assign collection_image_width = 30
+                                    elsif mega_nav.settings.collection_images == "large"
+                                      assign collection_image_width = 40
+                                    endif
+                                    assign collection_image_size = collection_image_width
+                                    assign collection_image_size_large = collection_image_size | times: 2
+                                    assign collection_image_size_xlarge = collection_image_size | times: 4
+                                  endif
+                                -%}
+
+                                <li{% if flex_auto %} class="flex-auto"{% endif %}>
+                                  {%- if child_link.links == blank -%}
+                                    {%- if collection_image -%}<div class="child-nav__item--toggle flex items-center child-nav__item-collection-image{% if mega_nav and mega_nav_has_columns and mega_nav.settings.show_underline == false %} nav__item--no-underline{% endif %}{% if mega_nav.type == "sidebar" %} js-sidebar-hover{% endif %}">{%- endif -%}
+                                      {%- if collection_image -%}
+                                        {%- liquid
+                                          assign alt_text = child_link.title | escape
+                                          if mega_nav.settings.collection_use_product_image
+                                            assign collection_image_object = collections[child_link.object.handle].all_products.first
+                                          else
+                                            assign collection_image_object = child_link.object
+                                          endif
+                                        -%}
+                                        <div class="main-nav__collection-image media relative main-nav__collection-image--flex main-nav__collection-image--{{ mega_nav.settings.collection_images }}{% if mega_nav.type == "pills" %} md:hidden{% endif %}">
+                                          {% render 'image',
+                                            image: collection_image_object,
+                                            src_width: collection_image_size_large,
+                                            srcset_2x: true,
+                                            class: "img-fit",
+                                            alt_text: alt_text
+                                          %}
+                                        </div>
+
+                                        {%- if mega_nav.type == "pills" -%}
+                                          <div class="main-nav__collection-image media relative main-nav__collection-image--{{ mega_nav.settings.collection_images }} hidden md:block">
+                                            {% render 'image',
+                                              image: collection_image_object,
+                                              src_width: collection_image_size_large,
+                                              srcset_2x: true,
+                                              alt_text: alt_text
+                                            %}
+                                          </div>
+                                        {%- endif -%}
+                                      {%- endif -%}
+                                      <a class="main-nav__item child-nav__item{% if mega_nav and mega_nav_has_columns and mega_nav.settings.show_underline == false %} nav__item--no-underline{% endif %}{% if has_grandchildren_menus and mega_nav.type == "pills" %} md:flex md:items-center md:nav-pb-6{% endif %}{% if mega_nav.type == "sidebar" and forloop.first %} is-visible{% endif %}{% unless collection_image %}{% if mega_nav.type == "sidebar" %} js-sidebar-hover{% endif %}{% endunless %}"
+                                         href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>
+                                        {{- child_link.title | escape -}}
+                                        {% if has_grandchildren_menus and mega_nav.type == "pills" %}
+                                          <div class="hidden md:inline-flex main-nav__icon-circle">
+                                            {% render 'icon-chevron-right' %}
+                                          </div>
+                                        {% endif %}
+                                      </a>
+                                    {%- if collection_image -%}</div>{%- endif -%}
+                                  {%- else -%}
+                                    <nav-menu {% if mega_nav %}class="js-mega-nav"{% endif %}>
+                                      <details open>
+                                        <summary class="child-nav__item--toggle main-nav__item--toggle relative{% if mega_nav %} js-no-toggle-md{% if mega_nav_has_columns and mega_nav.settings.show_underline == false %} nav__item--no-underline{% endif %}{% if mega_nav.type == "sidebar" %} js-sidebar-hover{% if forloop.first %} is-visible{% endif %}{% endif %}{% endif %}">
+                                          <div class="main-nav__item-content{% if mega_nav.settings.collection_images != 'none' %} child-nav__collection-image w-full{% endif %}">
+                                            {%- if collection_image -%}
+                                              {%- liquid
+                                                assign alt_text = child_link.title | escape
+                                                if mega_nav.settings.collection_use_product_image
+                                                  assign collection_image_object = collections[child_link.object.handle].all_products.first
+                                                else
+                                                  assign collection_image_object = child_link.object
+                                                endif
+                                              -%}
+                                              <div class="main-nav__collection-image main-nav__collection-image--flex main-nav__collection-image--{{ mega_nav.settings.collection_images }} media relative{% if mega_nav and mega_nav.type == "pills" %} md:hidden{% endif %}">
+                                                {% render 'image',
+                                                  image: collection_image_object,
+                                                  src_width: collection_image_size_large,
+                                                  srcset_2x: true,
+                                                  class: "img-fit",
+                                                  alt_text: alt_text
+                                                %}
+                                              </div>
+                                            {%- endif -%}
+                                            <a class="child-nav__item main-nav__item main-nav__item-content{% if child_link.current %} is-active{% endif %}{% if featured_links contains child_link_title_downcase %} main-nav__link--featured{% endif %}" href="{{ child_link.url }}"{% if settings.preload_links %} data-no-instant{% endif %}>
+                                              {{- child_link.title | escape -}}{% render 'icon-chevron-down' %}
+                                            </a>
+                                          </div>
+                                        </summary>
+
+                                        <div class="disclosure__panel{% if collection_image and mega_nav and mega_nav.type == "pills" %} main-nav__image-container{% endif %}">
+                                          {%- if collection_image and mega_nav and mega_nav.type == "pills" -%}
+                                            {%- liquid
+                                              if mega_nav.settings.collection_use_product_image
+                                                assign collection_image_object = collections[child_link.object.handle].all_products.first
+                                              else
+                                                assign collection_image_object = child_link.object
+                                              endif
+                                            -%}
+
+                                            <div class="main-nav__collection-image shrink-0 main-nav__collection-image--{{ mega_nav.settings.collection_images }} media relative hidden md:block">
+                                              {% render 'image',
+                                                image: collection_image_object,
+                                                src_width: collection_image_size_xlarge,
+                                                srcset_2x: true,
+                                                alt_text: alt_text
+                                              %}
+                                            </div>
+                                          {%- endif -%}
+
+                                          {%- liquid
+                                            assign image_grid_classes = ""
+                                            if mega_nav.type == "sidebar"
+                                              for grandchild_link in child_link.links
+                                                if mega_nav.settings.show_collection_images and grandchild_link.type == 'collection_link'
+                                                  assign image_grid_classes = "main-nav__grandchild-grid grid grid-cols-2 gap-theme"
+                                                  break
+                                                elsif mega_nav.settings.show_product_images and grandchild_link.type == 'product_link'
+                                                  assign image_grid_classes = "main-nav__grandchild-grid grid grid-cols-2 gap-theme"
+                                                  break
+                                                endif
+                                              endfor
+                                            endif
+                                          -%}
+
+                                          <ul class="main-nav__grandchild has-motion{% if image_grid_classes %} {{ image_grid_classes }}{% endif %}{% if grandchild_nav_classes %} {{ grandchild_nav_classes }}{% endif %}" role="list"{% if badge_colors %} style="{{ badge_colors }}"{% endif %}>
+                                            {%- for grandchild_link in child_link.links -%}
+                                              <li>
+                                                {%- assign grandchild_link_title_downcase = grandchild_link.title | downcase -%}
+                                                <a class="grandchild-nav__item main-nav__item{% if featured_links contains grandchild_link_title_downcase %} main-nav__link--featured{% endif %}" href="{{ grandchild_link.url }}"{% if grandchild_link.current %} aria-current="page"{% endif %}>
+                                                  {%- liquid
+                                                    assign grandchild_image = null
+                                                    if mega_nav.type == "sidebar"
+                                                      if mega_nav.settings.show_collection_images and grandchild_link.type == 'collection_link'
+                                                        if mega_nav.settings.sidebar_link_use_product_image
+                                                          assign grandchild_image = collections[grandchild_link.object.handle].all_products.first
+                                                          if grandchild_image == blank
+                                                            assign grandchild_image = grandchild_link.object
+                                                          endif
+                                                        else
+                                                          assign grandchild_image = grandchild_link.object
+                                                        endif
+                                                      elsif mega_nav.settings.show_product_images and grandchild_link.type == 'product_link'
+                                                        assign grandchild_image = grandchild_link.object
+                                                      endif
+                                                    endif
+                                                  -%}
+
+                                                  {%- if grandchild_image -%}
+                                                    <div class="media relative mb-2 w-full grandchild-nav__image{% if settings.blend_product_images and grandchild_link.type == 'product_link' %} image-blend{% elsif settings.blend_collection_images and grandchild_link.type == 'collection_link' %} image-blend{% endif %}"{%- if mega_nav.settings.aspect_ratio != "natural" -%} style="padding-top: {{ 1 | divided_by: mega_nav.settings.aspect_ratio | times: 100 }}%;"{%- endif -%}>
+                                                      {%- if mega_nav.settings.aspect_ratio == "natural" -%}
+                                                        {%- capture image -%}{% render 'image', image: grandchild_image, src_width: 300, class: 'w-full', alt_text: grandchild_link.title %}{%- endcapture -%}
+                                                      {%- else -%}
+                                                        {%- liquid
+                                                          assign image_width = 300
+                                                          assign image_height = image_width | divided_by: mega_nav.settings.aspect_ratio | round
+                                                        -%}
+                                                        {%- capture image -%}
+                                                          <img src="{{ grandchild_image | image_url: width: image_width, height: image_height, crop: 'center' }}"
+                                                           class="img-fit"
+                                                           loading="lazy"
+                                                           alt="{{ grandchild_link.title | escape }}"
+                                                           height="{{ image_height }}"
+                                                           width="{{ image_width }}">
+                                                        {%- endcapture -%}
+                                                      {%- endif -%}
+
+                                                      {%- unless image contains "Liquid error" -%}
+                                                        {{ image }}
+                                                      {%- endunless -%}
+                                                    </div>
+                                                  {%- endif -%}
+
+                                                  {%- if has_badges -%}
+                                                    {%- assign grandchild_link_title_downcase = grandchild_link.title | downcase -%}
+                                                    {%- if badge1 and badge1 contains grandchild_link_title_downcase -%}
+                                                      <span class="md:mr-2">{{- grandchild_link.title | escape -}}</span>
+                                                      <span class="badge main-nav__badge main-nav__badge--1">{{ mega_nav.settings.badge1_text }}</span>
+                                                    {% elsif badge2 and badge2 contains grandchild_link_title_downcase -%}
+                                                      <span class="md:mr-2">{{- grandchild_link.title | escape -}}</span>
+                                                      <span class="badge main-nav__badge main-nav__badge--2">{{ mega_nav.settings.badge2_text }}</span>
+                                                    {% elsif badge3 and badge3 contains grandchild_link_title_downcase -%}
+                                                      <span class="md:mr-2">{{- grandchild_link.title | escape -}}</span>
+                                                      <span class="badge main-nav__badge main-nav__badge--3">{{ mega_nav.settings.badge3_text }}</span>
+                                                    {%- else -%}
+                                                      {{- grandchild_link.title | escape -}}
+                                                    {%- endif -%}
+                                                  {%- else -%}
+                                                    {{- grandchild_link.title | escape -}}
+                                                  {%- endif -%}
+                                                </a>
+                                              </li>
+                                            {%- endfor -%}
+
+                                            {%- if section.settings.repeat_links and child_link.url != '#' -%}
+                                              <li class="col-start-1 col-end-3">
+                                                <a href="{{ child_link.url }}" class="main-nav__item--go">
+                                                  {{- 'sections.header.go_to' | t: title: child_link.title -}}{% render 'icon-chevron-right' %}
+                                                </a>
+                                              </li>
+                                            {%- endif -%}
+                                          </ul>
+                                        </div>
+                                      </details>
+                                    </nav-menu>
+                                  {%- endif -%}
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+
+                            {%- if mega_nav and promo_count > 0 -%}
+                              <div class="child-promos" data-promo-count="{{ promo_count }}">
+                                <div class="main-nav__promos mt-12 md:nav-mt-4 sm:nav-gap-x-6 sm:grid{% if promo_count < 3 %} sm:grid-cols-2{% else %} sm:nav-grid-cols-3{% endif %}{% if mega_nav.settings.promo_position == "bottom" %} lg:grid-cols-3{% else %} lg:block{% endif %}"
+                                  style="--promo-text-color: {{- mega_nav.settings.promo_text_color -}};--promo-min-height: {{- mega_nav.settings.promo_min_height -}}px;--promo-overlay-color: rgba({{ mega_nav.settings.promo_tint_color.red }}, {{ mega_nav.settings.promo_tint_color.green }}, {{ mega_nav.settings.promo_tint_color.blue }}, {{ mega_nav.settings.promo_tint_opacity | divided_by: 100.0 }});">
+                                  {%- liquid
+                                    if mega_nav.settings.promo_min_height > 250
+                                      assign promo_padding = "p-8"
+                                    elsif mega_nav.settings.promo_min_height > 150
+                                      assign promo_padding = "p-6"
+                                    else
+                                      assign promo_padding = "p-4"
+                                    endif
+                                  -%}
+
+                                  {%- if mega_nav.settings.promo1_content != blank or mega_nav.settings.promo1_image != blank -%}
+                                    {%- liquid
+                                      assign is_link = false
+                                      if mega_nav.settings.promo1_link_url != blank
+                                        unless mega_nav.settings.promo1_content contains "<a"
+                                          assign is_link = true
+                                        endunless
+                                      endif
+                                    -%}
+                                    {%- if is_link -%}
+                                      <a href="{{- mega_nav.settings.promo1_link_url -}}" class="promo hover:grow-media overflow-hidden relative flex {{ promo_padding }} {{ mega_nav.settings.promo1_text_alignment }}">
+                                    {%- else -%}
+                                      <div class="promo relative flex {{ promo_padding }} {{ mega_nav.settings.promo1_text_alignment }}">
+                                    {%- endif -%}
+                                      {%- if mega_nav.settings.promo1_image -%}
+                                        <div class="media absolute top-0 left-0 w-full h-full">
+                                          {% render 'image', image: mega_nav.settings.promo1_image, src_width: 400, srcset_2x: true, class: 'img-fit' %}
+                                        </div>
+                                      {%- endif -%}
+                                      {%- if mega_nav.settings.promo1_content != blank -%}
+                                        <div class="promo__content relative rte" style="--font-size: {{ mega_nav.settings.promo1_text_size }}px; max-width: {{ mega_nav.settings.promo1_text_width }}%;">
+                                          {{- mega_nav.settings.promo1_content -}}
+                                        </div>
+                                      {%- endif -%}
+                                    {%- if is_link -%}
+                                      </a>
+                                    {%- else -%}
+                                      </div>
+                                    {%- endif -%}
+                                  {%- endif -%}
+
+                                  {%- if mega_nav.settings.promo2_content != blank or mega_nav.settings.promo2_image != blank -%}
+                                    {%- liquid
+                                      assign is_link = false
+                                      if mega_nav.settings.promo2_link_url != blank
+                                        unless mega_nav.settings.promo2_content contains "<a"
+                                          assign is_link = true
+                                        endunless
+                                      endif
+                                    -%}
+                                    {%- if is_link -%}
+                                      <a href="{{- mega_nav.settings.promo2_link_url -}}" class="promo hover:grow-media overflow-hidden relative flex {{ promo_padding }} {{ mega_nav.settings.promo2_text_alignment }}">
+                                    {%- else -%}
+                                      <div class="promo relative flex {{ promo_padding }} {{ mega_nav.settings.promo2_text_alignment }}">
+                                    {%- endif -%}
+                                      {%- if mega_nav.settings.promo2_image -%}
+                                        <div class="media absolute top-0 left-0 w-full h-full">
+                                          {% render 'image', image: mega_nav.settings.promo2_image, src_width: 400, srcset_2x: true, class: 'img-fit' %}
+                                        </div>
+                                      {%- endif -%}
+                                      {%- if mega_nav.settings.promo2_content != blank -%}
+                                        <div class="promo__content relative rte" style="--font-size: {{ mega_nav.settings.promo2_text_size }}px; max-width: {{ mega_nav.settings.promo2_text_width }}%;">
+                                          {{- mega_nav.settings.promo2_content -}}
+                                        </div>
+                                      {%- endif -%}
+                                    {%- if is_link -%}
+                                        </a>
+                                    {%- else -%}
+                                      </div>
+                                    {%- endif -%}
+                                  {%- endif -%}
+
+                                  {%- if mega_nav.settings.promo3_content != blank or mega_nav.settings.promo3_image != blank -%}
+                                    {%- liquid
+                                      assign is_link = false
+                                      if mega_nav.settings.promo3_link_url != blank
+                                        unless mega_nav.settings.promo3_content contains "<a"
+                                          assign is_link = true
+                                        endunless
+                                      endif
+                                    -%}
+                                    {%- if is_link -%}
+                                      <a href="{{- mega_nav.settings.promo3_link_url -}}" class="promo hover:grow-media overflow-hidden relative flex {{ promo_padding }} {{ mega_nav.settings.promo3_text_alignment }}">
+                                    {%- else -%}
+                                      <div class="promo relative flex {{ promo_padding }} {{ mega_nav.settings.promo3_text_alignment }}">
+                                    {%- endif -%}
+                                      {%- if mega_nav.settings.promo3_image -%}
+                                        <div class="media absolute top-0 left-0 w-full h-full">
+                                          {% render 'image', image: mega_nav.settings.promo3_image, src_width: 400, srcset_2x: true, class: 'img-fit' %}
+                                        </div>
+                                      {%- endif -%}
+                                      {%- if mega_nav.settings.promo3_content != blank -%}
+                                        <div class="promo__content relative rte" style="--font-size: {{ mega_nav.settings.promo3_text_size }}px; max-width: {{ mega_nav.settings.promo3_text_width }}%;">
+                                          {{- mega_nav.settings.promo3_content -}}
+                                        </div>
+                                      {%- endif -%}
+                                    {%- if is_link -%}
+                                      </a>
+                                    {%- else -%}
+                                      </div>
+                                    {%- endif -%}
+                                  {%- endif -%}
+                                </div>
+                              </div>
+                            {%- endif -%}
+
+                          {%- if mega_nav -%}</div>{%- endif -%}
+                        </div>
+                      </details>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </nav>
+
+            {%- if section.settings.quicklinks_menu != blank -%}
+              <nav aria-label="{{ 'accessibility.secondary_navigation' | t }}" class="secondary-nav-container">
+                <ul class="secondary-nav" role="list">
+                  {% for link in section.settings.quicklinks_menu.links %}
+                    <li>
+                      <a class="secondary-nav__item" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>
+                        {{- link.title | escape -}}
+                      </a>
+                    </li>
+                    {%- liquid
+                      if forloop.index == 4
+                        break
+                      endif
+                    -%}
+                  {% endfor %}
+                </ul>
+              </nav>
+            {%- endif -%}
+          </div>
+        </details>
+      </main-menu>
+    {%- endif -%}
+  </header>
+</store-header>
+
+{%- if has_mega_nav_pills -%}
+  <link rel="stylesheet" href="{{ 'navigation-mega-pills.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{%- if has_mega_nav_columns -%}
+  <link rel="stylesheet" href="{{ 'navigation-mega-columns.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{%- if has_mega_nav_sidebar -%}
+  <link rel="stylesheet" href="{{ 'navigation-mega-sidebar.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{%- if total_promo_count > 0 -%}
+  <link rel="stylesheet" href="{{ 'promos.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'navigation-promos.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{% javascript %}
+  customElements.whenDefined('details-disclosure').then(() => {
+    class NavMenu extends DetailsDisclosure {
+      constructor() {
+        super();
+
+        if(this.matches('.js-mega-nav')) {
+          this.reset(false);
+          window.addEventListener('on:breakpoint-change', this.reset.bind(this));
+        }
+      }
+
+      reset(resize = true) {
+        const isLargeScreen = window.matchMedia(theme.mediaQueries.md).matches;
+        this.disclosure.open = isLargeScreen;
+        if (isLargeScreen) {
+          this.toggle.setAttribute('tabindex', '-1');
+        } else {
+          this.toggle.removeAttribute('tabindex');
+        }
+      }
+
+      handleToggle(e) {
+        if (!(this.matches('.js-mega-nav') && window.matchMedia(theme.mediaQueries.md).matches)) {
+          super.handleToggle(e);
+        }
+      }
+    }
+
+    customElements.define('nav-menu', NavMenu);
+  });
+{% endjavascript %}
+
+{% render 'structured-data-header' %}
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "cc-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky",
+      "label": "Enable sticky header",
+      "default": false
+    },
+    {
+      "type": "radio",
+      "id": "mobile_menu_position",
+      "label": "Mobile menu icon position",
+      "options": [
+        {
+          "value": "burger-right",
+          "label": "Right"
+        },
+        {
+          "value": "burger-left",
+          "label": "Left"
+        }
+      ],
+      "default": "burger-right"
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logo text",
+      "info": "Only shows if a logo image is not specified.",
+      "placeholder": "Use store name"
+    },
+    {
+      "type": "select",
+      "id": "logo_type_scale",
+      "label": "Logo text scale",
+      "info": "Logo text size is calculated from the body font size.",
+      "options": [
+        {
+          "value": "1.5",
+          "label": "Small"
+        },
+        {
+          "value": "2",
+          "label": "Medium"
+        },
+        {
+          "value": "2.5",
+          "label": "Large"
+        },
+        {
+          "value": "3",
+          "label": "Extra large"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum logo width",
+      "default": 150
+    },
+    {
+      "type": "checkbox",
+      "id": "logo_h1",
+      "label": "Make the logo an <h1> on the homepage",
+      "info": "If a section on the homepage contains a primary page heading, this should be unticked. [Learn more](https://cleancanvas.co.uk/support/enterprise/seo)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Search"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_search",
+      "label": "Enable search",
+      "info": "See \"Theme Settings > Search\" for more search settings.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "minimise_search_mobile",
+      "label": "Minimise search on mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "minimise_search_desktop",
+      "label": "Minimise search on desktop",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Main menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "repeat_links",
+      "label": "Add 'Go to' links to submenus [Read more](https://cleancanvas.co.uk/support/enterprise/sections/header/go-to-links)",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "menu_featured_link",
+      "label": "Featured link",
+      "info": "Enter links to highlight in the Accent color. Separate multiple links with commas. e.g. 'Shop,Sale'.",
+      "default": "Sale"
+    },
+    {
+      "type": "link_list",
+      "id": "quicklinks_menu",
+      "label": "Quicklinks menu",
+      "info": "Shows a maximum of four menu items separately to the main menu. This menu does not support dropdowns."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#070707"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#777777"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "columns",
+      "name": "Column Mega Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Link name",
+          "info": "The name of any top-level link that you wish to turn into a mega menu. Separate multiple links with commas. e.g. 'Shop,Collection'."
+        },
+        {
+          "type": "header",
+          "content": "Headings"
+        },
+        {
+          "type": "select",
+          "id": "collection_images",
+          "label": "Collection images",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "checkbox",
+          "id": "collection_use_product_image",
+          "label": "Use the first product image as the collection image",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_underline",
+          "label": "Show underline",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Promotions"
+        },
+        {
+          "type": "radio",
+          "id": "promo_position",
+          "label": "Position on large screens",
+          "options": [
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ],
+          "default": "bottom"
+        },
+        {
+          "type": "range",
+          "id": "promo_min_height",
+          "min": 50,
+          "max": 700,
+          "step": 10,
+          "unit": "px",
+          "label": "Minimum height",
+          "default": 200
+        },
+        {
+          "type": "color",
+          "id": "promo_text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "promo_tint_color",
+          "label": "Tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "promo_tint_opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Tint opacity",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Promotion 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "promo1_image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "promo1_content",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "promo1_link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "range",
+          "id": "promo1_text_size",
+          "min": 14,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "promo1_text_width",
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Text width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "promo1_text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start text-center",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start text-right",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center text-right",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end text-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end text-right",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Promotion 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "promo2_image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "promo2_content",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "promo2_link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "range",
+          "id": "promo2_text_size",
+          "min": 14,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "promo2_text_width",
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Text width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "promo2_text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Promotion 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "promo3_image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "promo3_content",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "promo3_link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "range",
+          "id": "promo3_text_size",
+          "min": 14,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "promo3_text_width",
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Text width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "promo3_text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Badge 1"
+        },
+        {
+          "type": "paragraph",
+          "content": "Badges are small words highlighted with a color that show next to your third-level links. Shows on large screens only, limited to one badge per link. [Read more](https://cleancanvas.co.uk/support/enterprise/sections/header/mega-menus)"
+        },
+        {
+          "type": "color",
+          "id": "badge1_color",
+          "label": "Color",
+          "default": "#000000"
+        },
+        {
+          "type": "text",
+          "id": "badge1_link",
+          "label": "Link",
+          "info": "Separate links with commas. e.g. 'Shop,Sale'."
+        },
+        {
+          "type": "text",
+          "id": "badge1_text",
+          "label": "Badge text"
+        },
+        {
+          "type": "header",
+          "content": "Badge 2"
+        },
+        {
+          "type": "color",
+          "id": "badge2_color",
+          "label": "Color",
+          "default": "#000000"
+        },
+        {
+          "type": "text",
+          "id": "badge2_link",
+          "label": "Link",
+          "info": "Separate links with commas. e.g. 'Shop,Sale'."
+        },
+        {
+          "type": "text",
+          "id": "badge2_text",
+          "label": "Badge text"
+        },
+        {
+          "type": "header",
+          "content": "Badge 3"
+        },
+        {
+          "type": "color",
+          "id": "badge3_color",
+          "label": "Color",
+          "default": "#000000"
+        },
+        {
+          "type": "text",
+          "id": "badge3_link",
+          "label": "Link",
+          "info": "Separate links with commas. e.g. 'Shop,Sale'."
+        },
+        {
+          "type": "text",
+          "id": "badge3_text",
+          "label": "Badge text"
+        }
+      ]
+    },
+    {
+      "type": "pills",
+      "name": "Button Mega Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Link name",
+          "info": "The name of any first-level link that you wish to turn into a mega menu (e.g. Shop)"
+        },
+        {
+          "type": "header",
+          "content": "Headings"
+        },
+        {
+          "type": "select",
+          "id": "collection_images",
+          "label": "Collection images",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "checkbox",
+          "id": "collection_use_product_image",
+          "label": "Use the first product image as the collection image",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Promotions"
+        },
+        {
+          "type": "radio",
+          "id": "promo_position",
+          "label": "Position on large screens",
+          "options": [
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ],
+          "default": "bottom"
+        },
+        {
+          "type": "range",
+          "id": "promo_min_height",
+          "min": 50,
+          "max": 700,
+          "step": 10,
+          "unit": "px",
+          "label": "Minimum height",
+          "default": 200
+        },
+        {
+          "type": "color",
+          "id": "promo_text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "promo_tint_color",
+          "label": "Tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "promo_tint_opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Tint opacity",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Promotion 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "promo1_image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "promo1_content",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "promo1_link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "range",
+          "id": "promo1_text_size",
+          "min": 14,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "promo1_text_width",
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Text width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "promo1_text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Promotion 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "promo2_image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "promo2_content",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "promo2_link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "range",
+          "id": "promo2_text_size",
+          "min": 14,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "promo2_text_width",
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Text width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "promo2_text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Promotion 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "promo3_image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "promo3_content",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "promo3_link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "range",
+          "id": "promo3_text_size",
+          "min": 14,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "promo3_text_width",
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Text width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "promo3_text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sidebar",
+      "name": "Sidebar Mega Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Link name",
+          "info": "The name of any top-level link that you wish to turn into a mega menu. Separate multiple links with commas. e.g. 'Shop,Collection'."
+        },
+        {
+          "type": "header",
+          "content": "Left hand side links"
+        },
+        {
+          "type": "select",
+          "id": "collection_images",
+          "label": "Collection images",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "checkbox",
+          "id": "collection_use_product_image",
+          "label": "Use the first product image as the collection image",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_underline",
+          "label": "Show underline",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Right hand side links"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_collection_images",
+          "label": "Show collection images",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "sidebar_link_use_product_image",
+          "label": "Use the first product image as the collection image",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_product_images",
+          "label": "Show product images",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "aspect_ratio",
+          "label": "Image aspect ratio",
+          "options": [
+            {
+              "value": "natural",
+              "label": "Natural"
+            },
+            {
+              "value": "1.77",
+              "label": "Landscape"
+            },
+            {
+              "value": "1",
+              "label": "Square"
+            },
+            {
+              "value": "0.75",
+              "label": "Portrait"
+            },
+            {
+              "value": "0.6",
+              "label": "Portrait Tall"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "header",
+          "content": "Badge 1"
+        },
+        {
+          "type": "paragraph",
+          "content": "Badges are small words highlighted with a color that show next to your third-level links. Shows on large screens only, limited to one badge per link. [Read more](https://cleancanvas.co.uk/support/enterprise/sections/header/mega-menus)"
+        },
+        {
+          "type": "color",
+          "id": "badge1_color",
+          "label": "Color",
+          "default": "#000000"
+        },
+        {
+          "type": "text",
+          "id": "badge1_link",
+          "label": "Link",
+          "info": "Separate links with commas. e.g. 'Shop,Sale'."
+        },
+        {
+          "type": "text",
+          "id": "badge1_text",
+          "label": "Badge text"
+        },
+        {
+          "type": "header",
+          "content": "Badge 2"
+        },
+        {
+          "type": "color",
+          "id": "badge2_color",
+          "label": "Color",
+          "default": "#000000"
+        },
+        {
+          "type": "text",
+          "id": "badge2_link",
+          "label": "Link",
+          "info": "Separate links with commas. e.g. 'Shop,Sale'."
+        },
+        {
+          "type": "text",
+          "id": "badge2_text",
+          "label": "Badge text"
+        },
+        {
+          "type": "header",
+          "content": "Badge 3"
+        },
+        {
+          "type": "color",
+          "id": "badge3_color",
+          "label": "Color",
+          "default": "#000000"
+        },
+        {
+          "type": "text",
+          "id": "badge3_link",
+          "label": "Link",
+          "info": "Separate links with commas. e.g. 'Shop,Sale'."
+        },
+        {
+          "type": "text",
+          "id": "badge3_text",
+          "label": "Badge text"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

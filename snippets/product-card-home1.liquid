@@ -1,0 +1,412 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+{%- comment -%}
+Parameters:
+- product {Object} - Product object.
+- collection {Object} - Collection object (optional).
+- image_ratio {Number} - Aspect ratio for the image(s).
+- disable_quickbuy {Boolean} - Force disables quickbuy (even if enabled in settings)
+
+Usage:
+{% render 'product-card', product: product %}
+{%- endcomment -%}{%- liquid
+  if collection and settings.card_url_within_coll and product.collections contains collection
+    assign product_url = product.url | within: collection
+  else
+    assign product_url = product.url
+  endif
+
+  if product_url contains "?"
+    assign product_url = product_url | split: "?" | first
+  endif
+
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_images = product.media | where: 'media_type', 'image'
+
+  if settings.card_show_hover_image and product_images.size > 1
+    assign show_hover_image = true
+
+    if product_images.size >= product.featured_media.position
+      assign hover_image = product_images[product.featured_media.position]
+    else
+      assign hover_image = product_images[0]
+    endif
+  else
+    assign show_hover_image = false
+  endif
+
+  if image_ratio == nil
+    if settings.prod_card_image_ratio == 'shortest' or settings.prod_card_image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = settings.prod_card_image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  if section.settings.card_size == 'small'
+    assign swatch_limit = 4
+  else
+    assign swatch_limit = 7
+  endif
+
+  if product.featured_media
+    if section.settings.card_size == 'small'
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2, sm: 3, md: 4, xl: 5
+      endcapture
+    elsif section.settings.card_size == 'large'
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1, sm: 2, xl: 3
+      endcapture
+    else
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1, sm: 3, md: 4
+      endcapture
+    endif
+
+    if settings.prod_card_image_fit == 'contain'
+      assign class = 'img-fit img-fit--contain card__main-image'
+    else
+      assign class = 'img-fit card__main-image ' | append: settings.prod_card_image_align
+    endif
+  endif
+
+  assign image_quality = 1
+  if product.featured_media.preview_image.aspect_ratio > 1 and settings.prod_card_image_ratio != "1.77" and settings.prod_card_image_fit == "cover"
+    assign image_quality = 2
+  endif
+
+  assign product_not_for_sale = false
+  if product.template_suffix contains 'coming-soon' or product.template_suffix contains 'countdown'
+    assign product_not_for_sale = true
+  endif
+-%}
+
+  {%- if product and product != empty -%}
+    <product-card class="card card--product h-full{% if settings.card_contain %} card--product-contained{% endif %}{% unless settings.show_dividers %} card--no-lines{% endunless %}{% if show_compare %} card--product-compare{% endif %} relative flex"> {%- if show_compare -%}
+      <div class="card__compare no-js-hidden text-sm">
+        <input
+          type="checkbox"
+          class="checkbox checkbox--compare js-compare-checkbox"
+          id="compare-{{ product.id }}"
+          data-product-id="{{ product.id }}"
+          data-product-url="{{ product_url }}">
+        <label for="compare-{{ product.id }}">{{ 'products.compare.switch_label' | t }}</label>
+      </div>
+    {%- endif -%}
+
+    <div class="card__media{% if show_hover_image %} has-hover-image{% endif %}{% if settings.blend_product_images %} image-blend{% endif %} relative">
+      <a
+        href="{{ product_url }}"
+        aria-label="{{ product.title | escape }}"
+        class="media block relative{% if settings.blend_product_images %} image-blend{% endif %} js-prod-link"
+        style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;"
+        tabindex="-1">
+        {%- if product.featured_media -%}
+          {%- capture attributes %}data-media-id="{{ product.featured_media.id }}"{% endcapture -%}
+          {% render 'image'
+           , image: product.featured_media.preview_image,
+           widths: '320, 460, 600, 700, 800, 900, 1200',
+           src_width: 460,
+           src_placeholder: true,
+           sizes: sizes,
+           class: class,
+           attributes: attributes,
+           disable_focal_point: true,
+           quality: image_quality %}
+
+          {%- if settings.card_colors_style == 'swatches' or settings.card_colors_style == 'variant-images' -%}
+            {%- assign variant_media = product.variants | map: 'featured_media' -%}
+            {%- for media in variant_media -%}
+              {%- unless media == product.featured_media -%}
+                {%- capture attributes %}data-media-id="{{ media.id }}" hidden{% endcapture -%}
+                {% render 'image'
+                 , image: media,
+                 widths: '320, 460, 600, 700, 800, 900, 1200',
+                 src_width: 460,
+                 sizes: sizes,
+                 class: class,
+                 attributes: attributes,
+                 disable_focal_point: true,
+                 quality: image_quality %}
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          {%- if show_hover_image -%}
+            {%- assign class = class | replace: 'card__main-image', 'card__hover-image' -%}
+            {% render 'image'
+             , image: hover_image,
+             widths: '320, 460, 600, 700, 800, 900, 1200',
+             src_width: 460,
+             src_placeholder: true,
+             sizes: sizes,
+             class: class,
+             disable_focal_point: true,
+             quality: image_quality %}
+          {%- endif -%}
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+        {%- endif -%}
+      </a>
+
+      {%- liquid
+        if settings.product_label_card_position != "none"
+          render 'product-label', product: product, position: settings.product_label_card_position, is_product_card: true, limit: 2
+        endif
+      -%}
+    </div>
+
+    <div class="card__info-container flex flex-col flex-auto relative">
+      <div class="card__info w-full">
+        <div class="card__info-inner inline-block w-full">
+          {%- if settings.card_show_vendor -%}
+            <p class="card__vendor{% if settings.show_dividers %} mb-1{% else %} mb-0{% endif %} text-sm text-theme-light">
+              {{- product.vendor -}}
+            </p>
+          {%- endif -%}
+
+          <p class="card__title font-bold{% if settings.show_dividers %} mb-1{% else %} mt-1 mb-0{% endif %}">
+            <a href="{{ product_url }}" class="card-link text-current js-prod-link">
+              {{- product.title | escape -}}
+            </a>
+          </p>
+          <a href="{{ product.url }}#yotpoReviewsWidget">
+            <div
+              class="yotpo bottomLine"
+              data-product-id="{{ product.id }}"
+              data-url="{{ product.url }}"></div>
+          </a>
+
+          {%- if settings.card_show_subtitle and product.metafields.descriptors.subtitle != blank -%}
+            <p class="text-sm text-current mb-1{% unless settings.show_dividers %} mt-1{% endunless %}">
+              {{ product.metafields.descriptors.subtitle }}
+            </p>
+          {%- endif -%}
+
+          {%- if product.metafields.reviews.rating.value != blank and settings.card_show_rating -%}
+            {% render 'rating'
+             , rating_value: product.metafields.reviews.rating.value,
+             rating_count: product.metafields.reviews.rating_count %}
+          {%- endif -%}
+
+          {%- render 'price', product: product -%}
+
+          {%- if settings.card_colors_style != 'none' -%}
+            {%- for option in product.options_with_values -%}
+              {%- if settings.swatch_option_name contains option.name -%}
+                {%- if settings.card_colors_style == 'swatches' or settings.card_colors_style == 'variant-images' -%}
+                  {%- liquid
+                    assign swatch_size = settings.card_swatch_size | times: 2
+                    if settings.image_quality == 0.75
+                      assign swatch_size = settings.card_swatch_size
+                    endif
+                  -%}
+                  <div class="card__swatches{% if settings.show_dividers %} mt-3 border-top{% else %} mt-2 pb-1{% endif %} pt-3 flex items-center relative">
+                    {%- capture option_id %}
+                      {{ section.id }}-{{ product.id }}-{{ option.name | handle }}{% endcapture -%}
+                    {%- assign variant_key = 'option' | append: option.position -%}
+
+                    {%- for value in option.values limit: swatch_limit -%}
+                      {%- liquid
+                        assign variant_value = product.variants | where: variant_key, value | first
+                        if option.selected_value == value
+                          assign selected_color = value
+                        endif
+                      -%}
+                      <input
+                        type="radio"
+                        class="opt-btn visually-hidden js-option"
+                        name="{{ option_id }}-option"
+                        id="{{ option_id }}-opt-{{ forloop.index0 }}"
+                        value="{{ value | escape }}"
+                        data-variant-id="{{ variant_value.id }}"
+                        {% if variant_value.featured_media %}
+                        data-media-id="{{ variant_value.featured_media.id }}"
+                        {% endif %}
+                        {% if option.selected_value == value %}
+                        checked
+                        {% endif %}>
+                      <label
+                        class="opt-label opt-label--swatch relative"
+                        title="{{ value | replace: '"', '`' }}"
+                        data-swatch="{% if settings.card_colors_style != 'variant-images' or variant_value.featured_media == blank %}{{ value | replace: '"', '' | downcase }}{% endif %}"
+                        for="{{ option_id }}-opt-{{ forloop.index0 }}">
+                        {%- if settings.card_colors_style == 'variant-images' and variant_value.featured_media -%}
+                          <img
+                            loading="lazy"
+                            class="img-fit bg-theme-bg"
+                            src="{{ variant_value.featured_media.preview_image | image_url: width: swatch_size, height: swatch_size, crop: 'center' }}"
+                            height="{{ swatch_size }}"
+                            width="{{ swatch_size }}"
+                            alt="{{ variant_value.featured_media.preview_image.alt | escape }}" />
+                        {%- endif -%}
+                        <span class="visually-hidden">{{ value }}</span>
+                      </label>
+                    {%- endfor -%}
+
+                    {%- if option.values.size > swatch_limit -%}
+                      <span class="text-end text-sm">+{{ option.values.size | minus: swatch_limit }}</span>
+                    {%- endif -%}
+                  </div>
+                {%- else -%}
+                  {%- if option.values.size == 1 -%}
+                    <p class="mt-2">{{ 'sections.collection.colors_single' | t }}</p>
+                  {%- else -%}
+                    <p class="mt-2">{{ 'sections.collection.colors_count' | t: count: option.values.size }}</p>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          {%- if settings.card_show_inventory -%}
+            {%- liquid
+              assign total = 0
+              for variant in product.variants
+                if variant.inventory_management != blank and variant.inventory_quantity > 0
+                  assign total = total | plus: variant.inventory_quantity
+                endif
+              endfor
+
+              if total <= 0
+                if product.available
+                  assign inventory_level = 'in_stock'
+                else
+                  assign inventory_level = 'hide'
+                endif
+              elsif total <= settings.inventory_threshold_very_low
+                assign inventory_level = 'very_low'
+              elsif total <= settings.inventory_threshold_low
+                assign inventory_level = 'low'
+              else
+                assign inventory_level = 'normal'
+              endif
+
+              if inventory_level == "normal" or inventory_level == "in_stock"
+                if settings.inventory_show_notice == "low"
+                  assign inventory_level = 'hide'
+                endif
+              endif
+            -%}
+
+            {%- unless inventory_level == 'hide' -%}
+              <div class="{% if settings.show_dividers %}mt-3 border-top pt-3{% else %}pt-5{% endif %} text-xs product-inventory__status" data-inventory-level="{{ inventory_level }}">
+                {%- if inventory_level == 'very_low' -%}
+                  {{ 'products.inventory.very_low_stock' | t }}
+                  {%- if settings.inventory_show_count != "never" and total > 0 -%}
+                    ({{ 'products.inventory.available_count' | t: count: total }})
+                  {%- endif -%}
+                {%- elsif inventory_level == 'low' -%}
+                  {{ 'products.inventory.low_stock' | t }}
+                  {%- if settings.inventory_show_count != "never" and total > 0 -%}
+                    ({{ 'products.inventory.available_count' | t: count: total }})
+                  {%- endif -%}
+                {%- else -%}
+                  {{ 'products.inventory.in_stock' | t }}
+                  {%- if settings.inventory_show_count == "always" and total > 0 -%}
+                    ({{ 'products.inventory.available_count' | t: count: total }})
+                  {%- endif -%}
+                {%- endif -%}
+              </div>
+            {%- endunless -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- if settings.enable_quick_add and disable_quickbuy != true -%}
+        <div
+          class="card__quick-add
+          {% if settings.card_atc_mobile == "text_button_bottom" %}mob:card__quick-add--below{% endif %}
+          {% if settings.card_atc_mobile == "icon" %}mob:card__quick-add--icon{% endif %}
+          {% if settings.card_atc_desktop == "text_button_bottom" %}desktop:card__quick-add--below{% endif %}
+          {% if settings.card_atc_desktop == "icon" %}desktop:card__quick-add--icon{% endif %}">
+          {%- assign product_form_id = 'quick-add-' | append: section_id | append: product.id -%}
+
+          {%- if product.has_only_default_variant and product_not_for_sale == false -%}
+            <product-form>
+              <div
+                class="alert mb-8 bg-error-bg text-error-text js-form-error text-start"
+                role="alert"
+                hidden></div>
+              {%- form 'product', product, class: 'js-product-form', id: product_form_id, novalidate: 'novalidate' -%}
+                <input
+                  type="hidden"
+                  name="id"
+                  value="{{ current_variant.id }}"
+                  disabled>
+
+                {%- capture button_text -%}
+                  {%- if product.template_suffix contains 'preorder' -%}
+                    {{- 'products.product.preorder' | t -}}
+                  {%- else -%}
+                    {{- 'products.product.add_to_cart' | t -}}
+                  {%- endif -%}
+                {%- endcapture -%}
+
+                <button
+                  class="btn btn--primary w-full custom-product-card-home1"
+                  data-add-to-cart-text="{{- button_text | escape -}}"
+                  name="add"
+                  aria-haspopup="dialog"
+                  {%- if current_variant.available == false %}disabled{% endif %}>
+                  <span class="quick-add-btn-icon">
+                    <span class="visually-hidden">{{- button_text -}}</span>
+                    {% render 'icon-add-to-cart' %}
+                  </span>
+                  <span class="quick-add-btn-text">
+                    {{- button_text -}}
+                  </span>
+                </button>
+                <a href="{{ product_url }}" class="btn btn--secondary quick-add-view-btn">
+                  {{- 'products.product.view_details' | t -}}
+                </a>
+              {%- endform -%}
+            </product-form>
+          {%- else -%}
+            <div class="no-js-hidden">
+              <button
+                type="button"
+                class="btn btn--primary w-full js-quick-add custom-product-card-home1"
+                aria-haspopup="dialog"
+                data-product-url="{{ product_url }}"
+                data-product-default-variant="{{ product.has_only_default_variant }}"
+                {% if selected_color %}data-selected-color="{{ selected_color }}"{% endif %}>
+                <span class="quick-add-btn-icon block pointer-events-none">
+                  <span class="visually-hidden">{{- 'products.product.choose_options' | t -}}</span>
+                  {% render 'icon-add-to-cart' %}
+                </span>
+                <span class="quick-add-btn-text block pointer-events-none">
+                  {{- 'products.product.choose_options' | t -}}
+                </span>
+              </button>
+              <a href="{{ product_url }}" class="btn btn--secondary quick-add-view-btn">
+                {{- 'products.product.view_details' | t -}}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </product-card>
+{%- else -%}
+  <div class="card">
+    <div class="card__media">
+      <div class="media relative" style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">
+        {%- capture placeholder_name -%}product-{{ 'now' | date: '%N' | modulo: 6 | plus: 1 }}{%- endcapture -%}
+        {{ placeholder_name | placeholder_svg_tag: 'media__placeholder img-fit' }}
+      </div>
+    </div>
+    <div class="card__info">
+      <p class="card__title font-bold">{{ 'onboarding.product.title' | t }}</p>
+      <div class="card__price theme-money">
+        {%- if settings.show_currency_code -%}
+          {{- 1234 | money_with_currency -}}
+        {%- else -%}
+          {{- 1234 | money -}}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

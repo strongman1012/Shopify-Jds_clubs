@@ -1,0 +1,79 @@
+<div class="account-nav">
+  <div class="container flex justify-center column account-buttons">
+    <a class="btn btn--secondary" href="{{ routes.account_addresses_url }}">
+      {{ 'customer.addresses.title' | t }}
+    </a>
+    <a class="btn btn--secondary" href="{{ routes.account_logout_url }}"{% if settings.preload_links %} data-no-instant{% endif %}>
+      {{- 'customer.account.log_out' | t -}}
+    </a>
+  </div>
+</div>
+
+<div class="section customer">
+  <div class="container">
+    <div class="account-width mx-auto">
+      <h1 class="text-center">{{ 'customer.account.title' | t }}</h1>
+
+      <div class="mt-8 text-center">
+        <h2 class="h3">{{ 'customer.orders.title' | t }}</h2>
+
+        {%- paginate customer.orders by 20 -%}
+          {%- if customer.orders.size > 0 -%}
+            <table class="orders w-full">
+              <caption class="visually-hidden">{{ 'customer.orders.title' | t }}</caption>
+              <thead>
+              <tr>
+                <th>{{ 'customer.orders.order_number' | t }}</th>
+                <th>{{ 'customer.orders.date' | t }}</th>
+                <th>{{ 'customer.orders.payment_status' | t }}</th>
+                <th>{{ 'customer.orders.fulfillment_status' | t }}</th>
+                <th class="text-end">{{ 'customer.orders.total' | t }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              {%- for order in customer.orders -%}
+                <tr>
+                  <td class="orders__number" data-label="{{ 'customer.orders.order_number' | t }}">
+                    <a class="link" href="{{ order.customer_url }}">{{ order.name }}</a>
+                  </td>
+                  <td class="orders__date" data-label="{{ 'customer.orders.date' | t }}">
+                    {{- order.created_at | time_tag: format: 'date' -}}
+                  </td>
+                  <td class="orders__pay" data-label="{{ 'customer.orders.payment_status' | t }}">
+                    {{- order.financial_status_label -}}
+                  </td>
+                  <td class="orders__fulfil" data-label="{{ 'customer.orders.fulfillment_status' | t }}">
+                    {{- order.fulfillment_status_label -}}
+                  </td>
+                  <td class="orders__total text-end" data-label="{{ 'customer.orders.total' | t }}">
+                    {{- order.total_price | money_with_currency -}}
+                  </td>
+                  <td class="orders__link">
+                    <a class="btn btn--secondary w-full" href="{{ order.customer_url }}">{{ 'customer.orders.view_order' | t }}</a>
+                  </td>
+                </tr>
+              {%- endfor -%}
+              </tbody>
+            </table>
+          {%- else -%}
+            <p>{{ 'customer.orders.none' | t }}</p>
+          {%- endif -%}
+
+          {%- if paginate.pages > 1 -%}
+            {% render 'pagination', paginate: paginate %}
+          {%- endif -%}
+        {%- endpaginate -%}
+      </div>
+
+      <div class="mt-16 text-center">
+        <h2 class="h3">{{ 'customer.account.details' | t }}</h2>
+        <div class="address-box mt-6 mx-auto">
+          {{ customer.default_address | format_address }}
+          <a class="link" href="{{ routes.account_addresses_url }}">
+            {{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

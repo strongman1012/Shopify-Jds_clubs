@@ -1,0 +1,192 @@
+<div class="container rewards-sub-container">
+
+  <h3 class="rewards-frame-title">{{ section.settings.title }}</h3>
+  <div class="horizontal-frame-images">
+    <div class="horizontal-frame-image">
+      <img src="{{ section.settings.image_desktop_1 | img_url : 'master' }}" alt="Image 1">
+      <h4 class="rewards-frame-header1">Bronze</h4>
+      <p class="rewards-frame-header2">Free to join</p>
+      <div class="rewards-frame-content">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">1X Point Multiplier</span>
+      </div>
+
+    </div>
+    <div class="horizontal-frame-image">
+      <img src="{{ section.settings.image_desktop_2 | img_url : 'master' }}" alt="Image 2">
+      <h4 class="rewards-frame-header1">Silver</h4>
+      <p class="rewards-frame-header2">Earn 100 Points</p>
+      <div class="rewards-frame-content">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">1.5X Point Multiplier</span>
+      </div>
+      <div class="rewards-frame-content2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">Bonus Points</span>
+      </div>
+      <div class="rewards-frame-content3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">VIP Sales</span>
+      </div>
+    </div>
+    <div class="horizontal-frame-image">
+      <img src="{{ section.settings.image_desktop_3 | img_url : 'master' }}" alt="Image 3">
+      <h4 class="rewards-frame-header1">Gold</h4>
+      <p class="rewards-frame-header2">Earn 200 Points</p>
+      <div class="rewards-frame-content">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">2X Point Multiplier</span>
+      </div>
+      <div class="rewards-frame-content2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">Bonus Points</span>
+      </div>
+      <div class="rewards-frame-content3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="15"
+          viewBox="0 0 14 15"
+          fill="none">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M13.6389 4.31542L12.0227 2.69922L5.25095 9.46829L2.0205 6.23814L0.404297 7.85434L5.25257 12.7026L6.88695 11.0643L13.6389 4.31542Z"
+            fill="#2C7E3F" />
+        </svg>
+        <span class="rewards-frame-content-text">VIP Sales + Early Access</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Rewards Frame",
+    "settings": [
+      {
+        "type": "text",
+        "label": "Title",
+        "id": "title",
+        "default": "Title"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop_1",
+        "label": "Image1",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile_1",
+        "label": "Mobile image1 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      },
+      {
+        "type": "url",
+        "id": "url_1",
+        "label": "Image1 link (optional)"
+      }, {
+        "type": "image_picker",
+        "id": "image_desktop_2",
+        "label": "Image2",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      }, {
+        "type": "image_picker",
+        "id": "image_mobile_2",
+        "label": "Mobile image2 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      }, {
+        "type": "url",
+        "id": "url_2",
+        "label": "Image2 link (optional)"
+      }, {
+        "type": "image_picker",
+        "id": "image_desktop_3",
+        "label": "Image3",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      }, {
+        "type": "image_picker",
+        "id": "image_mobile_3",
+        "label": "Mobile image3 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      }, {
+        "type": "url",
+        "id": "url_3",
+        "label": "Image3 link (optional)"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Rewards-Frame",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}

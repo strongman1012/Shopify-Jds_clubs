@@ -1,0 +1,160 @@
+{%- if predictive_search.performed -%}
+  <div class="predictive-search absolute bg-theme-bg text-theme-text text-start">
+    <div class="predictive-search__results">
+      {%- if predictive_search.resources.products.size > 0 or predictive_search.resources.collections.size > 0 or predictive_search.resources.pages.size > 0 or predictive_search.resources.articles.size > 0 -%}
+        {%- liquid
+          if predictive_search.resources.pages.size > 0 and predictive_search.resources.articles.size > 0
+            assign group_articles_pages = true
+            assign rendered_articles_pages_button = false
+            assign rendered_articles_pages_panel = false
+          endif
+        -%}
+        <tabbed-content>
+          <div class="tablist relative overflow-hidden mb-2">
+            <div class="tablist__scroller flex" role="tablist">
+              {%- for resource in predictive_search.resources -%}
+                {%- assign type = resource | first -%}
+                {%- if predictive_search.resources[type].size > 0 -%}
+
+                  {%- liquid
+                    assign prevent_button_render = false
+
+                    if type == "pages" or type == "articles"
+                      if group_articles_pages
+                        if rendered_articles_pages_button == false
+                          assign type = "articles_and_pages"
+                          assign rendered_articles_pages_button = true
+                        else
+                          assign prevent_button_render = true
+                        endif
+                      endif
+                    endif
+                  -%}
+
+                  {%- unless prevent_button_render -%}
+                    <button type="button"
+                            class="tablist__tab font-bold"
+                            id="psearch-{{ type }}-tab"
+                            role="tab"
+                            {%- unless forloop.first %}tabindex="-1"{% endunless %}
+                            aria-controls="psearch-{{ type }}"
+                            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                      {%- liquid
+                        if type == 'products'
+                          echo 'general.search.products' | t
+                        elsif type == 'collections'
+                          echo 'general.search.collections' | t
+                        elsif type == 'pages'
+                          echo 'general.search.pages' | t
+                        elsif type == 'articles'
+                          echo 'general.search.articles' | t
+                        endif
+                      -%}
+                      {%- if type == 'articles_and_pages' -%}
+                        {{ 'general.search.articles' | t }} &amp; {{ 'general.search.pages' | t }}
+                      {%- endif -%}
+                    </button>
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+
+          {%- for resource in predictive_search.resources -%}
+            {%- assign type = resource | first -%}
+            {%- if predictive_search.resources[type].size > 0 -%}
+
+              {%- liquid
+                assign prevent_panel_render = false
+                assign panel_type = type
+                assign items = predictive_search.resources[type]
+
+                if type == "pages" or type == "articles"
+                  if group_articles_pages
+                    if rendered_articles_pages_panel == false
+                      assign rendered_articles_pages_panel = true
+                      assign panel_type = "articles_and_pages"
+                      assign items = predictive_search.resources["articles"] | concat: predictive_search.resources["pages"]
+                    else
+                      assign prevent_button_render = true
+                    endif
+                  endif
+                endif
+              -%}
+
+              {%- unless prevent_panel_render -%}
+                <div class="predictive-search__tabpanel focus-inset" id="psearch-{{ panel_type }}" role="tabpanel" tabindex="0" aria-labelledby="psearch-{{ panel_type }}-tab"{% unless forloop.first %} hidden{% endunless %}>
+                  <ul class="predictive-search__list" role="list">
+                    {%- for item in items -%}
+                      <li class="predictive-search__item" role="option">
+                        <a class="predictive-result flex items-start focus-inset js-search-link" href="{{ item.url }}"{% if settings.preload_links %} data-instant{% endif %}>
+                          {%- if type == 'products' or type == 'collections' -%}
+                            {%- liquid
+                              if type == 'products'
+                                assign img = item.featured_media.preview_image
+                              else
+                                assign img = item.featured_image
+                              endif
+                            -%}
+                            {%- if img != blank -%}
+                              <div class="predictive-result__media media relative{% if settings.blend_product_images and type == 'products' %} image-blend{% elsif settings.blend_collection_images and type == 'collections' %} image-blend{% endif %}">
+                                {{ img | image_url: width: 112 | image_tag: loading: 'eager', class: 'predictive-result__media' }}
+                              </div>
+                            {%- else -%}
+                              <div class="predictive-result__media media relative">
+                                {{ 'image' | placeholder_svg_tag: 'media__placeholder' }}
+                              </div>
+                            {%- endif -%}
+                          {%- elsif group_articles_pages or type == 'articles' -%}
+                            {%- if item.image != blank -%}
+                              {{ item.image | image_url: width: 112 | image_tag: loading: 'eager', class: 'predictive-result__media' }}
+                             {%- else -%}
+                              <div class="predictive-result__media"></div>
+                             {%- endif -%}
+                          {%- endif -%}
+
+                          <div class="predictive-result__info flex-auto">
+                            <h3 class="predictive-result__title h6">{{ item.title }}</h3>
+                            {%- if type == 'products' -%}
+                              {%- if settings.predictive_search_show_price -%}
+                                {% render 'price', product: item %}
+                              {%- endif -%}
+                              {%- if settings.predictive_search_show_vendor -%}
+                                <div class="predictive-result__sub-title text-sm">{{ item.vendor }}</div>
+                              {%- endif -%}
+                            {%- elsif type == 'collections' and item.metafields.theme.label != empty -%}
+                              <div class="predictive-result__sub-title text-sm">
+                                {{ item.metafields.theme.label }}
+                              </div>
+                            {%- elsif item.url contains "/blogs/" -%}
+                              <div class="predictive-result__sub-title text-sm">
+                                {{ item.author }} | {{ item.published_at | time_tag: format: 'date' }}
+                              </div>
+                            {%- elsif item.url contains "/pages/" and group_articles_pages -%}
+                              <div class="predictive-result__sub-title">
+                                {{ 'templates.search.page' | t }}
+                              </div>
+                            {%- endif -%}
+                          </div>
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                    <li class="predictive-search__item js-submit" role="option">
+                      <button class="predictive-search__view-all link w-full text-start focus-inset has-ltr-icon js-search-link">
+                        {{- 'general.search.view_all' | t -}} {% render 'icon-arrow-right' %}
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              {%- endunless -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </tabbed-content>
+      {%- else -%}
+        <div class="predictive-search__no-results">
+          {{ 'general.search.no_results' | t: terms: predictive_search.terms }}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

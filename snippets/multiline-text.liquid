@@ -1,0 +1,9 @@
+{%- liquid
+  assign split_text = multiline-text | split: '<br>'
+  for line in split_text
+    unless forloop.first
+      echo '<br>'
+    endunless
+    echo line | escape
+  endfor
+-%}

@@ -1,0 +1,630 @@
+{
+  "sections": {
+    "0b1b81c6-f669-4947-8786-62fafa4695bb": {
+      "type": "navigation-slideshow",
+      "blocks": {
+        "template--20760453021971__0b1b81c6-f669-4947-8786-62fafa4695bb-slide-1": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE_fb8e2b68-6513-476e-95cc-79bfbda4cfd2.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE.png",
+            "overlay_text_align": "text-start",
+            "mob_center_text": true,
+            "subheading": "",
+            "heading": "Fastest Delivery. <br>Custom Golf Shafts.",
+            "heading_size": "h5",
+            "heading_h1": false,
+            "text": "<h4>Select shaft and provide custom specs!<\/h4>",
+            "enlarge_text": true,
+            "button_1_label": "Customize Now",
+            "button_1_link": "shopify:\/\/collections",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary"
+          }
+        },
+        "template--20760453021971__0b1b81c6-f669-4947-8786-62fafa4695bb-slide-2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE2.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE2.png",
+            "overlay_text_align": "text-start",
+            "mob_center_text": true,
+            "subheading": "",
+            "heading": "Fastest Delivery. <br>Custom Golf Shafts.",
+            "heading_size": "h3",
+            "heading_h1": false,
+            "text": "<h4>Select shaft and provide custom specs!<\/h4>",
+            "enlarge_text": true,
+            "button_1_label": "Customize Now",
+            "button_1_link": "shopify:\/\/collections",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary"
+          }
+        },
+        "b1d48e89-0fef-44fa-a661-1f5a16448c47": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE3.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE3.png",
+            "overlay_text_align": "text-start",
+            "mob_center_text": true,
+            "subheading": "",
+            "heading": "Fastest Delivery. <br>Custom Golf Shafts.",
+            "heading_size": "h3",
+            "heading_h1": false,
+            "text": "<h4>Select shaft and provide custom specs!<\/h4>",
+            "enlarge_text": true,
+            "button_1_label": "Customize Now",
+            "button_1_link": "shopify:\/\/collections",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary"
+          }
+        }
+      },
+      "block_order": [
+        "template--20760453021971__0b1b81c6-f669-4947-8786-62fafa4695bb-slide-1",
+        "template--20760453021971__0b1b81c6-f669-4947-8786-62fafa4695bb-slide-2",
+        "b1d48e89-0fef-44fa-a661-1f5a16448c47"
+      ],
+      "settings": {
+        "height_mode": "auto",
+        "fixed_height_desktop": 600,
+        "fixed_height_mobile": 350,
+        "quick_nav_menu": "custom-menu",
+        "quick_nav_title": "SHOP GOLF SHAFTS",
+        "quick_nav_image_ratio": "1.77",
+        "quick_nav_image_fit": "contain",
+        "quick_nav_use_product_image": true,
+        "quick_nav_color_scheme": "default",
+        "quick_nav_show_price": false,
+        "menu_1_text": "Choose Option",
+        "menu_1_display": "large_image_text",
+        "menu_2_text": "Choose Option",
+        "menu_2_display": "large_image_text",
+        "menu_3_text": "Choose Option",
+        "menu_3_display": "large_image_text",
+        "nav_style": "slideshow_nav_lines",
+        "transition": "slide-fade",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "accessibility_info": "Featured collections and new arrivals",
+        "prevent_animation": false
+      }
+    },
+    "collection-list": {
+      "type": "collection-list",
+      "blocks": {
+        "dc22522e-f331-4e84-8360-e975575d8c89": {
+          "type": "collection",
+          "settings": {
+            "collection": "driver",
+            "title": "{{ block.settings.collection.title }}"
+          }
+        },
+        "61db9db9-8abc-422d-9ce9-609159f5171f": {
+          "type": "collection",
+          "settings": {
+            "collection": "irons",
+            "title": "{{ block.settings.collection.title }}"
+          }
+        },
+        "e494fa67-f4dd-44b6-8abb-c834c22bc0fa": {
+          "type": "collection",
+          "settings": {
+            "collection": "wedge",
+            "title": "{{ block.settings.collection.title }}"
+          }
+        },
+        "9c81f751-6a7b-433a-ba5c-cddba0cac162": {
+          "type": "collection",
+          "settings": {
+            "collection": "accessories",
+            "title": "{{ block.settings.collection.title }}"
+          }
+        },
+        "508d537a-1889-4f36-b209-891e4314e093": {
+          "type": "collection",
+          "settings": {
+            "collection": "shaft",
+            "title": "{{ block.settings.collection.title }}"
+          }
+        },
+        "2277bf4d-bce3-4eb0-ad64-04f92c2bd050": {
+          "type": "collection",
+          "settings": {
+            "collection": "stock-driver",
+            "title": "{{ block.settings.collection.title }}"
+          }
+        }
+      },
+      "block_order": [
+        "dc22522e-f331-4e84-8360-e975575d8c89",
+        "61db9db9-8abc-422d-9ce9-609159f5171f",
+        "e494fa67-f4dd-44b6-8abb-c834c22bc0fa",
+        "9c81f751-6a7b-433a-ba5c-cddba0cac162",
+        "508d537a-1889-4f36-b209-891e4314e093",
+        "2277bf4d-bce3-4eb0-ad64-04f92c2bd050"
+      ],
+      "settings": {
+        "title": "Shop Deals",
+        "heading_align": "text-center",
+        "button_label": "",
+        "button_link": "",
+        "layout": "carousel",
+        "card_size": "small",
+        "use_product_image": false,
+        "circle_image": false
+      }
+    },
+    "promo-grid": {
+      "type": "promo-grid",
+      "blocks": {
+        "promo-media-0": {
+          "type": "media",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/Pro_IMAGE1.png",
+            "link_url": "shopify:\/\/collections\/driver",
+            "columns": 2,
+            "rows": 2,
+            "line1_text": "New",
+            "line1_text_type_scale": "text-h2",
+            "line2_text": "",
+            "line2_text_type_scale": "text-h0",
+            "line3_text": "",
+            "line3_text_type_scale": "text-h6",
+            "overlay_position": "justify-start items-start",
+            "text_alignment": "text-center",
+            "promo_circle": true,
+            "background_color": "#005b98",
+            "text_color": "#ffffff",
+            "subheading": "Toulon Design Indianapolis",
+            "link_text": "Shop this putter >",
+            "text_type_scale": "h6",
+            "tint_color": "#2a2b2a",
+            "tint_opacity": 0
+          }
+        },
+        "promo-media-1": {
+          "type": "media",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/Pro_IMAGE2.png",
+            "link_url": "shopify:\/\/collections\/stock-driver",
+            "columns": 1,
+            "rows": 1,
+            "line1_text": "Save up to",
+            "line1_text_type_scale": "text-h6",
+            "line2_text": "25%",
+            "line2_text_type_scale": "text-h3",
+            "line3_text": "",
+            "line3_text_type_scale": "text-h6",
+            "overlay_position": "justify-start items-start",
+            "text_alignment": "text-center",
+            "promo_circle": true,
+            "background_color": "#005b98",
+            "text_color": "#ffffff",
+            "subheading": "Titliest Pro 1",
+            "link_text": "Get this deal >",
+            "text_type_scale": "h6",
+            "tint_color": "#2a2b2a",
+            "tint_opacity": 0
+          }
+        },
+        "promo-media-2": {
+          "type": "media",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/Pro_IMAGE3_e80e8c04-26d0-428e-9ef5-7d6d4482f3ce.png",
+            "link_url": "shopify:\/\/collections\/irons",
+            "columns": 1,
+            "rows": 1,
+            "line1_text": "Save up to",
+            "line1_text_type_scale": "text-h6",
+            "line2_text": "1\/3",
+            "line2_text_type_scale": "text-h3",
+            "line3_text": "",
+            "line3_text_type_scale": "text-h6",
+            "overlay_position": "justify-start items-start",
+            "text_alignment": "text-center",
+            "promo_circle": true,
+            "background_color": "#005b98",
+            "text_color": "#ffffff",
+            "subheading": "Bulk buy Discount",
+            "link_text": "Purchase this bulk buy >",
+            "text_type_scale": "h6",
+            "tint_color": "#2a2b2a",
+            "tint_opacity": 0
+          }
+        },
+        "promo-media-3": {
+          "type": "media",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/Pro_IMAGE4.png",
+            "link_url": "shopify:\/\/collections\/stock-irons",
+            "columns": 2,
+            "rows": 1,
+            "line1_text": "Save up to",
+            "line1_text_type_scale": "text-h6",
+            "line2_text": "50%",
+            "line2_text_type_scale": "text-h3",
+            "line3_text": "",
+            "line3_text_type_scale": "text-h6",
+            "overlay_position": "justify-start items-start",
+            "text_alignment": "text-center",
+            "promo_circle": true,
+            "background_color": "#005b98",
+            "text_color": "#ffffff",
+            "subheading": "Srixon ZK MK II Irons",
+            "link_text": "Custom your set >",
+            "text_type_scale": "h6",
+            "tint_color": "#2a2b2a",
+            "tint_opacity": 0
+          }
+        }
+      },
+      "block_order": [
+        "promo-media-0",
+        "promo-media-1",
+        "promo-media-2",
+        "promo-media-3"
+      ],
+      "settings": {
+        "title": "",
+        "heading_align": "text-start",
+        "button_label": "",
+        "button_link": "",
+        "gallery_cols_max": 4,
+        "gallery_cols_min": "1",
+        "fixed_height_desktop": 250,
+        "fixed_height_mobile": 350,
+        "text_overlay_font": "body",
+        "color_scheme": "default"
+      }
+    },
+    "df92b022-6bb9-4997-b9f5-aa8eb30ce3ef": {
+      "type": "custom-home-image1",
+      "settings": {
+        "title": "Welcome to our custom section",
+        "image_desktop": "shopify:\/\/shop_images\/FOR-CUSTOM_4ecd5402-e90a-4589-9f08-9c8a85d856c8.png",
+        "url": "",
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "description": "This is a custom section for showcasing unique content."
+      }
+    },
+    "4aadcff7-29a1-40af-b3cc-36c081cbe730": {
+      "type": "featured-collection",
+      "settings": {
+        "title": "JD’s Top Picks",
+        "heading_align": "text-start",
+        "show_view_all": true,
+        "collection": "shaft",
+        "layout": "carousel",
+        "card_size": "small",
+        "products_to_show": 8,
+        "show_promo_info": false,
+        "image_ratio": "fill",
+        "promo_title": "A headline to grab attention",
+        "content": "<p>Use this card with an image to highlight your collections or introduce a promotion.<\/p>",
+        "link_url": "",
+        "button_label": "Button",
+        "color_scheme": "2",
+        "button_style": "btn btn--primary"
+      }
+    },
+    "b91daa82-a502-4b96-ada7-89c49c2779c0": {
+      "type": "custom-home-image2",
+      "settings": {
+        "title": "Welcome to our custom section",
+        "image_desktop": "shopify:\/\/shop_images\/image_10.png",
+        "url": "",
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "description": "This is a custom section for showcasing unique content."
+      }
+    },
+    "scrolling-banner": {
+      "type": "scrolling-banner",
+      "blocks": {
+        "a5f8a863-9ac2-440f-96ee-9bf0b5944c47": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_11.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "bf5bd3bb-6005-449e-b553-966720a61ae8": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_12.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "3caf2ba0-1493-4008-aeef-d22bf553d0d0": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_13.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "00096f78-c348-4c39-83a5-24bf1bb5a831": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_14.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "d129f0f8-a32d-46f6-98cf-136cdf9050fc": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_15.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "448b48d4-b2a0-4c27-bde9-eaff8abad0b7": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_16.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "68facf40-38d7-4b51-bd8d-a6734f74ebbd": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_17.png",
+            "image_height": 48,
+            "link": ""
+          }
+        },
+        "99f1adad-05b1-4112-aaca-770967cfe31d": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/scroll_image_18.png",
+            "image_height": 48,
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "a5f8a863-9ac2-440f-96ee-9bf0b5944c47",
+        "bf5bd3bb-6005-449e-b553-966720a61ae8",
+        "3caf2ba0-1493-4008-aeef-d22bf553d0d0",
+        "00096f78-c348-4c39-83a5-24bf1bb5a831",
+        "d129f0f8-a32d-46f6-98cf-136cdf9050fc",
+        "448b48d4-b2a0-4c27-bde9-eaff8abad0b7",
+        "68facf40-38d7-4b51-bd8d-a6734f74ebbd",
+        "99f1adad-05b1-4112-aaca-770967cfe31d"
+      ],
+      "settings": {
+        "section_height": "medium",
+        "spacing": 32,
+        "speed": 24,
+        "direction": "normal",
+        "pausable": true,
+        "color_scheme": "none",
+        "dividers": "none",
+        "prevent_animation": false
+      }
+    },
+    "product-comparison-grid": {
+      "type": "product-comparison-grid",
+      "blocks": {
+        "comparison-product-1": {
+          "type": "product",
+          "settings": {
+            "show_image": true,
+            "show_title": true,
+            "show_button": true
+          }
+        },
+        "comparison-vendor-2": {
+          "type": "vendor",
+          "disabled": true,
+          "settings": {
+          }
+        },
+        "0f4cd2cf-5d2a-4a06-8413-1cb1a1b5565a": {
+          "type": "rating",
+          "settings": {
+          }
+        },
+        "8f8dc3af-b196-41a8-9919-44fe7745f790": {
+          "type": "type",
+          "settings": {
+          }
+        },
+        "d0ba2a04-a07c-4e52-8dc5-a277acc725e2": {
+          "type": "variant_option",
+          "settings": {
+            "title": "Color"
+          }
+        },
+        "comparison-description-4": {
+          "type": "description",
+          "disabled": true,
+          "settings": {
+            "truncate_description": false,
+            "words_to_show": 20
+          }
+        },
+        "31816477-328d-4417-a04b-876720cd8f29": {
+          "type": "text",
+          "settings": {
+            "title": "Torque",
+            "value": "Mauris praesent habitant"
+          }
+        },
+        "002cae0d-136f-4600-8b87-1c90267dc422": {
+          "type": "text",
+          "settings": {
+            "title": "Profile",
+            "value": "Purus aenean tellus Consequat Accumsan"
+          }
+        },
+        "comparison-price-3": {
+          "type": "price",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "comparison-product-1",
+        "comparison-vendor-2",
+        "0f4cd2cf-5d2a-4a06-8413-1cb1a1b5565a",
+        "8f8dc3af-b196-41a8-9919-44fe7745f790",
+        "d0ba2a04-a07c-4e52-8dc5-a277acc725e2",
+        "comparison-description-4",
+        "31816477-328d-4417-a04b-876720cd8f29",
+        "002cae0d-136f-4600-8b87-1c90267dc422",
+        "comparison-price-3"
+      ],
+      "settings": {
+        "heading": "Which Golf Shaft is the right one for you?",
+        "text": "",
+        "heading_align": "text-center",
+        "view_more_label": "View more",
+        "view_more_link": "",
+        "product_list": [
+          "custom-driver-taylormade-stealth-1",
+          "taylormade-stealth-2-custom-driver",
+          "custom-driver-taylormade-stealth-3",
+          "custom-driver-taylormade-stealth-8"
+        ],
+        "empty_field_text": "-",
+        "image_ratio": "",
+        "image_crop": "center",
+        "num_rows": 0,
+        "color_scheme": "none",
+        "highlight_row": false
+      }
+    },
+    "b47edfdd-645f-4d7f-ae74-8a00c90daab7": {
+      "type": "newsletter",
+      "blocks": {
+        "template--20651223580947__b47edfdd-645f-4d7f-ae74-8a00c90daab7-heading-1": {
+          "type": "heading",
+          "settings": {
+            "heading": "Subscribe to our emails",
+            "heading_size": "h4"
+          }
+        },
+        "template--20651223580947__b47edfdd-645f-4d7f-ae74-8a00c90daab7-text-1": {
+          "type": "text",
+          "settings": {
+            "text": "<p>News, reviews & special offers<\/p>",
+            "enlarge_text": false
+          }
+        },
+        "template--20651223580947__b47edfdd-645f-4d7f-ae74-8a00c90daab7-form-1": {
+          "type": "form",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "template--20651223580947__b47edfdd-645f-4d7f-ae74-8a00c90daab7-heading-1",
+        "template--20651223580947__b47edfdd-645f-4d7f-ae74-8a00c90daab7-text-1",
+        "template--20651223580947__b47edfdd-645f-4d7f-ae74-8a00c90daab7-form-1"
+      ],
+      "settings": {
+        "overlay_position": "justify-start",
+        "text_align": "text-start",
+        "image": "shopify:\/\/shop_images\/Subscribe_IMAGE.png",
+        "color_scheme": "default",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 20
+      }
+    },
+    "78e3fac6-30f9-4a92-8ff0-a0719f542f03": {
+      "type": "faq",
+      "blocks": {
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-category-1": {
+          "type": "category",
+          "settings": {
+            "text": "Shipping"
+          }
+        },
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-1": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "What countries do you ship to?",
+            "text": "<p>We currently ship to the United States, Canada, Australia and the UK. To enquire about shipping to a different destination, please contact us.<\/p>"
+          }
+        },
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-2": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How long will it take to receive my order?",
+            "text": "<p>Standard shipping normally takes 3-5 days. Next day shipping is available on all domestic orders (for an additional charge). International shipping times depend on the products and destination (estimated at checkout).<\/p>"
+          }
+        },
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-category-2": {
+          "type": "category",
+          "settings": {
+            "text": "Returns and Refunds"
+          }
+        },
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-3": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How do I return a product?",
+            "text": "<p>Items must be returned within 30 days after receiving your order. Items must be returned in the same condition in which they were received, be unworn\/unused, have any tags still attached, and include all the original packaging.<\/p>"
+          }
+        },
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-4": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How long will it take to receive my refund?",
+            "text": "<p>Refunds are processed within 7 days from when we receive the item(s).<\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-category-1",
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-1",
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-2",
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-category-2",
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-3",
+        "template--20651223580947__78e3fac6-30f9-4a92-8ff0-a0719f542f03-question-4"
+      ],
+      "settings": {
+        "heading": "Common Questions",
+        "heading_align": "text-center",
+        "color_scheme": "none",
+        "full_width": true
+      }
+    }
+  },
+  "order": [
+    "0b1b81c6-f669-4947-8786-62fafa4695bb",
+    "collection-list",
+    "promo-grid",
+    "df92b022-6bb9-4997-b9f5-aa8eb30ce3ef",
+    "4aadcff7-29a1-40af-b3cc-36c081cbe730",
+    "b91daa82-a502-4b96-ada7-89c49c2779c0",
+    "scrolling-banner",
+    "product-comparison-grid",
+    "b47edfdd-645f-4d7f-ae74-8a00c90daab7",
+    "78e3fac6-30f9-4a92-8ff0-a0719f542f03"
+  ]
+}

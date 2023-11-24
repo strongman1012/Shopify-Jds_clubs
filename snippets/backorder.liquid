@@ -1,0 +1,25 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - variant {Object} - Current variant object.
+
+  Usage:
+  {% render 'backorder',
+    product: product,
+    variant: product.selected_or_first_available_variant
+  %}
+{%- endcomment -%}
+
+<div class="backorder"{% unless variant.inventory_management == 'shopify' and variant.inventory_quantity < 1 and variant.available %} hidden{% endunless %}>
+  {%- if template contains 'cart' -%}
+    <p class="m-0">{{ 'cart.general.backorder' | t }}</p>
+  {%- else -%}
+    <p class="m-0">
+      <span class="backorder__product">
+        {{- product.title -}}
+        {%- unless variant.title contains 'Default' %} - {{ variant.title }}{% endunless -%}
+      </span>
+      {{ 'products.product.backorder' | t }}
+    </p>
+  {%- endif -%}
+</div>

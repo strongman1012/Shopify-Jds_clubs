@@ -1,0 +1,548 @@
+{%- liquid
+  # constants
+  assign breakpoint_sm = 600
+  assign breakpoint_md = 769
+
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- style -%}
+  #{{ section.id }} {
+    --duration: {{ section.settings.speed }}s;
+    --direction: {{ section.settings.direction }};
+  }
+
+  #{{ section.id }} .scrolling-banner__item { padding-inline-end: {{ section.settings.spacing }}px; }
+  @media (max-width: {{ breakpoint_md }}px) {
+    #{{ section.id }} .scrolling-banner__item { padding-inline-end: {{ section.settings.spacing | times: 0.66 }}px; }
+  }
+  @media (max-width: {{ breakpoint_sm }}px) {
+    #{{ section.id }} .scrolling-banner__item { padding-inline-end: {{ section.settings.spacing | times: 0.5 }}px; }
+  }
+{%- endstyle -%}
+
+{%- capture scrolling_content -%}
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'text' -%}
+        {%- if block.settings.link != blank -%}
+          <a class="scrolling-banner__item scrolling-banner__text {{ block.settings.heading_size }}{% if block.settings.font == 'body' %} font-body{% endif %}" href="{{ block.settings.link }}">{{ block.settings.text }}</a>
+        {%- else -%}
+          <span class="scrolling-banner__item scrolling-banner__text {{ block.settings.heading_size }}{% if block.settings.font == 'body' %} font-body{% endif %}">{{ block.settings.text | escape }}</span>
+        {%- endif -%}
+
+      {%- when 'icon' -%}
+        <span class="scrolling-banner__item flex">
+          {% render 'icon',
+            icon: block.settings.icon,
+            width: block.settings.icon_size,
+            height: block.settings.icon_size
+          %}
+        </span>
+
+      {%- when 'image' -%}
+        {%- liquid
+          if block.settings.image != blank
+            assign image_width = block.settings.image_height | times: block.settings.image.aspect_ratio | ceil
+          else
+            assign image_width = block.settings.image_height | times: 2
+          endif
+        -%}
+        <span class="scrolling-banner__item">
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}" class="hover:grow-media">
+          {%- endif -%}
+
+          <span class="media block relative" style="width: {{ image_width }}px; height: {{ block.settings.image_height }}px;">
+            {%- if block.settings.image != blank -%}
+              {% render 'image', image: block.settings.image, src_width: image_width, srcset_2x: true, lazy_load: false %}
+            {%- else -%}
+              {{ 'logo' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+            {%- endif -%}
+          </span>
+
+          {%- if block.settings.link != blank -%}
+            </a>
+          {%- endif -%}
+        </span>
+
+      {%- when 'button' -%}
+        {%- if block.settings.button_label != blank -%}
+          <span class="scrolling-banner__item flex">
+            <a class="{{ block.settings.button_style }} {% if section.settings.section_height == 'xsmall' %} btn--extra-narrow{% elsif section.settings.section_height == 'small' %} btn--narrow{% endif %}" {% if block.settings.button_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_link }}"{% endif %}>
+              {{- block.settings.button_label | escape -}}
+            </a>
+          </span>
+        {%- endif -%}
+
+    {%- endcase -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+<div class="scrolling-banner{% if section.settings.pausable %} scrolling-banner--pausable{% endif %}{% if section.settings.dividers != "none" %} {{ section.settings.dividers }}{% endif %} section section--full-width section--padded-{{ section.settings.section_height }} overflow-hidden{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}" id="{{ section.id }}" role="marquee"{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate{% endif %}>
+  <div class="scrolling-banner__items-container flex">
+    {%- for i in (1..20) -%}
+      {%- if forloop.first -%}
+        <div class="scrolling-banner__items flex items-center has-motion">
+          {{ scrolling_content }}
+        </div>
+      {%- else -%}
+        <div class="scrolling-banner__items flex items-center has-motion" aria-hidden="true">
+          {{ scrolling_content | replace: '<a ', '<a tabindex="-1" ' }}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Scrolling banner",
+  "tag": "section",
+  "class": "cc-scrolling-banner",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "label": "Section height",
+      "id": "section_height",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "xsmall",
+          "label": "Extra small"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Maximum space between blocks",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Scrolling"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "unit": "s",
+      "label": "Speed",
+      "default": 24
+    },
+    {
+      "type": "radio",
+      "id": "direction",
+      "label": "Direction",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Right to left"
+        },
+        {
+          "value": "reverse",
+          "label": "Left to right"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "checkbox",
+      "id": "pausable",
+      "label": "Pause on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "dividers",
+      "label": "Dividing lines",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "border-top",
+          "label": "Above"
+        },
+        {
+          "value": "border-bottom",
+          "label": "Below"
+        },
+        {
+          "value": "border-top border-bottom",
+          "label": "Above and below"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "SEO"
+    },
+    {
+      "type": "checkbox",
+      "id": "prevent_animation",
+      "label": "Load the section without animation",
+      "info": "If this section is visible when the page loads, enabling this setting can reduce CLS and may improve site speed scores. [Read more](https://cleancanvas.co.uk/support/enterprise/performance-guide)",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Tell customers' about a promotion or make an announcement"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "radio",
+          "id": "font",
+          "label": "Font",
+          "options": [
+            {
+              "label": "Heading font",
+              "value": "heading"
+            },
+            {
+              "label": "Body font",
+              "value": "body"
+            }
+          ],
+          "default": "heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Text size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h5",
+              "label": "Extra small"
+            },
+            {
+              "value": "h4",
+              "label": "Small"
+            },
+            {
+              "value": "h3",
+              "label": "Medium"
+            },
+            {
+              "value": "h2",
+              "label": "Large"
+            },
+            {
+              "value": "h1",
+              "label": "Extra large"
+            },
+            {
+              "value": "h0",
+              "label": "Extra extra large"
+            }
+          ],
+          "default": "h1"
+        }
+      ]
+    },
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "min": 20,
+          "max": 120,
+          "step": 4,
+          "label": "Icon height",
+          "unit": "px",
+          "default": 64
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_height",
+          "min": 20,
+          "max": 120,
+          "step": 4,
+          "unit": "px",
+          "label": "Image height",
+          "default": 48
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scrolling banner",
+      "blocks": [
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "aside"
+    ]
+  }
+}
+{% endschema %}

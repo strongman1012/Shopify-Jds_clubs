@@ -1,0 +1,554 @@
+{%- liquid
+  assign form_id = section.id | append: '-contact'
+  assign color_scheme = section.settings.color_scheme
+  assign bg_color = false
+
+  if color_scheme == 'default'
+    assign bg_color = settings.bg_color
+  elsif color_scheme == '1'
+    assign bg_color = settings.color_scheme_1_bg_grad | default: settings.color_scheme_1_bg
+  elsif color_scheme == '2'
+    assign bg_color = settings.color_scheme_2_bg_grad | default: settings.color_scheme_2_bg
+  elsif color_scheme == '3'
+    assign bg_color = settings.color_scheme_3_bg_grad | default: settings.color_scheme_3_bg
+  endif
+
+  if bg_color == 'rgba(0,0,0,0)' or bg_color == settings.bg_color
+    assign bg_color = false
+  endif
+-%}
+
+{%- if section.settings.image != blank -%}
+  {%- capture image -%}
+    <div class="media relative reading-width mt-8{% if section.settings.image_position == 'top' %} mb-8{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+      {%- capture sizes -%}
+        {%- render 'sizes-attribute', min: 'page', sm: 'page', md: '800px', lg: false, xl: false, max: false -%}
+      {%- endcapture -%}
+
+      {% render 'image',
+        image: section.settings.image,
+        widths: '800, 1200, 1600',
+        src_width: 1600,
+        src_placeholder: true,
+        sizes: sizes
+      %}
+    </div>
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- unless section.settings.full_width -%}
+  <div class="container">
+{%- endunless -%}
+
+<div class="section{% if bg_color != false %} section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% endif %}{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}">
+  <div class="container">
+
+    {%- if section.settings.heading != blank -%}
+      <div class="section__header reading-width rte"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+        <h2 class="h4 section__heading {{ section.settings.heading_align }}">{{ section.settings.heading | escape }}</h2>
+      </div>
+    {%- endif -%}
+
+    {%- if image and section.settings.image_position == 'top' -%}
+      {{ image }}
+    {%- endif -%}
+
+    {%- form 'contact', id: form_id, class: 'form reading-width' -%}
+      <div class="form__grid grid grid-cols-2 gap-x-theme gap-y-6"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+        {%- for block in section.blocks -%}
+          <div class="col-span-2{% if block.settings.half_width %} md:col-span-1{% endif %}{% if block.settings.required %} is-required{% endif %}" {{ block.shopify_attributes }}>
+            {%- case block.type -%}
+              {%- when 'name' -%}
+                <label class="label" for="{{ form_id }}-name">{{ 'contact.form.name' | t }}</label>
+                <input type="text"
+                       class="input w-full"
+                       id="{{ form_id }}-name"
+                       name="contact[{{ 'contact.form.name' | t }}]"
+                       autocomplete="name"
+                       value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+                       {%- if block.settings.required %}
+                         aria-required="true"
+                         required
+                       {%- endif %}>
+
+              {%- when 'email' -%}
+                <label class="label" for="{{ form_id }}-email">{{ 'contact.form.email' | t }}</label>
+                <input type="email"
+                       class="input w-full"
+                       id="{{ form_id }}-email"
+                       name="contact[email]"
+                       autocomplete="email"
+                       value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                       {%- if form.errors contains 'email' %}
+                         aria-invalid="true"
+                         aria-describedby="{{ form_id }}-email-error"
+                       {%- endif %}
+                       {%- if block.settings.required %}
+                         aria-required="true"
+                         required
+                       {%- endif %}>
+
+              {%- when 'phone' -%}
+                <label class="label" for="{{ form_id }}-phone">{{ 'contact.form.phone' | t }}</label>
+                <input type="tel"
+                       class="input w-full"
+                       id="{{ form_id }}-phone"
+                       name="contact[{{ 'contact.form.phone' | t }}]"
+                       pattern="[0-9\-]*"
+                       autocomplete="tel"
+                       value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+                       {%- if block.settings.required %}
+                         aria-required="true"
+                         required
+                       {%- endif %}>
+
+              {%- when 'body' -%}
+                <label class="label" for="{{ form_id }}-body">{{ 'contact.form.message' | t }}</label>
+                <textarea class="input w-full"
+                          id="{{ form_id }}-body"
+                          name="contact[{{ 'contact.form.message' | t }}]"
+                          rows="8"
+                          {%- if block.settings.required %}
+                            aria-required="true"
+                            required
+                          {%- endif %}>
+                  {{- form.body -}}
+                </textarea>
+
+              {%- when 'custom' -%}
+                {%- if block.settings.title != blank -%}
+                  {%- assign field_name = block.settings.title | escape -%}
+                  <label class="label" for="{{ form_id }}-field-{{ forloop.index }}">
+                    {{- block.settings.title -}}
+                  </label>
+                  {%- if block.settings.type == 'textarea' -%}
+                    <textarea class="input w-full"
+                              id="{{ form_id }}-field-{{ forloop.index }}"
+                              name="contact[{{ field_name }}]"
+                              rows="8"
+                              {%- if block.settings.required %}
+                                aria-required="true"
+                                required
+                              {%- endif %}>
+                      {{- form[field_name] -}}
+                    </textarea>
+                  {%- else -%}
+                    <input type="{{ block.settings.type }}"
+                           class="input w-full"
+                           id="{{ form_id }}-field-{{ forloop.index }}"
+                           name="contact[{{ field_name }}]"
+                           value="{{ form[field_name] }}"
+                           {%- if block.settings.type == 'tel' %}pattern="[0-9\-]*"{% endif %}
+                           {%- if block.settings.required %}
+                             aria-required="true"
+                             required
+                           {%- endif %}>
+                  {%- endif -%}
+                {%- endif -%}
+
+              {%- when 'dropdown' -%}
+                {%- if block.settings.title != blank -%}
+                  {%- liquid
+                    assign field_name = block.settings.title | escape
+                    assign field_options = block.settings.options | newline_to_br | strip_newlines | split: '<br />'
+                    assign native_name = 'contact[' | append: field_name | append: ']'
+                    assign selected_value = form[field_name] | default: field_options.first
+                  -%}
+                  <label class="label" for="{{ form_id }}-field-{{ forloop.index }}">
+                    {{- block.settings.title -}}
+                  </label>
+                  <div class="select relative">
+                    <select class="w-full input" name="{{ native_name }}" id="{{ form_id }}-field-{{ forloop.index }}">
+                      {% for option in field_options %}
+                        <option value="{{ option | escape }}"{% if option == selected_value %} selected{% endif %}>{{ option }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'text' -%}
+                {%- if block.settings.text != blank -%}
+                    <div class="w-full rte">
+                      {{ block.settings.text }}
+                    </div>
+                {%- endif -%}
+
+            {%- endcase -%}
+
+            {%- if form.errors contains block.type -%}
+              <p class="form__field-error" id="{{ form_id }}-{{ block.type }}-error">
+                {{ form.errors.translated_fields[block.type] | capitalize }}
+                {{ form.errors.messages[block.type] }}
+              </p>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if form.posted_successfully? -%}
+        <div class="alert mt-8 bg-success-bg text-success-text" tabindex="-1" autofocus{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          {{ 'contact.form.post_success' | t }}
+        </div>
+      {%- elsif form.errors -%}
+        <div class="alert mt-8 bg-error-bg text-error-text" tabindex="-1" autofocus{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          <h2 class="h5 text-current">{{ 'contact.form.error_heading' | t }}</h2>
+          <ul class="styled-list">
+            <li>
+              <a class="link text-current" href="#{{ form_id }}-email">
+                {{- form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] -}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="mt-6"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          <button class="{{ section.settings.button_style }} w-full md:w-auto">{{ 'contact.form.send' | t }}</button>
+        </div>
+      {%- endif -%}
+    {%- endform -%}
+
+    {%- if image and section.settings.image_position == 'bottom' -%}
+      {{ image }}
+    {%- endif -%}
+
+  </div>
+</div>
+
+{%- unless section.settings.full_width -%}
+  </div>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Contact form",
+  "tag": "section",
+  "class": "cc-contact-form",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Contact form",
+      "label": "Contact us"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "radio",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        {
+          "value": "top",
+          "label": "Above form"
+        },
+        {
+          "value": "bottom",
+          "label": "Below form"
+        }
+      ],
+      "default": "top"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button",
+      "options": [
+        {
+          "value": "btn btn--primary",
+          "label": "Primary button"
+        },
+        {
+          "value": "btn btn--secondary",
+          "label": "Secondary button"
+        }
+      ],
+      "default": "btn btn--primary"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "name",
+      "name": "Name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "email",
+      "name": "Email",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "phone",
+      "name": "Phone",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "body",
+      "name": "Message",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "name": "Custom input",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Label",
+          "default": "Custom input"
+        },
+        {
+          "type": "select",
+          "id": "type",
+          "label": "Input type",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text (single line)"
+            },
+            {
+              "value": "textarea",
+              "label": "Text (multi line)"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "tel",
+              "label": "Phone"
+            },
+            {
+              "value": "number",
+              "label": "Number"
+            },
+            {
+              "value": "url",
+              "label": "URL"
+            }
+          ],
+          "default": "text"
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "Dropdown",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Label",
+          "default": "Dropdown"
+        },
+        {
+          "type": "textarea",
+          "id": "options",
+          "label": "Options",
+          "info": "One option per line.",
+          "default": "Option 1\nOption 2\nOption 3"
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Text content</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "Half width on large screens",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact form",
+      "blocks": [
+        {
+          "type": "name",
+          "settings": {
+            "half_width": true
+          }
+        },
+        {
+          "type": "email",
+          "settings": {
+            "half_width": true
+          }
+        },
+        {
+          "type": "phone",
+          "settings": {
+            "half_width": true
+          }
+        },
+        {
+          "type": "dropdown",
+          "settings": {
+            "half_width": true
+          }
+        },
+        {
+          "type": "body"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

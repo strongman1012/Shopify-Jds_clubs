@@ -1,0 +1,106 @@
+<div class="container rewards-container" style="position: relative;">
+  <img
+    src="{{ section.settings.image_desktop | img_url : 'master' }}"
+    alt="Section Image"
+    class="desktop_image_class rewards-image-desktop">
+  <img
+    src="{{ section.settings.image_mobile | img_url : 'master' }}"
+    alt="Section Image"
+    class="desktop_image_class rewards-image-mobile">
+  <div class="container">
+    <span class="rewards-image-content">{{ section.settings.content }}</span>
+    <div class="button-block rewards-image-button-board">
+      <a href="{{ section.settings.button_link }}" class="{{ section.settings.button_style }} rewards-image-button">{{ section.settings.button_text }}</a>
+    </div>
+  </div>
+
+</div>
+
+
+
+{% schema %}
+  {
+    "name": "Rewards Image",
+    "settings": [
+      {
+        "type": "text",
+        "label": "Title",
+        "id": "title",
+        "default": "Welcome to our custom section"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop",
+        "label": "Image",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile",
+        "label": "Mobile image (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      },
+      {
+        "type": "url",
+        "id": "url",
+        "label": "Image link (optional)"
+      }, {
+        "type": "text",
+        "id": "content",
+        "label": "Content",
+        "default": "Content"
+      }, {
+        "type": "text",
+        "label": "Button Text",
+        "id": "button_text",
+        "default": "Learn More"
+      }, {
+        "type": "url",
+        "label": "Button Link",
+        "id": "button_link"
+      }, {
+        "type": "select",
+        "id": "button_style",
+        "label": "Button style",
+        "options": [
+          {
+            "value": "link",
+            "label": "Link"
+          }, {
+            "value": "btn btn--primary",
+            "label": "Primary button"
+          }, {
+            "value": "btn btn--secondary",
+            "label": "Secondary button"
+          }
+        ],
+        "default": "btn btn--primary"
+      }, {
+        "type": "color",
+        "id": "tint_color",
+        "label": "Image tint color",
+        "default": "#000000"
+      }, {
+        "type": "range",
+        "id": "tint_opacity",
+        "min": 0,
+        "max": 80,
+        "step": 5,
+        "unit": "%",
+        "label": "Image tint opacity",
+        "default": 40
+      }, {
+        "type": "textarea",
+        "label": "Description",
+        "id": "description",
+        "default": "This is a custom section for showcasing unique content."
+      }
+    ],
+    "presets": [
+      {
+        "name": "Rewards-Image",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}

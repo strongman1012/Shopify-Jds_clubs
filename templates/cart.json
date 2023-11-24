@@ -1,0 +1,44 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-cart",
+      "settings": {
+        "show_page_title": true,
+        "heading_align": "text-start",
+        "show_backorder_text": true,
+        "show_vendor": false,
+        "show_order_note": false,
+        "show_tax_and_shipping": false,
+        "show_additional_checkout_buttons": true,
+        "cart_terms_page": "",
+        "continue_shopping_page": "",
+        "show_shipping_calculator": false,
+        "shipping_calculator_default_country": "United States"
+      }
+    },
+    "4e1dc4a0-f3e2-4fb7-b821-30b50ec8fa4c": {
+      "type": "custom-featured-collection",
+      "settings": {
+        "title": "Or you could add more items based on your preferences",
+        "heading_align": "text-start",
+        "show_view_all": true,
+        "collection": "shaft",
+        "layout": "carousel",
+        "card_size": "small",
+        "products_to_show": 8,
+        "show_promo_info": false,
+        "image_ratio": "fill",
+        "promo_title": "A headline to grab attention",
+        "content": "<p>Use this card with an image to highlight your collections or introduce a promotion.<\/p>",
+        "link_url": "",
+        "button_label": "Button",
+        "color_scheme": "2",
+        "button_style": "btn btn--primary"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "4e1dc4a0-f3e2-4fb7-b821-30b50ec8fa4c"
+  ]
+}

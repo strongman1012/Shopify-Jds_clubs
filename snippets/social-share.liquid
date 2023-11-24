@@ -1,0 +1,55 @@
+{%- comment -%}
+  Parameters:
+  - share_title {String} - Title of the shared page.
+  - share_url {String} - Permalink of the shared page.
+  - share_image {Object} - Image for the shared page (optional).
+  - share_twitter {Boolean} - Show Twitter icon/link (optional, default is true).
+  - share_facebook {Boolean} - Show Facebook icon/link (optional, default is true).
+  - share_pinterest {Boolean} - Show Pinterest icon/link (optional, default is true).
+
+  Usage:
+  {% render 'social-share',
+  share_title: article.title,
+  share_url: article.url,
+  share_image: article.image,
+  share_facebook: false
+  %}
+  {%- endcomment -%}<ul class="social inline-flex flex-wrap">
+    {% unless share_pinterest == false or share_image == blank -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="//pinterest.com/pin/create/button/?url={{ shop.url | append: share_url }}&amp;media={{ share_image | image_url: width: 1000 }}&amp;description={{ share_title | url_param_escape }}"
+          target="_blank"
+          rel="noopener">
+          {% render 'icon-pinterest' %}
+          <span class="visually-hidden">{{ 'general.social.share_on_pinterest' | t }}</span>
+        </a>
+      </li>
+    {%- endunless %}
+    {%- unless share_twitter == false -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="//twitter.com/share?text={{ share_title | url_param_escape }}&amp;url={{ shop.url | append: share_url }}"
+          target="_blank"
+          rel="noopener">
+          {% render 'icon-twitter' %}
+          <span class="visually-hidden">{{ 'general.social.share_on_twitter' | t }}</span>
+        </a>
+      </li>
+    {%- endunless -%}
+
+    {%- unless share_facebook == false -%}
+      <li>
+        <a
+          class="social__link flex items-center justify-center"
+          href="//www.facebook.com/sharer.php?u={{ shop.url | append: share_url }}"
+          target="_blank"
+          rel="noopener">
+          {% render 'icon-facebook' %}
+          <span class="visually-hidden">{{ 'general.social.share_on_facebook' | t }}</span>
+        </a>
+      </li>
+    {%- endunless -%}
+  </ul>

@@ -1,0 +1,36 @@
+.shopify-model-viewer-ui model-viewer:not(.shopify-model-viewer-ui__disabled) {
+  z-index: 3;
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__controls-area {
+  z-index: 3;
+  right: calc(var(--media-gutter) - 3px);
+  bottom: var(--media-gutter);
+  border-color: rgba(var(--text-color)/0.15);
+  background: rgba(var(--bg-color));
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__button {
+  color: rgba(var(--text-color)/0.75);
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__button--control:hover {
+  color: rgba(var(--text-color)/0.55);
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__button--control:active,
+.shopify-model-viewer-ui .shopify-model-viewer-ui__button--control.focus-visible:focus {
+  background: rgba(var(--text-color)/0.15);
+  color: rgba(var(--text-color)/0.55);
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__button--control:not(:last-child)::after {
+  border-color: rgba(var(--text-color)/0.15);
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__button--poster {
+  width: 56px;
+  height: 56px;
+  transition: color 0.3s;
+  border-radius: var(--btn-border-radius, 0);
+  background-color: rgba(var(--bg-color));
+  color: rgb(var(--text-color));
+}
+.shopify-model-viewer-ui .shopify-model-viewer-ui__poster-control-icon {
+  width: 100%;
+  height: 100%;
+}

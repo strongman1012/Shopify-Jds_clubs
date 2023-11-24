@@ -1,0 +1,110 @@
+{%- comment -%}
+  Parameters:
+  - id {String} - Unique ID.
+  - hide_label {Boolean} [optional] - Visually hide the label. Default is true.
+  - persist_value {Boolean} [optional] - Retain search terms on page change/reload. Default is false.
+  - icon_button {Boolean} [optional] - Use an icon for the submit button. Default is true.
+  - submit_icon {String} [optional] - Alternative icon code.
+
+  Dependencies:
+  - Tabbed content component
+
+  Usage:
+  {% render 'predictive-search',
+    id: 'header-search',
+    hide_label: false
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  unless hide_label == false
+    assign hide_label = true
+  endunless
+
+  unless icon_button == false
+    assign icon_button = true
+  endunless
+-%}
+
+{%- if settings.enable_predictive_search -%}
+  <predictive-search data-loading-text="{{ 'accessibility.loading' | t }}">
+{%- endif -%}
+  <form class="search relative{% if settings.enable_speech_search %} search--speech{% endif %}" role="search" action="{{ routes.search_url }}" method="get">
+    <label class="label{% if hide_label %} visually-hidden{% endif %}" for="{{ id }}">
+      {{- 'general.search.input_label' | t -}}
+    </label>
+    <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
+    <search-form class="search__form block">
+      <input type="hidden" name="type" value="{% if settings.search_show_products %}product,{% endif %}{% if settings.search_show_pages %}page,{% endif %}{% if settings.search_show_articles %}article{% endif %}">
+      <input type="hidden" name="options[prefix]" value="last">
+      <input type="search"
+             class="search__input w-full input js-search-input{% if settings.search_input_font == "heading" %} h6{% endif %}"
+             id="{{ id }}"
+             name="q"
+             placeholder="{{ settings.search_input_placeholder_1 | escape }}"
+             {% if persist_value -%}
+               value="{{ search.terms | escape }}"
+             {% endif -%}
+             {% if settings.search_input_placeholder_1 %}
+               data-placeholder-one="{{ settings.search_input_placeholder_1 | escape }}"
+             {% endif %}
+             {% if settings.search_input_placeholder_2 %}
+               data-placeholder-two="{{ settings.search_input_placeholder_2 | escape }}"
+             {% endif %}
+             {% if settings.search_input_placeholder_3 %}
+               data-placeholder-three="{{ settings.search_input_placeholder_3 | escape }}"
+             {% endif %}
+             data-placeholder-prompts-mob="{{ settings.prompts_mobile }}"
+             {% if settings.search_input_placeholder_2 or settings.search_input_placeholder_3 %}
+               data-typing-speed="100"
+               data-deleting-speed="60"
+               data-delay-after-deleting="500"
+               data-delay-before-first-delete="2000"
+               data-delay-after-word-typed="2400"
+             {% endif %}
+             {% if settings.enable_predictive_search -%}
+               role="combobox"
+               autocomplete="off"
+               aria-autocomplete="list"
+               aria-controls="predictive-search-results"
+               aria-owns="predictive-search-results"
+               aria-haspopup="listbox"
+               aria-expanded="false"
+               spellcheck="false"
+             {%- endif -%}>
+      <button type="button" class="search__reset text-current vertical-center absolute focus-inset js-search-reset" hidden>
+        <span class="visually-hidden">{{ 'general.search.reset' | t }}</span>
+        {% render 'icon-close' %}
+      </button>
+      <button class="search__submit text-current absolute focus-inset start">
+        {%- if icon_button -%}
+          <span class="visually-hidden">{{ 'general.search.submit' | t }}</span>
+          {%- if submit_icon -%}
+            {{ submit_icon }}
+          {%- else -%}
+            {% render 'icon-search' %}
+          {%- endif -%}
+        {%- else -%}
+          {{- 'general.search.submit' | t -}}
+        {%- endif -%}
+      </button>
+      {%- if settings.enable_speech_search -%}
+        <speech-search-button class="search__speech focus-inset end hidden" tabindex="0" title="{{ 'general.icon_labels.voice_search' | t }}"
+          style="--speech-icon-color: {{ settings.speech_icon_color }}">
+          {% render 'icon-mic' %}
+        </speech-search-button>
+
+        {{ 'speech-search.css' | asset_url | stylesheet_tag }}
+        <script src="{{ 'speech-search.js' | asset_url }}" defer="defer"></script>
+      {%- endif -%}
+    </search-form>
+
+    {%- if settings.enable_predictive_search -%}
+      <div class="js-search-results" tabindex="-1" data-predictive-search></div>
+      <span class="js-search-status visually-hidden" role="status" aria-hidden="true"></span>
+    {%- endif -%}
+  </form>
+  <div class="overlay fixed top-0 right-0 bottom-0 left-0 js-search-overlay"></div>
+{%- if settings.enable_predictive_search -%}
+  </predictive-search>
+{%- endif -%}

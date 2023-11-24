@@ -1,0 +1,22 @@
+<a href="{{ article.url }}" class="card__media relative">
+  <img src="{{ article.image | img_url : 'master' }}" class="custom-detail-article-footer-1">
+</a>
+<div class="custom-detail-article-footer-2">
+  <a href="{{ article.url }}">
+    <button class="btn--primary custom-article-button">CUSTOM IRONS</button>
+  </a>
+
+  <h5 class="custom-detail-article-footer-2-title">
+    <a href="{{ article.url }}">{{ article.title | escape }}</a>
+  </h5>
+  <span class="custom-detail-article-footer-2-content">
+    {%- if article.excerpt.size > 0 -%}
+      {{ article.excerpt | strip_html | truncatewords: 30 }}
+    {%- else -%}
+      {{ article.content | strip_html | truncatewords: 30 }}
+    {%- endif -%}
+  </span>
+  <span class="custom-detail-article-footer-2-date">
+    {{ article.published_at | time_tag: format: 'date' }}
+  </span>
+</div>

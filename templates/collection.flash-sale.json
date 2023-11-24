@@ -1,0 +1,167 @@
+{
+  "sections": {
+    "collection-banner": {
+      "type": "main-collection-banner",
+      "disabled": true,
+      "settings": {
+      }
+    },
+    "countdown-timer": {
+      "type": "countdown-timer",
+      "blocks": {
+        "countdown-heading-1": {
+          "type": "heading",
+          "settings": {
+            "heading": "Flash Sale now on!",
+            "heading_size": "h2"
+          }
+        },
+        "countdown-text-2": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Sale ends in:<\/p>",
+            "enlarge_text": true
+          }
+        },
+        "countdown-countdown-3": {
+          "type": "countdown",
+          "settings": {
+            "end_date": "",
+            "end_time": "",
+            "end_text": "",
+            "hide_on_end": false
+          }
+        }
+      },
+      "block_order": [
+        "countdown-heading-1",
+        "countdown-text-2",
+        "countdown-countdown-3"
+      ],
+      "settings": {
+        "height_mode": "fixed",
+        "fixed_height_desktop": 560,
+        "fixed_height_mobile": 350,
+        "color_scheme": "1",
+        "tint_opacity": 0
+      }
+    },
+    "collection-products": {
+      "type": "main-collection-products",
+      "settings": {
+        "products_per_page": 16,
+        "card_size": "medium",
+        "show_layout_toggle": true,
+        "enable_filtering": true,
+        "filters_open_lg": false,
+        "stick_on_scroll": true,
+        "show_filter_counts": true,
+        "max_filter_options": 6,
+        "enable_sorting": true,
+        "show_feat_sort_opt": true
+      }
+    },
+    "promo-strip": {
+      "type": "promo-strip",
+      "blocks": {
+        "promo-strip-heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "New Season Sale!",
+            "heading_size": "h4"
+          }
+        },
+        "promo-strip-text": {
+          "type": "text",
+          "settings": {
+            "enlarge_text": false
+          }
+        },
+        "promo-strip-discount": {
+          "type": "discount",
+          "settings": {
+            "discount_code": "NEWSEASON10"
+          }
+        }
+      },
+      "block_order": [
+        "promo-strip-heading",
+        "promo-strip-text",
+        "promo-strip-discount"
+      ],
+      "settings": {
+        "section_height": "medium",
+        "color_scheme": "3",
+        "dividers": "none"
+      }
+    },
+    "collection-list": {
+      "type": "collection-list",
+      "blocks": {
+        "collection-list-collection-1": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-2": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-3": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-4": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-5": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-6": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-7": {
+          "type": "collection",
+          "settings": {
+          }
+        },
+        "collection-list-collection-8": {
+          "type": "collection",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "collection-list-collection-1",
+        "collection-list-collection-2",
+        "collection-list-collection-3",
+        "collection-list-collection-4",
+        "collection-list-collection-5",
+        "collection-list-collection-6",
+        "collection-list-collection-7",
+        "collection-list-collection-8"
+      ],
+      "settings": {
+        "title": "Our collections",
+        "heading_align": "text-start",
+        "layout": "carousel",
+        "use_product_image": true
+      }
+    }
+  },
+  "order": [
+    "collection-banner",
+    "countdown-timer",
+    "collection-products",
+    "promo-strip",
+    "collection-list"
+  ]
+}

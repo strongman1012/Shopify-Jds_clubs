@@ -1,0 +1,148 @@
+<div class="container">
+  {%- if blog.comments_enabled? -%}
+    <div class="reading-width article-width mt-12">
+      {%- if article.comments_count > 0 -%}
+        <h2 class="h6 mb-8" id="comments-{{ article.id }}">
+          {{- 'blogs.article.comments' | t: count: article.comments_count -}}
+        </h2>
+        {%- paginate article.comments by 5 -%}
+          <div class="article__comments mb-16">
+            {%- if comment.status == 'pending' and comment.content -%}
+              <article class="comment" id="{{ comment.id }}">
+                {{ comment.content }}
+                <footer class="comment__footer">
+                  <span class="comment__author">{{ comment.author }}</span>
+                </footer>
+              </article>
+            {%- endif -%}
+
+            {%- for comment in article.comments -%}
+              <article class="comment" id="{{ comment.id }}">
+                {{ comment.content }}
+                <footer class="comment__footer">
+                  <span class="comment__author">{{ comment.author }}, </span>
+                  <span class="">{{ comment.created_at | time_tag: format: 'date' }}</span>
+                </footer>
+              </article>
+
+              {%- unless forloop.last -%}
+                <hr>
+              {%- endunless -%}
+            {%- endfor -%}
+
+            {% render 'pagination', paginate: paginate %}
+          </div>
+        {%- endpaginate -%}
+      {%- endif -%}
+
+      {% form 'new_comment', article, class: 'form reading-width' %}
+        <h2 class="h6{% unless blog.moderated? %} mb-8{% endunless %}">{{ 'blogs.comments.form_title' | t }}</h2>
+        {%- if blog.moderated? -%}
+          <p class="mb-8">{{ 'blogs.comments.moderated' | t }}</p>
+        {%- endif -%}
+
+        {%- if form.posted_successfully? -%}
+          <div class="alert mb-8 bg-success-bg text-success-text" role="status">
+            {%- if blog.moderated? and comment.status == 'unapproved' -%}
+              {{ 'blogs.comments.success_moderated' | t }}
+            {%- else -%}
+              {{ 'blogs.comments.success' | t }}
+            {%- endif -%}
+          </div>
+        {%- elsif form.errors -%}
+          <div class="alert mb-8 bg-error-bg text-error-text" role="alert">
+            <h2 class="h6 text-current">{{ 'blogs.comments.error_heading' | t }}</h2>
+            <ul class="styled-list">
+              {%- for field in form.errors -%}
+                <li>
+                  <a class="link text-current" href="#comment-{{ field }}">
+                    {%- if form.errors.translated_fields[field] contains 'author' %}
+                      {{- 'blogs.comments.name' | t }}
+                    {%- elsif form.errors.translated_fields[field] contains 'body' %}
+                      {{- 'blogs.comments.message' | t }}
+                    {%- else %}
+                      {{- form.errors.translated_fields[field] }}
+                    {%- endif -%}
+                    {{ form.errors.messages[field] -}}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+        <div class="form__field required">
+          <label class="label" for="comment-author">{{ 'blogs.comments.name' | t }}</label>
+          <input type="text"
+                 class="input w-full"
+                 id="comment-author"
+                 name="comment[author]"
+                 autocomplete="name"
+                 value="{{ form.author }}"
+                  {%- if form.errors contains 'author' %}
+                    aria-invalid="true"
+                    aria-describedby="comment-author-error"
+                  {% endif -%}
+                 aria-required="true"
+                 required>
+          {%- if form.errors contains 'author' -%}
+            <p class="form__field-error" id="comment-author-error">
+              {{ 'blogs.comments.name' | t }} {{ form.errors.messages['author'] }}
+            </p>
+          {%- endif -%}
+        </div>
+
+        <div class="form__field required">
+          <label class="label" for="comment-email">{{ 'blogs.comments.email' | t }}</label>
+          <input type="email"
+                 class="input w-full"
+                 id="comment-email"
+                 name="comment[email]"
+                 autocomplete="email"
+                 value="{{ form.email }}"
+                  {%- if form.errors contains 'email' %}
+                    aria-invalid="true"
+                    aria-describedby="comment-email-error"
+                  {% endif -%}
+                 aria-required="true"
+                 required>
+          {%- if form.errors contains 'email' -%}
+            <p class="form__field-error" id="comment-email-error">
+              {{ 'blogs.comments.email' | t }} {{ form.errors.messages['email'] }}
+            </p>
+          {%- endif -%}
+        </div>
+
+        <div class="form__field required">
+          <label class="label" for="comment-body">{{ 'blogs.comments.message' | t }}</label>
+          <textarea class="input w-full"
+                    id="comment-body"
+                    name="comment[body]"
+                    rows="5"
+                      {%- if form.errors contains 'body' %}
+                        aria-invalid="true"
+                        aria-describedby="comment-body-error"
+                      {% endif -%}
+                      aria-required="true"
+                    required>{{ form.body }}</textarea>
+          {%- if form.errors contains 'body' -%}
+            <p class="form__field-error" id="comment-body-error">
+              {{ 'blogs.comments.message' | t }} {{ form.errors.messages['body'] }}
+            </p>
+          {%- endif -%}
+        </div>
+
+        <div class="mt-6">
+          <button class="btn btn--secondary w-full md:w-auto">{{ 'blogs.comments.post' | t }}</button>
+        </div>
+      {% endform %}
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Article comments",
+  "class": "cc-article-comments section"
+}
+{% endschema %}

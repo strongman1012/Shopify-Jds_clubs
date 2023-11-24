@@ -1,0 +1,107 @@
+{
+  "type": "header",
+  "name": "Header Group",
+  "sections": {
+    "announcement": {
+      "type": "announcement",
+      "blocks": {
+        "announcement-1": {
+          "type": "announcement",
+          "settings": {
+            "text": "<p><strong>Welcome to our store<\/strong> <a href=\"#\" title=\"#\">Learn more<\/a><\/p>"
+          }
+        },
+        "announcement-2": {
+          "type": "announcement",
+          "settings": {
+            "text": "<p><strong>New collections added!<\/strong> <a href=\"#\" title=\"#\">Learn more<\/a><\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "announcement-1",
+        "announcement-2"
+      ],
+      "settings": {
+        "link1": "",
+        "link1_label": "",
+        "link2": "",
+        "link2_label": "",
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "bg_color": "#000000",
+        "text_color": "#ffffff",
+        "text_type_scale": "small",
+        "read_time": 7
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "enable_sticky": true,
+        "mobile_menu_position": "burger-right",
+        "logo_text": "",
+        "logo_type_scale": "2",
+        "logo": "shopify:\/\/shop_images\/Group.png",
+        "logo_width": 250,
+        "logo_h1": true,
+        "enable_search": true,
+        "minimise_search_mobile": false,
+        "minimise_search_desktop": false,
+        "menu": "main-menu",
+        "repeat_links": true,
+        "menu_featured_link": "",
+        "quicklinks_menu": "footer",
+        "bg_color": "#ffffff",
+        "text_color": "#070707",
+        "accent_color": "#777777"
+      }
+    },
+    "5887a08e-c8a8-4afc-9a2c-90648266af76": {
+      "type": "promo-strip",
+      "blocks": {
+        "sections--20651225678099__5887a08e-c8a8-4afc-9a2c-90648266af76-heading-1": {
+          "type": "heading",
+          "settings": {
+            "heading": "Flash Sale now on!",
+            "heading_size": "h4",
+            "show_on_mobile": true,
+            "show_on_desktop": true
+          }
+        },
+        "sections--20651225678099__5887a08e-c8a8-4afc-9a2c-90648266af76-text-1": {
+          "type": "text",
+          "settings": {
+            "text": "<p>First order will get 3% off for whole products for every customer!<\/p>",
+            "enlarge_text": true,
+            "show_on_mobile": true,
+            "show_on_desktop": true
+          }
+        },
+        "95440979-f69a-42a8-999f-7abbc20a2927": {
+          "type": "discount",
+          "settings": {
+            "discount_code": "mptk35$off"
+          }
+        }
+      },
+      "block_order": [
+        "sections--20651225678099__5887a08e-c8a8-4afc-9a2c-90648266af76-heading-1",
+        "sections--20651225678099__5887a08e-c8a8-4afc-9a2c-90648266af76-text-1",
+        "95440979-f69a-42a8-999f-7abbc20a2927"
+      ],
+      "settings": {
+        "section_height": "small",
+        "color_scheme": "3",
+        "full_width": true,
+        "dividers": "border-top",
+        "prevent_animation": false
+      }
+    }
+  },
+  "order": [
+    "announcement",
+    "header",
+    "5887a08e-c8a8-4afc-9a2c-90648266af76"
+  ]
+}

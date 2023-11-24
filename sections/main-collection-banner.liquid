@@ -1,0 +1,234 @@
+{{ 'collection-banner.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  if section.settings.show_collection_description and collection.description != blank
+    assign is_description = true
+  else
+    assign is_description = false
+  endif
+
+  assign collection_image_size = section.settings.collection_image
+  if section.settings.show_collection_title == false and is_description == false and collection_image_size == "fill"
+    assign collection_image_size = "natural"
+  endif
+
+  if collection_image_size != "none"
+    if section.settings.use_product_image
+      assign collection_image_object = collection.all_products.first.featured_media.preview_image
+    else
+      assign collection_image_object = collection.image
+    endif
+
+    assign force_image_ratio = false
+    if collection_image_size == "fill" or collection_image_size == "1.33" or collection_image_size == "1.77" or collection_image_size == "1" or collection_image_size == "0.75"
+      assign force_image_ratio = true
+      if collection_image_size != "fill"
+        assign image_ratio = collection_image_size
+        assign fixed_image_ratio = true
+      endif
+    endif
+  endif
+
+  if collection_image_size != "none" and collection_image_object
+    assign collection_image = true
+  else
+    assign collection_image = false
+  endif
+
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+<div class="container">
+  <div class="collection-banner flex flex-col md:flex-row{% if collection_image and collection_image_size != "fill" %} collection-banner--natural{% endif %}{% unless collection_image %} {{ section.settings.text_align }}{% endunless %}{% if section.settings.color_scheme == "default" %} gap-y-6{% endif %}">
+    {% if collection_image %}
+      {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1, md: 2 %}{% endcapture -%}
+      {%- liquid
+        if force_image_ratio
+          assign class = "img-fit"
+        endif
+      -%}
+      <div class="collection-banner__media{% if force_image_ratio == false or collection_image_size == "fill" %} md:pt-0{% endif %}{% if fixed_image_ratio %} md:self-start{% endif %} media relative flex-auto"{% if collection_image_size == "fill" %} style="padding-top: {{ 1 | divided_by: collection_image_object.aspect_ratio | times: 100 }}%;"{% endif %}>
+        {% if fixed_image_ratio %}
+          <div style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">
+        {% endif %}
+
+        {% render 'image',
+          image: collection_image_object,
+          widths: '700, 800, 960, 1296',
+          src_width: 1296,
+          sizes: sizes,
+          lazy_load: false,
+          class: class
+        %}
+
+        {% if fixed_image_ratio %}
+          </div>
+        {% endif %}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_collection_title or is_description -%}
+      <div class="collection-banner__content flex flex-col {% unless collection_image %}w-full {% endunless %}{{ section.settings.text_align }}{% unless color_scheme == 'default' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}{% if section.settings.text_width == "wide" or collection_image_size == "natural" %} collection-banner__content-wide{% endif %}{% if collection_image %} collection-banner__content--with-media{% elsif section.settings.text_align == "items-center text-center" %} mx-auto{% endif %}">
+        {%- if section.settings.show_collection_title -%}
+          <div class="block">
+            <h1 class="collection-banner__heading mb-0 inline">
+              {{- collection.title | escape -}}
+            </h1>
+
+            {% if section.settings.show_product_count %}
+              <span class="font-heading collection-banner__count{% unless section.settings.text_align == "text-start" %} block {{ section.settings.text_align }}{% endunless %}">
+                ({{ 'sections.collection.product_count.other' | t: count: collection.all_products_count }})
+              </span>
+            {% endif %}
+          </div>
+        {%- endif -%}
+
+        {%- if is_description -%}
+          <div class="rte mt-4">
+            {{ collection.description }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection banner",
+  "class": "cc-collection-banner section section--template",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Add a description or image by editing your collection. [Learn more](https://help.shopify.com/en/manual/products/collections/collection-layout)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_title",
+      "label": "Show collection title",
+      "info": "If hidden, you should provide a primary page heading (h1 tag) in another section with h1 option (rich text, image banner, slideshow, video) for SEO purposes.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "Show product count",
+      "info": "Only visible if the title is shown.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "label": "Show collection description",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "items-center text-center",
+          "label": "Center"
+        },
+        {
+          "value": "items-end justify-end text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "select",
+      "id": "collection_image",
+      "label": "Collection image",
+      "default": "natural",
+      "options": [
+        {
+          "value": "natural",
+          "label": "Natural"
+        },
+        {
+          "value": "1.33",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "1.77",
+          "label": "Landscape (16:9)"
+        },
+        {
+          "value": "1",
+          "label": "Square"
+        },
+        {
+          "value": "0.75",
+          "label": "Portrait"
+        },
+        {
+          "label": "Fill",
+          "value": "fill"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "use_product_image",
+      "label": "Use the first product image as the collection image",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "text_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "standard",
+          "label": "Standard"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ],
+      "default": "standard",
+      "info": "Does not apply when \"Collection image\" is set to \"Natural\"."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "default"
+    }
+  ]
+}
+{% endschema %}

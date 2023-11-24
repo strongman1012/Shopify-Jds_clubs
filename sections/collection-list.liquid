@@ -1,0 +1,262 @@
+{%- liquid
+  if section.settings.layout == 'carousel'
+    assign carousel = true
+
+    if section.settings.card_size == 'small'
+      assign grid_classes = 'grid-flow-col auto-cols-2 sm:auto-cols-3 md:auto-cols-4 lg:auto-cols-5 xl:auto-cols-6'
+    elsif section.settings.card_size == 'medium'
+      assign grid_classes = 'grid-flow-col auto-cols-2 sm:auto-cols-3 lg:auto-cols-4 xl:auto-cols-5'
+    else
+      assign grid_classes = 'grid-flow-col auto-cols-2 sm:auto-cols-3 xl:auto-cols-4'
+    endif
+  else
+    assign carousel = false
+
+    if section.settings.card_size == 'small'
+      assign grid_classes = 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+    elsif section.settings.card_size == 'medium'
+      assign grid_classes = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+    else
+      assign grid_classes = 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4'
+    endif
+  endif
+
+  assign circle_image = false
+  if settings.coll_card_image_ratio == 'circle' or section.settings.circle_image == true
+    assign circle_image = true
+  endif
+
+  if settings.coll_card_image_ratio == 'shortest' and circle_image == false
+    assign image_ratio = 0
+    for block in section.blocks
+      if block.settings.collection != blank
+        assign block_collection = collections[block.settings.collection]
+        if block_collection.featured_image.aspect_ratio > image_ratio
+          assign image_ratio = block_collection.featured_image.aspect_ratio
+        endif
+      endif
+    endfor
+  elsif settings.coll_card_image_ratio == 'tallest' and circle_image == false
+    assign image_ratio = 99
+    for block in section.blocks
+      if block.settings.collection != blank
+        assign block_collection = collections[block.settings.collection]
+        if block_collection.featured_image.aspect_ratio < image_ratio
+          assign image_ratio = block_collection.featured_image.aspect_ratio
+        endif
+      endif
+    endfor
+  elsif circle_image == true
+    assign image_ratio = 1
+  else
+    assign image_ratio = settings.coll_card_image_ratio
+  endif
+-%}
+
+<div class="section">
+  {%- if section.settings.title != blank or section.settings.button_label != blank -%}
+    <div class="container">
+      <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %}data-cc-animate{% endif %}>
+        {%- if section.settings.title != blank -%}
+          <h2 class="h4 mb-0 flex-auto {{ section.settings.heading_align }}" id="shop-deal-title">
+            {{- section.settings.title | escape -}}
+          </h2>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank -%}
+          <a href="{{ section.settings.button_link }}" class="link">{{ section.settings.button_label | escape }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- if carousel -%}
+    <carousel-slider class="carousel block" inactive>
+      <div class="container relative">
+        <div class="slider" id="slider-{{ section.id }}">
+        {%- endif -%}
+
+        <div class="container">
+          <ul class="{% if carousel %}slider__grid {% endif %}grid {{ grid_classes }} gap-x-theme gap-y-10" role="list">
+            {%- for block in section.blocks -%}
+              <li {% if carousel %}class="slider__item"{% endif %}{% if settings.animations_enabled != "disabled" %}data-cc-animatedata-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                {% render 'collection-card'
+                 , collection: block.settings.collection,
+                 image: block.settings.image,
+                 image_ratio: image_ratio,
+                 circle_image: circle_image,
+                 use_product_image: section.settings.use_product_image,
+                 title: block.settings.title %}
+              </li>
+            {%- else -%}
+              {%- for i in (1..section.settings.products_to_show) -%}
+                <li {% if carousel %}class="slider__item"{% endif %}{% if settings.animations_enabled != "disabled" %}data-cc-animatedata-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                  {% render 'collection-card', image_ratio: image_ratio, circle_image: circle_image %}
+                </li>
+              {%- endfor -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+
+        {%- if carousel -%}
+        </div>
+        {%- if settings.slider_show_arrows != 'never' -%}
+          <div class="slider-nav absolute top-middle end {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:block no-js-hidden visually-hidden">
+            <button
+              type="button"
+              class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon"
+              name="next"
+              aria-controls="slider-{{ section.id }}">
+              <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+              {% render 'icon-chevron-right' %}
+            </button>
+            <button
+              type="button"
+              class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon"
+              name="prev"
+              aria-controls="slider-{{ section.id }}">
+              <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+              {% render 'icon-chevron-left' %}
+            </button>
+          </div>
+        {%- endif -%}
+      </div>
+    </carousel-slider>
+  {%- endif -%}
+</div>
+{% schema %}
+  {
+    "name": "Collection list",
+    "tag": "section",
+    "class": "cc-collection-list",
+    "max_blocks": 16,
+    "settings": [
+      {
+        "type": "header",
+        "content": "Section header"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Heading",
+        "default": "Collections"
+      },
+      {
+        "type": "select",
+        "id": "heading_align",
+        "label": "Alignment",
+        "options": [
+          {
+            "value": "text-start",
+            "label": "Left"
+          }, {
+            "value": "text-center",
+            "label": "Center"
+          }, {
+            "value": "text-end",
+            "label": "Right"
+          }
+        ],
+        "default": "text-start"
+      },
+      {
+        "type": "text",
+        "id": "button_label",
+        "label": "View more label"
+      }, {
+        "type": "url",
+        "id": "button_link",
+        "label": "View more link"
+      }, {
+        "type": "header",
+        "content": "Layout"
+      }, {
+        "type": "radio",
+        "id": "layout",
+        "label": "Layout",
+        "options": [
+          {
+            "value": "carousel",
+            "label": "Carousel"
+          }, {
+            "value": "grid",
+            "label": "Grid"
+          }
+        ],
+        "default": "carousel"
+      }, {
+        "type": "select",
+        "id": "card_size",
+        "label": "Card size",
+        "options": [
+          {
+            "value": "small",
+            "label": "Small"
+          }, {
+            "value": "medium",
+            "label": "Medium"
+          }, {
+            "value": "large",
+            "label": "Large"
+          }
+        ],
+        "default": "small"
+      }, {
+        "type": "header",
+        "content": "Style"
+      }, {
+        "type": "checkbox",
+        "id": "use_product_image",
+        "label": "Use the first product image as the collection image",
+        "default": false
+      }, {
+        "type": "checkbox",
+        "id": "circle_image",
+        "label": "Crop images as circles",
+        "default": true
+      }
+    ],
+    "blocks": [
+      {
+        "type": "collection",
+        "name": "Collection",
+        "settings": [
+          {
+            "type": "collection",
+            "id": "collection",
+            "label": "Collection"
+          }, {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image",
+            "info": "Replaces the collection image"
+          }, {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Collection"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Collection list",
+        "blocks": [
+          {
+            "type": "collection"
+          }, {
+            "type": "collection"
+          }, {
+            "type": "collection"
+          }, {
+            "type": "collection"
+          }
+        ]
+      }
+    ],
+    "disabled_on": {
+      "groups": ["header", "footer", "aside"]
+    }
+  }
+{% endschema %}

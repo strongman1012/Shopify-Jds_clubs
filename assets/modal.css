@@ -1,0 +1,71 @@
+.modal {
+  visibility: hidden;
+  z-index: 30;
+  transition: visibility 0s 0.4s, background-color 0.3s ease 0.1s;
+  background-color: rgba(var(--modal-overlay-color)/0);
+}
+.modal[open], [open]:not(.is-closing) .modal {
+  visibility: visible;
+  transition-delay: 0s;
+  background-color: rgba(var(--modal-overlay-color)/var(--modal-overlay-opacity));
+}
+
+.modal__window {
+  width: 100%;
+  max-width: 800px;
+  min-height: 240px;
+  max-height: calc(var(--viewport-height) - var(--gutter) * 2);
+  margin: var(--gutter);
+  overflow: auto;
+  transform: scale(0.8);
+  transition: transform 0.15s ease-in 0s, opacity 0.15s 0s;
+  border-radius: var(--modal-border-radius);
+  opacity: 0;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+}
+[open]:not(.is-closing) .modal__window {
+  transform: scale(1);
+  transition: transform 0.15s ease-out 0.1s, opacity 0.15s 0.1s;
+  opacity: 1;
+}
+
+.modal__close-btn {
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  padding: 10px;
+  border-radius: var(--btn-border-radius);
+  background-color: inherit;
+  color: currentColor;
+}
+
+.modal__content {
+  padding: 64px var(--gutter) calc(10 * var(--space-unit));
+}
+
+.modal__image {
+  flex: 0 0 50%;
+  max-width: 360px;
+}
+
+@media (min-width: 600px) {
+  .modal__window {
+    width: auto;
+    min-width: 480px;
+  }
+}
+@media (max-width: 768.98px) {
+  .modal .rte table {
+    width: auto;
+    margin-right: calc(var(--gutter) * -1);
+    margin-left: calc(var(--gutter) * -1);
+  }
+}
+@media (min-width: 769px) {
+  .modal__content {
+    padding: 64px calc(10 * var(--space-unit)) calc(10 * var(--space-unit));
+  }
+}
+.modal {
+  transition: visibility 0s 0.4s, background-color 0.3s ease 0.1s;
+}

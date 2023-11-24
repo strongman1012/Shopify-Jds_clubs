@@ -1,0 +1,109 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - current_variant {Object} - Current variant object.
+
+  Usage:
+  {% render 'structured-data-product',
+    product: product,
+    current_variant: product.selected_or_first_available_variant
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  if current_variant.featured_media
+    assign media = current_variant.featured_media
+  else
+    assign media = product.featured_media
+  endif
+-%}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "url": {{ request.origin | append: product.url | json }},
+    {%- if media -%}
+      "image": [
+        {{ media | image_url: width: media.width | prepend: "https:" | json }}
+      ],
+    {%- endif -%}
+    "description": {{ product.description | strip_html | json }},
+    {%- if current_variant.sku != blank -%}
+      "sku": {{ current_variant.sku | json }},
+    {%- endif -%}
+    "brand": {
+      "@type": "Brand",
+      "name": {{ product.vendor | json }}
+    },
+    "offers": [
+      {%- for variant in product.variants -%}
+        {
+          "@type" : "Offer",
+          {%- if variant.sku != blank -%}
+            "sku": {{ variant.sku | json }},
+          {%- endif -%}
+          {%- if variant.barcode.size == 12 -%}
+            "gtin12": {{ variant.barcode | json }},
+          {%- endif -%}
+          {%- if variant.barcode.size == 13 -%}
+            "gtin13": {{ variant.barcode | json }},
+          {%- endif -%}
+          {%- if variant.barcode.size == 14 -%}
+            "gtin14": {{ variant.barcode | json }},
+          {%- endif -%}
+          "availability" : "http://schema.org/{% if variant.available %}InStock{% else %}OutOfStock{% endif %}",
+          "price" : {{ variant.price | divided_by: 100.00 | json }},
+          "priceCurrency" : {{ cart.currency.iso_code | json }},
+          "url" : {{ request.origin | append: variant.url | json }},
+          "seller": {
+            "@type": "Organization",
+            "name": {{ shop.name | json }},
+            {% capture sameAs_json %}
+              {%- if settings.social_twitter_url != blank -%}
+                {{ settings.social_twitter_url | json }},
+              {%- endif -%}
+              {%- if settings.social_facebook_url != blank -%}
+                {{ settings.social_facebook_url | json }},
+              {%- endif -%}
+              {%- if settings.social_instagram_url != blank -%}
+                {{ settings.social_instagram_url | json }},
+              {%- endif -%}
+              {%- if settings.social_pinterest_url != blank -%}
+                {{ settings.social_pinterest_url | json }},
+              {%- endif -%}
+              {%- if settings.social_tiktok_url != blank -%}
+                {{ settings.social_tiktok_url | json }},
+              {%- endif -%}
+              {%- if settings.social_snapchat_url != blank -%}
+                {{ settings.social_snapchat_url | json }},
+              {%- endif -%}
+              {%- if settings.social_tumblr__url != blank -%}
+                {{ settings.social_tumblr_url | json }},
+              {%- endif -%}
+              {%- if settings.social_linkedin_url != blank -%}
+                {{ settings.social_linkedin_url | json }},
+              {%- endif -%}
+              {%- if settings.social_youtube_url != blank -%}
+                {{ settings.social_youtube_url | json }},
+              {%- endif -%}
+              {%- if settings.social_vimeo_url != blank -%}
+                {{ settings.social_vimeo_url | json }},
+              {%- endif -%}
+              {%- if settings.social_spotify_url != blank -%}
+                {{ settings.social_spotify_url | json }},
+              {%- endif -%}
+              {%- if settings.social_twitch_url != blank -%}
+                {{ settings.social_twitch_url | json }},
+              {%- endif -%}
+            {% endcapture %}
+            "sameAs": [
+              {{ sameAs_json | remove_last: ',' }}
+            ]
+          }
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+</script>

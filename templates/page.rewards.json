@@ -1,0 +1,354 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "show_page_title": true,
+        "heading_align": "text-center"
+      }
+    },
+    "1d13173e-15c3-4136-8e1f-ee7c7d8bc548": {
+      "type": "group-button",
+      "settings": {
+        "button_1_label": "Rewards",
+        "button_1_link": "",
+        "button_2_label": "Saved Carts",
+        "button_2_link": "",
+        "button_3_label": "Order History",
+        "button_3_link": "",
+        "button_4_label": "Addresses",
+        "button_4_link": "",
+        "button_5_label": "Sign Out",
+        "button_5_link": ""
+      }
+    },
+    "12653cda-d6b8-4f96-90d7-dae79455bf13": {
+      "type": "slideshow-rewards",
+      "blocks": {
+        "template--20651224138003__12653cda-d6b8-4f96-90d7-dae79455bf13-slide-1": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE4.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE4.png",
+            "overlay_position": "justify-start items-start",
+            "overlay_text_align": "text-start",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "Rewards Program",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>As a member you'll earn points & exclusive rewards every time you shop.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "template--20651224138003__12653cda-d6b8-4f96-90d7-dae79455bf13-slide-2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE_fb8e2b68-6513-476e-95cc-79bfbda4cfd2.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE.png",
+            "overlay_position": "justify-start items-start",
+            "overlay_text_align": "text-start",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "Rewards Program",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>As a member you'll earn points & exclusive rewards every time you shop.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "f44d2ed3-b902-47e9-a6ad-a5fb1d66bba3": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/IMAGE3.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile_IMAGE3.png",
+            "overlay_position": "justify-start items-start",
+            "overlay_text_align": "text-start",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "Rewards Program",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>As a member you'll earn points & exclusive rewards every time you shop.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        }
+      },
+      "block_order": [
+        "template--20651224138003__12653cda-d6b8-4f96-90d7-dae79455bf13-slide-1",
+        "template--20651224138003__12653cda-d6b8-4f96-90d7-dae79455bf13-slide-2",
+        "f44d2ed3-b902-47e9-a6ad-a5fb1d66bba3"
+      ],
+      "settings": {
+        "height_mode": "auto",
+        "fixed_height_desktop": 640,
+        "fixed_height_mobile": 340,
+        "mobile_stacked": false,
+        "nav_style": "slideshow_nav_lines",
+        "nav_position": "justify-center",
+        "transition": "slide-fade",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "accessibility_info": "",
+        "prevent_animation": true
+      }
+    },
+    "d46c576e-b106-4791-876d-1cbf9d039b04": {
+      "type": "collection-list-rewards",
+      "blocks": {
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-1": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify:\/\/shop_images\/rewards_icon1.png",
+            "title": "25 Points",
+            "content": "Welcome registration",
+            "button_text": "View details",
+            "button_link": "",
+            "button_style": "btn btn--primary"
+          }
+        },
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-2": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify:\/\/shop_images\/rewards_icon2.png",
+            "title": "10 Points Per $1.00",
+            "content": "Shop",
+            "button_text": "View details",
+            "button_link": "",
+            "button_style": "btn btn--primary"
+          }
+        },
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-3": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify:\/\/shop_images\/rewards_icon3.png",
+            "title": "10 Points",
+            "content": "Write a  Review",
+            "button_text": "View details",
+            "button_link": "",
+            "button_style": "btn btn--primary"
+          }
+        },
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-4": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify:\/\/shop_images\/rewards_icon4.png",
+            "title": "25 Points",
+            "content": "Share on Facebook",
+            "button_text": "View details",
+            "button_link": "",
+            "button_style": "btn btn--primary"
+          }
+        },
+        "9d3dbd90-d35c-4131-80df-2018a81e65c4": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "image": "shopify:\/\/shop_images\/rewards_icon5.png",
+            "title": "500 Points",
+            "content": "ContentRefer a Friend",
+            "button_text": "View details",
+            "button_link": "",
+            "button_style": "btn btn--primary"
+          }
+        }
+      },
+      "block_order": [
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-1",
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-2",
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-3",
+        "template--20651224138003__d46c576e-b106-4791-876d-1cbf9d039b04-collection-4",
+        "9d3dbd90-d35c-4131-80df-2018a81e65c4"
+      ],
+      "settings": {
+        "title": "Ways to earn points",
+        "heading_align": "text-start",
+        "button_label": "",
+        "button_link": "",
+        "layout": "carousel",
+        "card_size": "small",
+        "use_product_image": false,
+        "circle_image": false
+      }
+    },
+    "b21f019e-ca6c-4a06-9ccf-021c32b86a71": {
+      "type": "custom-rewards-image",
+      "settings": {
+        "title": "Welcome to our custom section",
+        "image_desktop": "shopify:\/\/shop_images\/image_10-1.png",
+        "image_mobile": "shopify:\/\/shop_images\/Mobile_image_10-1.png",
+        "url": "",
+        "content": "Find out about ways to earn points on your subscriptions!",
+        "button_text": "View details",
+        "button_link": "",
+        "button_style": "btn btn--primary",
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "description": "This is a custom section for showcasing unique content."
+      }
+    },
+    "1c6a797e-e1d0-48a7-831c-6f9b8e93f49a": {
+      "type": "custom-rewards-image-sub",
+      "settings": {
+        "title": "Subscribers Earn More",
+        "image_desktop_1": "shopify:\/\/shop_images\/Rectangle_18.png",
+        "image_mobile_1": "shopify:\/\/shop_images\/Mobile_Rectangle_18.png",
+        "url_1": "",
+        "title1": "Subscribers earn double",
+        "content1": "2x the points on subscription orders and renewals",
+        "button1_text": "SEE MORE",
+        "button1_link": "",
+        "button1_style": "btn btn--primary",
+        "image_desktop_2": "shopify:\/\/shop_images\/Rectangle_19.png",
+        "image_mobile_2": "shopify:\/\/shop_images\/Mobile_Rectangle_19.png",
+        "url_2": "",
+        "title2": "Enter Subscriber Code",
+        "content2": "Earn 100 points for entering code from first subscription delivery",
+        "button2_text": "SEE MORE",
+        "button2_link": "",
+        "button2_style": "btn btn--primary",
+        "tint_color": "#000000",
+        "tint_opacity": 0
+      }
+    },
+    "8c2b318c-629a-4143-a6ac-e9755dddc3a4": {
+      "type": "rewards-product1",
+      "settings": {
+        "title": "How to use your points",
+        "content": "Redeeming your hard-earned points is easy! Simply apply your points for a discount at checkout!",
+        "image_desktop_1": "shopify:\/\/shop_images\/rewards_product1.png",
+        "url_1": "",
+        "image_desktop_2": "shopify:\/\/shop_images\/rewards_product2.png",
+        "url_2": "",
+        "image_desktop_3": "shopify:\/\/shop_images\/rewards_product3.png",
+        "url_3": "",
+        "button_text": "100 points equals $10.00",
+        "button_link": "",
+        "button_style": "link"
+      }
+    },
+    "11bfdf08-e6e0-4ea2-84c9-042adb3b8dcd": {
+      "type": "custom-rewards-redeem",
+      "settings": {
+        "text1": "Redeem for Products",
+        "text2": "You Have 100 Points",
+        "text3": "Srixon ZK MK II Irons",
+        "text4": "Redeem Now >",
+        "image_desktop": "shopify:\/\/shop_images\/Pro_IMAGE4.png",
+        "image_mobile": "shopify:\/\/shop_images\/Mobile_Redeem.png",
+        "url": ""
+      }
+    },
+    "2232b47a-0eb2-4eca-8240-cfb13e46f065": {
+      "type": "rewards-product2",
+      "settings": {
+        "title": "Use a Discount on Your Upcoming Subscription",
+        "content": "Want to use your points for a discount on your upcoming subscription order? No problem, just redeem here and click \"manage subscriptions\" below to apply your discount!",
+        "image_desktop_1": "shopify:\/\/shop_images\/rewards_product1.png",
+        "url_1": "",
+        "image_desktop_2": "shopify:\/\/shop_images\/rewards_product2.png",
+        "url_2": "",
+        "image_desktop_3": "shopify:\/\/shop_images\/rewards_product3.png",
+        "url_3": "",
+        "button_text": "Redeem My Points",
+        "button_link": "",
+        "button_style": "btn btn--primary"
+      }
+    },
+    "c148ab6e-a8d3-45b9-9742-3aa97a309ca0": {
+      "type": "rewards-frame",
+      "settings": {
+        "title": "JD’s Clubs Point Perks",
+        "image_desktop_1": "shopify:\/\/shop_images\/Frame_1.png",
+        "url_1": "",
+        "image_desktop_2": "shopify:\/\/shop_images\/Frame_2.png",
+        "url_2": "",
+        "image_desktop_3": "shopify:\/\/shop_images\/Frame_3.png",
+        "url_3": ""
+      }
+    },
+    "a0b94f92-d3a4-458c-94c2-d7e90d7b62f1": {
+      "type": "custom-rewards-tractor",
+      "settings": {
+        "title": "Refer a Friend",
+        "image_desktop": "shopify:\/\/shop_images\/Tracto_IMAGE.png",
+        "url": "",
+        "title1": "Give $5, Get $5",
+        "content1": "Give your friends $5 off their first order of $40 and get $5 (in points) for each successful referral",
+        "tint_color": "#000000",
+        "tint_opacity": 0
+      }
+    }
+  },
+  "order": [
+    "main",
+    "1d13173e-15c3-4136-8e1f-ee7c7d8bc548",
+    "12653cda-d6b8-4f96-90d7-dae79455bf13",
+    "d46c576e-b106-4791-876d-1cbf9d039b04",
+    "b21f019e-ca6c-4a06-9ccf-021c32b86a71",
+    "1c6a797e-e1d0-48a7-831c-6f9b8e93f49a",
+    "8c2b318c-629a-4143-a6ac-e9755dddc3a4",
+    "11bfdf08-e6e0-4ea2-84c9-042adb3b8dcd",
+    "2232b47a-0eb2-4eca-8240-cfb13e46f065",
+    "c148ab6e-a8d3-45b9-9742-3aa97a309ca0",
+    "a0b94f92-d3a4-458c-94c2-d7e90d7b62f1"
+  ]
+}

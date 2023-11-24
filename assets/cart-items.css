@@ -1,0 +1,193 @@
+.free-shipping__notice {
+  margin-bottom: 0;
+}
+
+.free-shipping-container {
+  margin: calc(6 * var(--space-unit) * -1) 0;
+  padding: calc(8 * var(--space-unit));
+}
+.free-shipping-container.color-scheme {
+  --btn-bg-color: var(--heading-color);
+  margin-bottom: calc(6 * var(--space-unit));
+  padding: calc(6 * var(--space-unit)) calc(8 * var(--space-unit));
+}
+cart-drawer .free-shipping-container {
+  margin: calc(var(--gutter) * -1) calc(var(--gutter) * -1) 0;
+}
+.cart .free-shipping-container:not(.color-scheme) {
+  margin: 0 0 calc(12 * var(--space-unit));
+  padding: 0;
+}
+
+.free-shipping-notice__bar {
+  height: 8px;
+  border-radius: var(--btn-border-radius);
+  background-color: rgba(var(--text-color)/0.2);
+}
+.free-shipping-notice__bar::after {
+  content: "";
+  display: block;
+  width: var(--progress);
+  height: 100%;
+  transition: width 0.3s ease-out;
+  border-radius: var(--btn-border-radius);
+  background-color: rgb(var(--btn-bg-color));
+}
+
+cart-items {
+  position: relative;
+}
+
+.cart-items tr {
+  border-bottom: 1px solid rgba(var(--text-color)/0.15);
+}
+.cart-items td {
+  border: 0;
+  vertical-align: top;
+}
+
+.cart-item {
+  grid-template-columns: 64px auto;
+  padding: 2.4rem 0;
+  transition: opacity 0.4s;
+}
+.pointer-events-none .cart-item {
+  opacity: 0.3;
+}
+.cart-item:first-child {
+  padding-top: 0;
+}
+.cart-item .price__current {
+  font-size: 1em;
+}
+.cart-item .price__was {
+  font-size: 0.8em;
+}
+.cart-item .backorder {
+  margin-top: calc(3 * var(--space-unit));
+  font-size: 0.88em;
+}
+
+.cart-item__image {
+  grid-column: 1/2;
+  grid-row: 1/4;
+  padding: 0;
+}
+.cart-item__image img {
+  min-width: 118px;
+  height: auto;
+  border-radius: 4px !important;
+  border: 2px solid #EBEBEB !important;
+}
+
+.cart-item__info {
+  padding-top: calc(2 * var(--space-unit));
+}
+
+.cart-item__details,
+.cart-item__qty,
+.cart-item__total {
+  grid-column: 2/3;
+  padding: 0;
+}
+
+.drawer--cart .cart-item__qty {
+  --input-bg-color: var(--drawer-bg-color);
+  --input-text-color: var(--drawer-text-color);
+}
+.cart-item__qty quantity-input {
+  margin-inline-end: calc(2 * var(--space-unit));
+}
+.cart-item__qty .qty-input--combined .qty-input__btn,
+.cart-item__qty .qty-input__input {
+  height: calc(14px + 2rem);
+}
+
+.cart-item__total {
+  padding-top: calc(4 * var(--space-unit));
+}
+
+.cart-item__loader {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  margin-top: -20px;
+}
+
+.cart-item__loader.is-loading {
+  width: 20px;
+  margin-inline-start: calc(6 * var(--space-unit));
+}
+
+.cart-item__remove {
+  transition: color 0.3s;
+}
+.cart-item__remove path {
+  transform-origin: 50% 55%;
+  transition: transform 0.2s;
+}
+.cart-item__remove:hover {
+  color: rgb(var(--link-color-og));
+}
+.cart-item__remove:hover path:nth-child(2) {
+  transform: scaleX(-1);
+}
+
+[data-empty=true] + .cart__shipping-calculator {
+  display: none;
+}
+
+.dynamic-cart-btns [data-shopify-buttoncontainer] {
+  justify-content: center;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+.dynamic-cart-btns [data-shopify-buttoncontainer] > li {
+  flex: 0 0 100% !important;
+}
+.dynamic-cart-btns [data-shopify-buttoncontainer] [role=button] {
+  border-radius: var(--btn-border-radius, 0) !important;
+}
+
+.cart-recommendations .price__current {
+  font-size: 1em;
+}
+.cart-recommendations .price__was {
+  font-size: 0.8em;
+}
+.cart-recommendations .slider-nav {
+  right: 0;
+}
+
+/* Note, Shopify styles buttons differently < 750px */
+@media (min-width: 750px) {
+  .dynamic-cart-btns > .dynamic-checkout__content > div {
+    margin-top: calc(2 * var(--space-unit));
+  }
+}
+@media (min-width: 768px) {
+  .cart-item {
+    grid-template-columns: 112px auto auto;
+  }
+  .cart-item__details,
+.cart-item__qty {
+    grid-column: 2/3;
+  }
+  .cart-item__total {
+    grid-column: 3/4;
+    grid-row: 1/4;
+    padding-top: 0;
+    text-align: end;
+  }
+  .cart-item__total .price__current {
+    padding-inline-end: 0;
+  }
+  .cart-item__qty {
+    grid-row: 3/4;
+    margin-top: 0;
+  }
+  cart-drawer .free-shipping-container {
+    margin: calc(8 * var(--space-unit) * -1) calc(8 * var(--space-unit) * -1) 0;
+  }
+}

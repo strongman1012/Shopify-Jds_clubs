@@ -1,0 +1,182 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-article",
+      "settings": {
+        "show_tags": false,
+        "show_author": false,
+        "show_date": true,
+        "featured_image_width": "page",
+        "heading_align": "text-start",
+        "show_share_buttons": true,
+        "pagination": "standard"
+      }
+    },
+    "article-comments": {
+      "type": "article-comments",
+      "disabled": true,
+      "settings": {
+      }
+    },
+    "392ff7ef-7ab0-4a4e-ad6c-c06489a7b7b1": {
+      "type": "slideshow-product",
+      "blocks": {
+        "template--20651222794515__392ff7ef-7ab0-4a4e-ad6c-c06489a7b7b1-slide-1": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Product-bottom-1.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile-Product-bottom-1.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#fff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "template--20651222794515__392ff7ef-7ab0-4a4e-ad6c-c06489a7b7b1-slide-2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Product-bottom.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile-Product-bottom.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#fff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        }
+      },
+      "block_order": [
+        "template--20651222794515__392ff7ef-7ab0-4a4e-ad6c-c06489a7b7b1-slide-1",
+        "template--20651222794515__392ff7ef-7ab0-4a4e-ad6c-c06489a7b7b1-slide-2"
+      ],
+      "settings": {
+        "height_mode": "auto",
+        "fixed_height_desktop": 600,
+        "fixed_height_mobile": 350,
+        "mobile_stacked": false,
+        "nav_style": "slideshow_nav_dots",
+        "nav_position": "justify-center",
+        "transition": "slide-fade",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "accessibility_info": "",
+        "prevent_animation": true
+      }
+    },
+    "b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef": {
+      "type": "faq",
+      "blocks": {
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-category-1": {
+          "type": "category",
+          "settings": {
+            "text": "Shipping"
+          }
+        },
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-1": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "What countries do you ship to?",
+            "text": "<p>We currently ship to the United States, Canada, Australia and the UK. To enquire about shipping to a different destination, please contact us.<\/p>"
+          }
+        },
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-2": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How long will it take to receive my order?",
+            "text": "<p>Standard shipping normally takes 3-5 days. Next day shipping is available on all domestic orders (for an additional charge). International shipping times depend on the products and destination (estimated at checkout).<\/p>"
+          }
+        },
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-category-2": {
+          "type": "category",
+          "settings": {
+            "text": "Returns and Refunds"
+          }
+        },
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-3": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How do I return a product?",
+            "text": "<p>Items must be returned within 30 days after receiving your order. Items must be returned in the same condition in which they were received, be unworn\/unused, have any tags still attached, and include all the original packaging.<\/p>"
+          }
+        },
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-4": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How long will it take to receive my refund?",
+            "text": "<p>Refunds are processed within 7 days from when we receive the item(s).<\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-category-1",
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-1",
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-2",
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-category-2",
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-3",
+        "template--20651222794515__b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef-question-4"
+      ],
+      "settings": {
+        "heading": "Common Questions",
+        "heading_align": "text-center",
+        "color_scheme": "none",
+        "full_width": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "article-comments",
+    "392ff7ef-7ab0-4a4e-ad6c-c06489a7b7b1",
+    "b9e6fa5d-6afd-47c6-88a0-b0cd99b130ef"
+  ]
+}

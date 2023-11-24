@@ -1,0 +1,177 @@
+<div class="container rewards-sub-container" style="position: relative;">
+  <p class="rewards-sub-title">{{ section.settings.title }}</p>
+  <div class="horizontal-images">
+    <div class="horizontal-image-sub" style="position: relative;">
+      <img
+        src="{{ section.settings.image_desktop_1 | img_url : 'master' }}"
+        alt="Section Image1"
+        class="desktop_image_class rewards-image-desktop">
+      <img
+        src="{{ section.settings.image_mobile_1 | img_url : 'master' }}"
+        alt="Section Image1"
+        class="desktop_image_class rewards-image-mobile">
+      <div class="rewards-sub-board">
+        <span class="rewards-sub-title1">{{ section.settings.title1 }}</span>
+        <p class="rewards-sub-content1">{{ section.settings.content1 }}</p>
+        <div class="button-block rewards-sub-button-board">
+          <a href="{{ section.settings.button1_link }}" class="{{ section.settings.button1_style }}">{{ section.settings.button1_text }}</a>
+        </div>
+      </div>
+    </div>
+    <div class="horizontal-image-sub" style="position: relative;">
+      <img
+        src="{{ section.settings.image_desktop_2 | img_url : 'master' }}"
+        alt="Section Image2"
+        class="desktop_image_class rewards-image-desktop">
+      <img
+        src="{{ section.settings.image_mobile_2 | img_url : 'master' }}"
+        alt="Section Image2"
+        class="desktop_image_class rewards-image-mobile">
+      <div class="rewards-sub-board">
+        <span class="rewards-sub-title2">{{ section.settings.title2 }}</span>
+        <p class="rewards-sub-content2">{{ section.settings.content2 }}</p>
+        <div class="button-block rewards-sub-button-board">
+          <a href="{{ section.settings.button2_link }}" class="{{ section.settings.button2_style }}">{{ section.settings.button2_text }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% schema %}
+  {
+    "name": "Rewards Image Sub",
+    "settings": [
+      {
+        "type": "text",
+        "label": "Title",
+        "id": "title",
+        "default": "Welcome to our custom section"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop_1",
+        "label": "Image1",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile_1",
+        "label": "Mobile image1 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      },
+      {
+        "type": "url",
+        "id": "url_1",
+        "label": "Image1 link (optional)"
+      }, {
+        "type": "text",
+        "id": "title1",
+        "label": "Title1",
+        "default": "Title"
+      }, {
+        "type": "text",
+        "id": "content1",
+        "label": "Content1",
+        "default": "Content"
+      }, {
+        "type": "text",
+        "label": "Button1 Text",
+        "id": "button1_text",
+        "default": "SEE MORE"
+      }, {
+        "type": "url",
+        "label": "Button1 Link",
+        "id": "button1_link"
+      }, {
+        "type": "select",
+        "id": "button1_style",
+        "label": "Button1 style",
+        "options": [
+          {
+            "value": "link",
+            "label": "Link"
+          }, {
+            "value": "btn btn--primary",
+            "label": "Primary button"
+          }, {
+            "value": "btn btn--secondary",
+            "label": "Secondary button"
+          }
+        ],
+        "default": "btn btn--primary"
+      }, {
+        "type": "image_picker",
+        "id": "image_desktop_2",
+        "label": "Image2",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      }, {
+        "type": "image_picker",
+        "id": "image_mobile_2",
+        "label": "Mobile image2 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      }, {
+        "type": "url",
+        "id": "url_2",
+        "label": "Image2 link (optional)"
+      }, {
+        "type": "text",
+        "id": "title2",
+        "label": "Title2",
+        "default": "Title"
+      }, {
+        "type": "text",
+        "id": "content2",
+        "label": "Content2",
+        "default": "Content"
+      }, {
+        "type": "text",
+        "label": "Button2 Text",
+        "id": "button2_text",
+        "default": "SEE MORE"
+      }, {
+        "type": "url",
+        "label": "Button2 Link",
+        "id": "button2_link"
+      }, {
+        "type": "select",
+        "id": "button2_style",
+        "label": "Button2 style",
+        "options": [
+          {
+            "value": "link",
+            "label": "Link"
+          }, {
+            "value": "btn btn--primary",
+            "label": "Primary button"
+          }, {
+            "value": "btn btn--secondary",
+            "label": "Secondary button"
+          }
+        ],
+        "default": "btn btn--primary"
+      }, {
+        "type": "color",
+        "id": "tint_color",
+        "label": "Image tint color",
+        "default": "#000000"
+      }, {
+        "type": "range",
+        "id": "tint_opacity",
+        "min": 0,
+        "max": 80,
+        "step": 5,
+        "unit": "%",
+        "label": "Image tint opacity",
+        "default": 40
+      }
+    ],
+    "presets": [
+      {
+        "name": "Rewards-Image Sub",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}

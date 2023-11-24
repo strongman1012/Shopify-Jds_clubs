@@ -1,0 +1,113 @@
+.video-section--full-width {
+  max-height: calc(var(--page-width) * 0.5625);
+}
+.video-section--full-width .has-iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.video-section--full-width .has-iframe[data-autoplay=false] {
+  height: 0;
+  padding-top: 56.3%;
+}
+.video-section--full-width .has-iframe[data-autoplay=false] iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.video-section__media {
+  padding-top: 56.3%;
+}
+.video-section__media iframe,
+.video-section__media video {
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  top: -1px;
+  left: -1px;
+}
+
+.video-section__bg-video {
+  top: -60px;
+  height: calc(100% + 120px);
+}
+.video-section__bg-video video {
+  height: calc(100% - 120px);
+  margin: 60px 0;
+  object-fit: cover;
+}
+
+.video-section__play-btn {
+  z-index: 1;
+  color: #fff;
+  cursor: pointer;
+}
+.video-section__play-btn > .icon {
+  width: calc(40px + 5%);
+  height: auto;
+}
+.text-overlay .video-section__play-btn > .icon {
+  width: 64px;
+}
+
+.video-section--played .video-played-hidden {
+  transition: opacity 0.3s;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-section__media .height-clip {
+  height: calc(100% - 2px);
+}
+
+.video-section__media {
+  overflow: hidden;
+}
+.video-section__media video,
+.video-section__media iframe {
+  position: absolute;
+}
+.video-section__media video {
+  background-color: #000;
+}
+
+.video-section__text {
+  margin-bottom: calc(10 * var(--space-unit));
+}
+
+.video-section__play-btn {
+  transition: opacity 0.4s;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.4));
+}
+
+.video-section:not(.video-section--played) deferred-media[loaded] .video-section__play-btn svg path:nth-child(2) {
+  display: none;
+}
+.video-section:not(.video-section--played) deferred-media[loaded] .video-section__play-btn::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 10px);
+  right: calc(50% - 10px);
+  width: 20px;
+  height: 20px;
+  transition: opacity 0.4s 0.3s;
+  animation: spinner 0.6s linear infinite;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+}
+
+.video-section.video-section--played deferred-media[loaded] .video-played-hidden,
+.video-section.video-section--played deferred-media[loaded] + .video-played-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 1s fallback for device which will not to autoplay the video */
+deferred-media[loaded]:not([data-hide-controls-instantly=true]) + .video-played-hidden,
+deferred-media[loaded]:not([data-hide-controls-instantly=true]) .video-section__play-btn {
+  transition-delay: 1s;
+  opacity: 0;
+  pointer-events: none;
+}

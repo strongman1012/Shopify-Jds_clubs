@@ -1,0 +1,373 @@
+<link rel="stylesheet" href="{{ 'products-grid.css' | asset_url }}">
+
+{%- if settings.enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if settings.enable_predictive_search -%}
+  <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'tabs.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  if search.results_count > 0
+    if section.settings.card_size == 'small'
+      assign grid_classes_filters_open = 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+      assign grid_classes_filters_closed = 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+    elsif section.settings.card_size == 'medium'
+      assign grid_classes_filters_open = 'grid-cols-1 sm:grid-cols-3'
+      assign grid_classes_filters_closed = 'grid-cols-1 sm:grid-cols-3 xl:grid-cols-4'
+    else
+      assign grid_classes_filters_open = 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+      assign grid_classes_filters_closed = 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+    endif
+  endif
+
+  assign compare_toggle = false
+  assign compare_visible = false
+  if settings.enable_compare
+    if settings.compare_toggle == "none" or settings.compare_toggle == "toggle_on"
+      assign compare_toggle = true
+    endif
+
+    if settings.compare_toggle != "none"
+      assign compare_visible = true
+    endif
+  endif
+-%}
+
+<div class="container">
+  {%- if section.settings.show_search_title or section.settings.show_search_input -%}
+    <div class="{{ section.settings.heading_align }}">
+      {%- if section.settings.show_search_title -%}
+        <h1>{{ 'general.search.title' | t }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.show_search_input -%}
+        <div class="form-width mb-section block{% if section.settings.heading_align == "text-center" %} mx-auto{% elsif section.settings.heading_align == "text-end" %} mis-auto{% endif %}">
+          {% render 'predictive-search', id: 'main-search', persist_value: true %}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if search.performed -%}
+    {%- if search.results_count == 0 and search.filters == empty -%}
+      <p class="reading-width {{ section.settings.heading_align }}" role="status">
+        {{- 'templates.search.no_results' | t: terms: search.terms -}}
+      </p>
+    {%- endif -%}
+
+    {%- if section.settings.enable_filtering or section.settings.show_layout_toggle or section.settings.enable_sorting or compare_visible -%}
+      <script src="{{ 'products-toolbar.js' | asset_url }}" defer="defer"></script>
+      {% render 'products-toolbar', results: search %}
+    {%- endif -%}
+
+    {%- paginate search.results by section.settings.products_per_page -%}
+      <div class="main-products-grid{% if settings.card_contain %} main-products-grid--contained{% endif %} flex" data-layout="grid" data-compare="{{ compare_toggle }}">
+        {%- if search.filters != empty and section.settings.enable_filtering -%}
+          <div class="main-products-grid__filters{% if section.settings.filters_open_lg == false %} lg:js-hidden{% endif %}">
+            {% render 'facet-filters', results: search %}
+          </div>
+        {%- endif -%}
+
+        <div class="main-products-grid__results relative flex-auto" id="filter-results">
+          {%- if search.results.size == 0 and search.filters != empty -%}
+            <p>{{ 'sections.collection.empty' | t }}</p>
+          {%- else -%}
+            {%- liquid
+              if settings.prod_card_image_ratio == 'shortest'
+                assign image_ratio = 0
+                for item in search.results
+                  if item.object_type == 'product'
+                    if item.featured_media.preview_image.aspect_ratio > image_ratio
+                      assign image_ratio = item.featured_media.preview_image.aspect_ratio
+                    endif
+                  else
+                    if item.image.aspect_ratio > image_ratio
+                      assign image_ratio = item.image.aspect_ratio
+                    endif
+                  endif
+                endfor
+              elsif settings.prod_card_image_ratio == 'tallest'
+                assign image_ratio = 99
+                for item in search.results
+                  if item.object_type == 'product'
+                    if item.featured_media.preview_image.aspect_ratio < image_ratio
+                      assign image_ratio = item.featured_media.preview_image.aspect_ratio
+                    endif
+                  else
+                    if item.image.aspect_ratio < image_ratio
+                      assign image_ratio = item.image.aspect_ratio
+                    endif
+                  endif
+                endfor
+              else
+                assign image_ratio = settings.prod_card_image_ratio
+              endif
+            -%}
+            <ul class="grid {% if section.settings.filters_open_lg %}{{ grid_classes_filters_open }}{% else %}{{ grid_classes_filters_closed }}{% endif %} gap-x-theme {% if settings.card_contain %}gap-y-8{% else %}gap-y-10{% endif %}" data-filters-open-classes="grid {{ grid_classes_filters_open }} gap-x-theme {% if settings.card_contain %}gap-y-8{% else %}gap-y-10{% endif %}" data-filters-closed-classes="grid {{ grid_classes_filters_closed }} gap-x-theme {% if settings.card_contain %}gap-y-8{% else %}gap-y-10{% endif %}" role="list">
+              {%- for item in search.results -%}
+                <li>
+                  {%- case item.object_type -%}
+                    {%- when 'product' -%}
+                      {% render 'product-card', product: item, image_ratio: image_ratio, show_compare: settings.enable_compare %}
+                    {%- when 'article' -%}
+                      {% render 'article-card',
+                        article: item,
+                        image_ratio: image_ratio,
+                        show_image: section.settings.show_article_featured_image,
+                        image_ratio: image_ratio,
+                        show_author: section.settings.show_article_author,
+                        show_date: section.settings.show_article_date,
+                        show_tags: section.settings.show_article_tags,
+                        show_excerpt: section.settings.show_article_excerpt
+                      %}
+                    {%- when 'page' -%}
+                      <article class="card relative">
+                        <div class="card__info">
+                          <h3 class="card__title h5 last:mb-0">
+                            <a href="{{ item.url }}" class="card-link text-current">
+                              {{ item.title | truncate: 50 | escape }}
+                            </a>
+                          </h3>
+
+                          {%- if section.settings.show_page_excerpt -%}
+                            {%- if item.content.size > 0 -%}
+                            <p class="mb-2 last:mb-0">
+                              {{ item.content | strip_html | truncatewords: 30 }}
+                            </p>
+                            {%- endif -%}
+                          {%- endif -%}
+
+                          {%- if section.settings.show_page_date -%}
+                            <p class="text-theme-light last:mb-0">
+                              {{ item.published_at | time_tag: format: 'date' }}
+                            </p>
+                          {%- endif -%}
+                        </div>
+                      </article>
+                  {%- endcase -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+
+            {%- if paginate.pages > 1 -%}
+              {% render 'pagination', paginate: paginate %}
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endpaginate -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Search page",
+  "class": "cc-main-search section section--template",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search_title",
+      "label": "Show the default search title",
+      "info": "If hidden, you should provide a primary page heading (h1 tag) in another section with h1 option (rich text, image banner, slideshow, video) for SEO purposes.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search_input",
+      "label": "Show the search box",
+      "info": "You could hide this in favor of using the search box in the Header.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 50,
+      "step": 1,
+      "label": "Products per page",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "card_size",
+      "label": "Card size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "Toolbar"
+    },
+    {
+      "type": "paragraph",
+      "content": "The Compare toggle can be disabled in \"Theme Settings > Product Compare\"."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_layout_toggle",
+      "label": "Show grid/list layout buttons",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Filtering"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "Enable filtering",
+      "info": "[Customize filters](/admin/menus)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "filters_open_lg",
+      "label": "Open filters by default on large screens",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "stick_on_scroll",
+      "label": "Stick on scroll on large screens",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filter_counts",
+      "label": "Show product counts",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "expand_filters",
+      "label": "Expand all filters by default",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "max_filter_options",
+      "label": "Visible options per filter",
+      "info": "Remaining options will be automatically collapsed.",
+      "min": 2,
+      "max": 50,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "header",
+      "content": "Sorting"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "Enable sorting",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "sort_first",
+      "label": "Show the sort options first on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Blog cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_article_featured_image",
+      "label": "Show featured image",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_article_tags",
+      "label": "Show tags",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_article_excerpt",
+      "label": "Show excerpt",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_article_author",
+      "label": "Show author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_article_date",
+      "label": "Show published date",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Page cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_page_date",
+      "default": true,
+      "label": "Show date"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_page_excerpt",
+      "default": true,
+      "label": "Show an excerpt of page content"
+    }
+  ]
+}
+{% endschema %}

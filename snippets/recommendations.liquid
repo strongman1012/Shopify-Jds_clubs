@@ -1,0 +1,112 @@
+{%- comment -%}
+  Parameters:
+  - is_cart {Boolean} - Recommendations are for the cart contents.
+  - intent {Boolean} - Recommendations intent - 'related' or 'complementary' (optional, default is 'related').
+  - products_to_show {Number} - Maximum number of products to show.
+  - heading {String} - Heading for the recommendations (optional).
+  - heading_align {String} - Heading alignment
+  - layout {String} - Layout for the cards - 'carousel' or 'grid' (optional, default is 'carousel').
+  - grid_classes {String} - Classes for the products grid
+  - always_open_quickbuy {Boolean} - If true, when a product only has a default variant the quickbuy drawer will still
+      open and not be directly added to cart
+
+  Usage:
+  {% render 'recommendations',
+    intent: 'complementary',
+    products_to_show: section.settings.products_to_show,
+    heading: section.settings.heading,
+    heading_align: 'text-start',
+    grid_classes: 'grid grid-cols-1 gap-y-4'
+  %}
+{%- endcomment -%}
+
+{%- if settings.enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  unless intent
+    assign intent = 'related'
+  endunless
+
+  if layout == 'carousel' or layout == nil
+    assign carousel = true
+  else
+    assign carousel = false
+  endif
+
+  if is_cart
+    # Fetch 4 extra in case a recommended product is already in the cart, and therefore not shown.
+    assign limit = products_to_show | plus: 4
+    assign product_id = cart.items.first.product_id
+  else
+    assign limit = products_to_show
+    assign product_id = product.id
+  endif
+-%}
+
+<product-recommendations class="block{% if is_cart %} cart-recommendations{% endif %}"{% if is_cart %} id="cart-recommendations"{% endif %} data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product_id }}&limit={{ limit }}&intent={{ intent }}" data-product-id="{{ product_id }}">
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    {%- if heading != blank and carousel == false -%}
+      <h2 class="h6{% if heading_align %} {{ heading_align }}{% endif %}">{{ heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if carousel -%}
+      <carousel-slider class="carousel block" inactive>
+
+        <div class="mb-2 flex items-center justify-between">
+          {%- if heading != blank -%}
+            <h2 class="flex-auto mb-0 h6 max-w-full{% if heading_align %} {{ heading_align }}{% endif %}">{{- heading | escape -}}</h2>
+          {%- endif -%}
+
+          <div class="slider-nav slide-nav--inline flex no-js-hidden">
+            <button type="button" class="slider-nav__btn tap-target btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}">
+              <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+              {% render 'icon-chevron-left' %}
+            </button>
+            <button type="button" class="slider-nav__btn slider-nav__btn--offset tap-target btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}">
+              <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+              {% render 'icon-chevron-right' %}
+            </button>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="slider slider--no-scrollbar" id="slider-{{ section.id }}">
+    {%- endif -%}
+
+    <ul class="{% if carousel %}slider__grid {% endif %}{{ grid_classes }}{% if settings.card_contain %} small__grid{% endif %}" role="list">
+      {%- assign rec_count = 0 -%}
+      {%- for product in recommendations.products -%}
+        {%- if is_cart -%}
+          {%- liquid
+            if rec_count == products_to_show
+              break
+            endif
+            assign cart_matches = cart.items | where: 'product_id', product.id
+          -%}
+          {%- if cart_matches.size == 0 -%}
+            {%- assign rec_count = rec_count | plus: 1 -%}
+            <li{% if carousel %} class="slider__item"{% endif %}>
+              {%- render 'product-card-mini', product: product, always_open_quickbuy: always_open_quickbuy -%}
+            </li>
+          {%- endif -%}
+        {%- else -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: product, always_open_quickbuy: always_open_quickbuy -%}
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+
+    {%- if carousel -%}
+          </div>
+        </div>
+      </carousel-slider>
+    {%- endif -%}
+  {%- endif -%}
+</product-recommendations>

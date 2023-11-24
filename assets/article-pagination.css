@@ -1,0 +1,24 @@
+.article__pagination {
+  z-index: 25;
+  transform: translateY(calc(100% + 1px));
+  transition: transform 0.5s;
+  color: #d5d5d5;
+}
+.article__pagination.is-visible {
+  transform: translateY(0);
+}
+.article__pagination::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: var(--percent-scrolled);
+  height: 2px;
+  transition: width 0.3s;
+  background-color: rgb(var(--link-color));
+}
+
+.article__pagination--text {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

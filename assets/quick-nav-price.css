@@ -1,0 +1,17 @@
+.quick-nav__price {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.quick-nav__price .price-range {
+  padding-bottom: calc(4 * var(--space-unit));
+}
+.quick-nav__price .price-range__input-wrapper > .input::placeholder {
+  color: currentColor;
+}
+.quick-nav__price .price-range__sliders {
+  margin: calc(3 * var(--space-unit)) 3px 0;
+}
+.quick-nav__price .price-range__slider-input {
+  left: 0;
+}

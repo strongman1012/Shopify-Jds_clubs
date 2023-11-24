@@ -1,0 +1,23 @@
+.product-inventory__indicator {
+  display: block;
+  position: relative;
+  height: 5px;
+  margin-top: 8px;
+  border-radius: 3px;
+  background-color: rgba(var(--text-color)/0.1);
+}
+
+.product-inventory__indicator span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  transition: width 0.3s cubic-bezier(0, 0.14, 0.19, 1), background-color 0.3s;
+  border-radius: inherit;
+  background-color: currentColor;
+}
+
+.product-inventory__urgency p {
+  display: inline;
+}

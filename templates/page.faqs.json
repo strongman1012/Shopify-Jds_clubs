@@ -1,0 +1,279 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "show_page_title": false,
+        "heading_align": "text-center"
+      }
+    },
+    "0df325e8-1c52-45c2-b841-95633881feee": {
+      "type": "slideshow-faqs",
+      "blocks": {
+        "template--20651224006931__0df325e8-1c52-45c2-b841-95633881feee-slide-1": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Blog_Home1.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "FAQ",
+            "heading_size": "h2",
+            "heading_h1": false,
+            "text": "<p>Vestibulum in quis sit aliquam tincidunt. Proin vulputate a ultricies donec fringilla. Orci at massa cursus in volutpat purus enim auctor. Sed amet auctor arcu est nibh neque. Amet tortor.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "template--20651224006931__0df325e8-1c52-45c2-b841-95633881feee-slide-2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Blog_Home2.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "FAQ",
+            "heading_size": "h5",
+            "heading_h1": false,
+            "text": "<p>Vestibulum in quis sit aliquam tincidunt. Proin vulputate a ultricies donec fringilla. Orci at massa cursus in volutpat purus enim auctor. Sed amet auctor arcu est nibh neque. Amet tortor.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "a5fe47d5-0ca3-47a1-9b52-0f04c9c1cae2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Blog_Home2.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "FAQ",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "<p>Vestibulum in quis sit aliquam tincidunt. Proin vulputate a ultricies donec fringilla. Orci at massa cursus in volutpat purus enim auctor. Sed amet auctor arcu est nibh neque. Amet tortor.<\/p>",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        }
+      },
+      "block_order": [
+        "template--20651224006931__0df325e8-1c52-45c2-b841-95633881feee-slide-1",
+        "template--20651224006931__0df325e8-1c52-45c2-b841-95633881feee-slide-2",
+        "a5fe47d5-0ca3-47a1-9b52-0f04c9c1cae2"
+      ],
+      "settings": {
+        "height_mode": "auto",
+        "fixed_height_desktop": 600,
+        "fixed_height_mobile": 350,
+        "mobile_stacked": false,
+        "nav_style": "slideshow_nav_lines",
+        "nav_position": "justify-center",
+        "transition": "slide-fade",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "accessibility_info": "",
+        "prevent_animation": true
+      }
+    },
+    "faqs": {
+      "type": "faq",
+      "blocks": {
+        "faq-question-1": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "DO YOU WARRANTY YOUR ITEMS?",
+            "text": "<p>Of course. JD’s Clubs is an authorized dealer for most all manufacurers, and all items will come with a full manufacturer’s warranty. If you ever have a problem with an item you purchased here, we are here to help! Customer Service is our top priority, as we very much appreciate your business.<\/p>"
+          }
+        },
+        "faq-question-2": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "HOW DO I COMBINE SHIPPING?",
+            "text": "<p>We want to speak to you too! <a href=\"https:\/\/enterprise-theme-digital.myshopify.com\/pages\/contact\" title=\"Contact\">Contact us <\/a>with any questions, concerns, or feedback. We will be sure to get back to you within 48 hours. However, please note that inquiries sent on Fridays will receive a reply the following Monday, but possibly sooner.<\/p>"
+          }
+        },
+        "faq-question-3": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "WHERE'S MY ORDER? I CAN'T SEEM TO TRACK THE PACKAGE.",
+            "text": "<p>We currently ship to the United States, Canada, Australia and the UK. To enquire about shipping to a different destination, please contact us.<\/p>"
+          }
+        },
+        "faq-question-4": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "CAN YOU TIP SHAFTS TO MY SPECS BEFORE YOU SHIP THEM OUT?",
+            "text": "<p>Standard shipping normally takes 3-5 days. Next day shipping is available on all domestic orders (for an additional charge). International shipping times depend on the products and destination (estimated at checkout).<\/p>"
+          }
+        },
+        "faq-question-5": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "WHAT IS “PLAYING LENGTH”?",
+            "text": "<p>Items must be returned within 30 days after receiving your order. Items must be returned in the same condition in which they were received, be unworn\/unused, have any tags still attached, and include all the original packaging.<\/p>"
+          }
+        },
+        "faq-question-6": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "DO YOU HAVE DISCOUNT CODES I CAN USE?",
+            "text": "<p>Refunds are processed within 7 days from when we receive the item(s).<\/p>"
+          }
+        },
+        "9a558e77-8bd4-422e-adab-c5fd41b33138": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "CAN I CALL OR EMAIL TO GET A RECOMMENDATION ON A SHAFT?",
+            "text": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.<\/p>"
+          }
+        },
+        "bab74fc2-641a-45ad-b37c-af0f7ec4365a": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "WHAT IS TORQUE?",
+            "text": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.<\/p>"
+          }
+        },
+        "341e97db-819c-4bfb-9217-39fd320db918": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "WHAT IS KICK POINT?",
+            "text": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.<\/p>"
+          }
+        },
+        "a09606bc-22fe-41ea-9f58-aa92cd88dc9e": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "HOW SOON WILL MY ORDER SHIP AFTER PLACING AN ORDER?",
+            "text": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.<\/p>"
+          }
+        },
+        "462bbf6a-4fee-4b61-ba7e-ee5fce509bb6": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "HOW LIGHT SHOULD I GO IN A DRIVER SHAFT?",
+            "text": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.<\/p>"
+          }
+        },
+        "e1a96aa2-011a-4286-8b38-f607d2107aed": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "WHY ARE SOME SHAFTS SO MUCH MORE EXPENSIVE THAN OTHERS?",
+            "text": "<p>Provide an answer to the question here, with as much detail as possible to help your customers.<\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq-question-1",
+        "faq-question-2",
+        "faq-question-3",
+        "faq-question-4",
+        "faq-question-5",
+        "faq-question-6",
+        "9a558e77-8bd4-422e-adab-c5fd41b33138",
+        "bab74fc2-641a-45ad-b37c-af0f7ec4365a",
+        "341e97db-819c-4bfb-9217-39fd320db918",
+        "a09606bc-22fe-41ea-9f58-aa92cd88dc9e",
+        "462bbf6a-4fee-4b61-ba7e-ee5fce509bb6",
+        "e1a96aa2-011a-4286-8b38-f607d2107aed"
+      ],
+      "settings": {
+        "heading": "Common Questions",
+        "heading_align": "text-center",
+        "color_scheme": "none",
+        "full_width": true
+      }
+    },
+    "595a1d2d-8940-44a0-b0db-7d9ea3334e24": {
+      "type": "image-faqs",
+      "settings": {
+        "image_desktop": "shopify:\/\/shop_images\/image-FAQ.png",
+        "url": "",
+        "height_mode": "auto",
+        "fixed_height_desktop": 700,
+        "fixed_height_mobile": 500,
+        "overlay_position": "justify-center items-center",
+        "overlay_text_align": "text-center",
+        "mob_center_text": false,
+        "mobile_stacked": true,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "prevent_animation": false
+      }
+    }
+  },
+  "order": [
+    "main",
+    "0df325e8-1c52-45c2-b841-95633881feee",
+    "faqs",
+    "595a1d2d-8940-44a0-b0db-7d9ea3334e24"
+  ]
+}

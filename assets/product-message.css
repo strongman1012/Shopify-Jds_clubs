@@ -1,0 +1,108 @@
+.product-message {
+  display: block;
+  visibility: visible;
+  overflow: hidden;
+  transition: visibility 0.6s, opacity 0.6s, max-height 0.6s, margin-top 0.6s;
+  border-radius: 4px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  pointer-events: auto;
+}
+.product-message a {
+  color: currentColor;
+}
+.product-message p {
+  margin-bottom: 0.5em;
+}
+.product-message p:last-child {
+  margin-bottom: 0;
+}
+.product-message .icon {
+  flex: 0 0 32px;
+  align-self: flex-start;
+  width: 32px;
+  height: 32px;
+  margin-inline-end: calc(4 * var(--space-unit));
+}
+
+.product-message__inner {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-end: 28px;
+}
+
+.product-message--out {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.product-message__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+}
+[dir=rtl] .product-message__close {
+  right: auto;
+  left: 0;
+}
+.product-message__close .icon {
+  width: 20px;
+  height: 20px;
+  margin-inline-end: 0;
+  color: currentColor;
+}
+
+.product-messages {
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.product-messages .product-message {
+  display: flex;
+  min-width: 275px;
+  max-width: 350px;
+  padding: 13px 12px;
+  box-shadow: 0 2px 4px 0 rgba(33, 43, 54, 0.08);
+}
+.product-messages .product-message p {
+  margin-bottom: 0;
+}
+.product-messages .icon {
+  margin-inline-end: 10px;
+}
+.product-messages .product-message__close {
+  top: 6px;
+  right: 6px;
+}
+[dir=rtl] .product-messages .product-message__close {
+  right: auto;
+  left: 6px;
+}
+.product-messages .product-message__close,
+.product-messages .product-message__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.product-info .product-message__inner {
+  padding: calc(5 * var(--space-unit)) calc(4 * var(--space-unit));
+}
+.product-info .product-message + .product-message {
+  margin-top: calc(4 * var(--space-unit));
+}
+.product-info .product-message--out + .product-message:not(.product-message--out),
+.product-info .product-message--out + .product-message--out {
+  margin-top: 0;
+}
+.product-info .product-message--out {
+  max-height: 0 !important;
+}
+
+@media (min-width: 769px) {
+  .product-media--stacked .product-messages {
+    top: 200px;
+  }
+}

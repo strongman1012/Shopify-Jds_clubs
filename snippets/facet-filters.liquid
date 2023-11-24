@@ -1,0 +1,330 @@
+{%- comment -%}
+  Parameters:
+  - results {Object} - Results object (collection or search).
+
+  Usage:
+  {% render 'facet-filters', results: collection %}
+{%- endcomment -%}
+
+{%- liquid
+  assign has_price_filter = false
+  assign active_filters_count = 0
+  assign sort_by = results.sort_by | default: results.default_sort_by
+
+  for filter in results.filters
+    if filter.type == 'price_range'
+      assign has_price_filter = true
+
+      if filter.min_value.value
+        assign active_filters_count = active_filters_count | plus: 1
+      endif
+      if filter.max_value.value
+        assign active_filters_count = active_filters_count | plus: 1
+      endif
+    else
+      assign active_filters_count = active_filters_count | plus: filter.active_values.size
+    endif
+  endfor
+
+  if results.url
+    if results.current_vendor or results.current_type
+      assign clear_filters_url = results.url | append: '&sort_by=' | append: sort_by
+    else
+      assign clear_filters_url = results.url | append: '?sort_by=' | append: sort_by
+    endif
+  else
+    assign terms = results.terms | escape
+    assign types = results.types | join: ',' | escape
+  endif
+
+  if results.products_count
+    assign results_count = results.products_count
+  else
+    assign results_count = results.results_count
+  endif
+-%}
+
+{%- unless results.url -%}
+  {%- capture clear_filters_url -%}
+    ?type={{ types }}&options%5Bprefix%5D=last&q={{ terms }}&sort_by={{ sort_by }}
+  {%- endcapture -%}
+{%- endunless -%}
+
+{%- if section.settings.filters_open_lg -%}
+  <link rel="stylesheet" href="{{ 'facet-filters.css' | asset_url }}">
+  {%- if has_price_filter -%}
+    <link rel="stylesheet" href="{{ 'price-range.css' | asset_url }}">
+  {%- endif -%}
+{%- else -%}
+  <link rel="stylesheet" href="{{ 'facet-filters.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- if has_price_filter -%}
+    <link rel="stylesheet" href="{{ 'price-range.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- endif -%}
+{%- endif -%}
+
+<script src="{{ 'facet-filters.js' | asset_url }}" defer="defer"></script>
+{%- if has_price_filter -%}
+  <script src="{{ 'price-range.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if section.settings.stick_on_scroll -%}
+<script src="{{ 'sticky-scroll-direction.js' | asset_url }}" defer="defer"></script>
+
+<sticky-scroll-direction data-min-sticky-size="lg">
+{%- endif -%}
+
+  <facet-filters class="facets drawer fixed top-0 left-0 flex flex-col w-full has-motion" data-name="facet-filters" id="facet-filters" data-filtering="{{ section.settings.enable_filtering }}" data-sorting="{{ section.settings.enable_sorting }}" role="dialog" aria-labelledby="facets-title" aria-modal="true" aria-hidden="true" tabindex="-1">
+    <header class="drawer__header flex justify-between items-center lg:hidden">
+      <h2 class="h4 mb-0" id="facets-title">
+        <span class="hidden md:block">{{ 'products.filtering.title' | t }}</span>
+        {%- if section.settings.enable_sorting -%}
+          <span class="md:hidden">{{ 'products.filtering.filter_sort' | t }}</span>
+        {%- else -%}
+          <span class="md:hidden">{{ 'products.filtering.filter' | t }}</span>
+        {%- endif -%}
+      </h2>
+      <button type="button" class="drawer__close-btn js-close-drawer">
+        <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+        {% render 'icon-close' %}
+      </button>
+    </header>
+
+    <div class="drawer__content">
+      <form id="facets" novalidate>
+        {%- if results.current_vendor or results.current_type -%}
+          <input type="hidden" name="q" value="{{ results.current_vendor }}{{ results.current_type }}">
+        {%- elsif results.terms -%}
+          <input type="hidden" name="q" value="{{ results.terms | escape }}">
+          <input type="hidden" name="type" value="{{ types }}">
+          <input name="options[prefix]" type="hidden" value="last">
+        {%- endif -%}
+
+        <details-disclosure class="facets__active-filters" {% if active_filters_count == 0 %} hidden{% endif %}>
+          <details class="disclosure"{% if section.settings.expand_filters %} open{% endif %}>
+            {%- liquid
+              assign filter_count = 0
+              for filter in results.filters
+                for value in filter.active_values
+                  assign filter_count = filter_count | plus: 1
+                endfor
+
+                if filter.type == "price_range"
+                  if filter.min_value.value != nil or filter.max_value.value != nil
+                    assign filter_count = filter_count | plus: 1
+                  endif
+                endif
+              endfor
+            -%}
+            <summary>
+              <div class="flex justify-between items-center">
+                <span class="flex-auto font-bold active-filters-header">
+                  {%- if filter_count > 0 -%}
+                    {{ 'products.filtering.applied_filter_count' | t: count: filter_count }}
+                  {%- else -%}
+                    {{ 'products.filtering.applied_filters' | t }}
+                  {%- endif -%}
+                </span>
+                <span class="disclosure__toggle">
+                  {%- if settings.disclosure_toggle == 'plus' -%}
+                    {% render 'icon-plus' %}
+                  {%- else -%}
+                    {% render 'icon-chevron-down' %}
+                  {%- endif -%}
+                </span>
+              </div>
+            </summary>
+            <div class="disclosure__panel has-motion">
+              <div class="disclosure__content">
+                <div class="active-filters flex flex-wrap">
+                  {%- for filter in results.filters -%}
+                    {%- for value in filter.active_values -%}
+                      <a href="{{ value.url_to_remove }}" class="active-filter flex items-center text-current"{% if settings.preload_links %} data-instant{% endif %}>
+                        {%- render 'icon-close' %}
+                        {%- if filter.type == 'boolean' %}{{ filter.label | escape }}:{% endif %}
+                        {{ value.label | escape -}}
+                      </a>
+                    {%- endfor -%}
+
+                    {% if filter.type == "price_range" %}
+                      {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                        <a href="{{ filter.url_to_remove }}" class="active-filter flex items-center text-current">
+                          {%- render 'icon-close' %}
+                          {%- if filter.min_value.value %}{{ filter.min_value.value | money }}{% else %}{{ 0 | money }}{% endif %} -
+                          {% if filter.max_value.value %}{{ filter.max_value.value | money }}{% else %}{{ filter.range_max | money }}{% endif -%}
+                        </a>
+                      {%- endif -%}
+                    {% endif %}
+                  {%- endfor -%}
+                </div>
+
+                <a href="{{ clear_filters_url }}" class="link text-current text-sm js-clear-all"{% if settings.preload_links %} data-instant{% endif %}>
+                  {{- 'products.filtering.clear_all' | t -}}
+                </a>
+              </div>
+            </div>
+          </details>
+        </details-disclosure>
+
+        <div class="facets__filters">
+          {%- capture mobile_sort_by -%}
+            {% if section.settings.enable_sorting %}
+              <details-disclosure class="md:hidden no-js-visible">
+                <details class="filter disclosure" data-type="sort" data-index="-1"{% if section.settings.expand_filters %} open{% endif %}>
+                  <summary class="filter__toggle">
+                    <div class="flex justify-between items-center">
+                      <span class="flex-auto font-bold">{{- 'products.sorting.sort_by_label' | t -}}</span>
+                      <span class="disclosure__toggle">
+                        {%- if settings.disclosure_toggle == 'plus' -%}
+                          {% render 'icon-plus' %}
+                        {%- else -%}
+                          {% render 'icon-chevron-down' %}
+                        {%- endif -%}
+                      </span>
+                    </div>
+                  </summary>
+                  <div class="disclosure__panel has-motion">
+                    <div class="disclosure__content">
+                      <div class="filter__content">
+                        <ul role="list">
+                          {%- for option in results.sort_options -%}
+                            {%- unless option.value == 'manual' and section.settings.show_feat_sort_opt == false -%}
+                              <li>
+                                <input type="radio"
+                                       class="checkbox js-drawer-sort-by"
+                                       id="filter-sort-{{ forloop.index }}"
+                                       name="sort_by"
+                                       value="{{ option.value | escape }}"
+                                       {% if option.value == sort_by %}checked{% endif %}>
+                                <label for="filter-sort-{{ forloop.index }}" class="flex items-start w-full m-0">
+                                  <span class="flex-auto">{{- option.name | escape -}}</span>
+                                </label>
+                              </li>
+                            {%- endunless -%}
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              </details-disclosure>
+            {% endif %}
+          {%- endcapture -%}
+
+          {%- if section.settings.enable_sorting and section.settings.sort_first -%}
+            {{ mobile_sort_by }}
+          {%- endif -%}
+
+          {%- for filter in results.filters -%}
+            {%- liquid
+              assign swatches = false
+              assign has_active_filters = false
+              assign active_count = filter.active_values.size
+
+              if settings.filter_color_style == "swatches" and settings.swatch_colors != blank and settings.swatch_option_name contains filter.label
+                assign swatches = true
+              endif
+
+              if filter.type == 'price_range'
+                if filter.min_value.value
+                  assign has_active_filters = true
+                  assign active_count = active_count | plus: 1
+                endif
+                if filter.max_value.value
+                  assign has_active_filters = true
+                  assign active_count = active_count | plus: 1
+                endif
+              else
+                if active_count > 0
+                  assign has_active_filters = true
+                endif
+              endif
+            -%}
+
+            <details-disclosure>
+              <details class="filter disclosure" data-type="{{ filter.type }}" data-index="{{ forloop.index }}"{% if section.settings.expand_filters %} open{% endif %}>
+                <summary class="filter__toggle">
+                  <div class="flex justify-between items-center">
+                    <span class="flex-auto font-bold">{{ filter.label | escape }}</span>
+                    <span class="disclosure__toggle">
+                      {%- if settings.disclosure_toggle == 'plus' -%}
+                        {% render 'icon-plus' %}
+                      {%- else -%}
+                        {% render 'icon-chevron-down' %}
+                      {%- endif -%}
+                    </span>
+                  </div>
+                </summary>
+                <div class="disclosure__panel has-motion">
+                  <div class="disclosure__content">
+                    <div class="filter__content">
+                      {%- case filter.type -%}
+                        {%- when 'boolean' or 'list' -%}
+                          <ul role="list"{% if swatches %} class="filter__swatches"{% endif %}>
+                            {%- for value in filter.values -%}
+                              <li{% if forloop.index > section.settings.max_filter_options %} class="js-hidden"{% endif %}>
+                                <input type="checkbox"
+                                        class="{% unless swatches %}checkbox {% endunless %}visually-hidden focus-label-before"
+                                        id="filter-{{ filter.param_name | escape }}-{{ forloop.index }}"
+                                        name="{{ value.param_name }}"
+                                        value="{{ value.value | escape }}"
+                                        {% if value.active %}checked{% endif %}
+                                        {% if value.count == 0 and value.active == false %}disabled{% endif %}>
+                                <label for="filter-{{ filter.param_name | escape }}-{{ forloop.index }}"
+                                       class="filter__label flex items-start w-full m-0"
+                                       {%- if swatches %} data-swatch="{{ value.label | replace: '"', '' | downcase }}"{% endif %}>
+                                  <span class="flex-auto">{{ value.label | escape }}</span>
+                                  {% if section.settings.show_filter_counts -%}
+                                    <span class="filter__count">({{ value.count }})</span>
+                                  {%- endif -%}
+                                </label>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+
+                        {%- when 'price_range' -%}
+                          {% render 'price-range', filter: filter %}
+
+                      {%- endcase -%}
+                    </div>
+
+                    <div class="flex relative items-center mt-6">
+                      {%- if filter.values.size > section.settings.max_filter_options -%}
+                        <button type="button" class="filter__more link text-current text-sm js-show-more">
+                          {{- 'products.filtering.show_more' | t -}}
+                        </button>
+                      {%- endif -%}
+
+                      <div class="filter__header">
+                        <a href="{{ filter.url_to_remove }}" class="link text-current text-sm js-clear-filter"{% if has_active_filters == false %} hidden{% endif %}>
+                          {{- 'products.filtering.clear' | t -}}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </details-disclosure>
+          {%- endfor -%}
+
+          {%- if section.settings.enable_sorting and section.settings.sort_first == false -%}
+            {{ mobile_sort_by }}
+          {%- endif -%}
+        </div>
+
+        <noscript class="no-js-apply-filters facets__footer">
+          <button type="submit" class="btn btn--primary">{{- 'products.filtering.apply' | t }}</button>
+        </noscript>
+      </form>
+    </div>
+
+    <footer class="drawer__footer lg:hidden no-js-hidden">
+      <div class="facets__footer">
+        <button type="button" class="btn btn--primary w-full js-close-drawer js-close-drawer-mob">
+          {{- 'products.filtering.show_result_count' | t: count: results_count -}}
+        </button>
+      </div>
+    </footer>
+  </facet-filters>
+{%- if section.settings.stick_on_scroll -%}
+</sticky-scroll-direction>
+{%- endif -%}

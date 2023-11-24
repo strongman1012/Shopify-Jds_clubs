@@ -1,0 +1,367 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "ec545222-e0bf-4a9f-8f5e-62a6d40bf50f": {
+          "type": "image",
+          "settings": {
+            "title": "",
+            "image_logo1": "shopify:\/\/shop_images\/Product_logo1.png",
+            "image_logo2": "shopify:\/\/shop_images\/Product_logo2.png",
+            "image_logo3": "shopify:\/\/shop_images\/Product_logo3.png",
+            "image_width": 70,
+            "image_align": "justify-start",
+            "url": ""
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": true
+          }
+        },
+        "9cdc608d-3e45-4ad8-8102-5eb07568b5a4": {
+          "type": "inventory-status",
+          "settings": {
+            "show_indicator_bar": true,
+            "show_urgency_message": true,
+            "text_very_low": "<p>- Almost gone!<\/p>",
+            "text_low": "<p>- Hurry while stocks last!<\/p>",
+            "text_normal": "",
+            "text_no_stock": ""
+          }
+        },
+        "0fea6e30-cda3-4485-8989-4ada4d17fd84": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "b5de80b7-841d-4bc0-a9f9-bf090750e1f8": {
+          "type": "custom-product-top1",
+          "settings": {
+            "title": ""
+          }
+        },
+        "divider-0": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "f750d7f3-d4e2-42b2-9836-20110d39fce5": {
+          "type": "shopify:\/\/apps\/yotpo-product-photo-reviews\/blocks\/star-rating\/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+          "settings": {
+            "product": "{{product}}"
+          }
+        },
+        "b0443559-4e43-499c-b535-5c3199d16494": {
+          "type": "custom-product-top2",
+          "settings": {
+            "title": ""
+          }
+        },
+        "5b2a4bf3-a36a-4fca-a5d4-5c5974500874": {
+          "type": "custom-product-switch",
+          "settings": {
+            "title": ""
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "selector_style": "buttons",
+            "enable_dynamic_availability": true,
+            "show_backorder_text": true,
+            "enable_size_chart": false,
+            "size_chart_variant": "Size",
+            "size_chart_page": ""
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_qty_selector": true,
+            "enable_dynamic_checkout": false,
+            "show_pickup_availability": false
+          }
+        },
+        "58a04a4a-b793-4ca2-af3a-b3b01357ece6": {
+          "type": "richtext",
+          "settings": {
+            "text": "<p><strong>SKU<\/strong>: ACCRATZSIXST<br\/><strong>Categories<\/strong>: Accra, Accra, Brands, Driver Shafts, New Releases, New Shafts<br\/><strong>Tags<\/strong>: Accra, Golf Shaft, ST, TZ SIX<\/p>"
+          }
+        },
+        "3f9ffe74-b1ad-4321-ac3c-a507e3f3ed11": {
+          "type": "text",
+          "settings": {
+            "custom-complementary-title": "DON'T FORGET"
+          }
+        }
+      },
+      "block_order": [
+        "ec545222-e0bf-4a9f-8f5e-62a6d40bf50f",
+        "title",
+        "price",
+        "9cdc608d-3e45-4ad8-8102-5eb07568b5a4",
+        "0fea6e30-cda3-4485-8989-4ada4d17fd84",
+        "b5de80b7-841d-4bc0-a9f9-bf090750e1f8",
+        "divider-0",
+        "f750d7f3-d4e2-42b2-9836-20110d39fce5",
+        "b0443559-4e43-499c-b535-5c3199d16494",
+        "5b2a4bf3-a36a-4fca-a5d4-5c5974500874",
+        "variant-picker",
+        "buy-buttons",
+        "58a04a4a-b793-4ca2-af3a-b3b01357ece6",
+        "3f9ffe74-b1ad-4321-ac3c-a507e3f3ed11"
+      ],
+      "settings": {
+        "stick_on_scroll": true,
+        "sticky_atc_panel": false,
+        "sticky_atc_position": "end",
+        "sticky_atc_mobile": true,
+        "media_layout": "stacked",
+        "media_size": "default",
+        "media_ratio": "1",
+        "media_crop": "none",
+        "hover_zoom": "medium",
+        "enable_video_looping": true,
+        "stacked_scroll": "always",
+        "underline_active": true,
+        "media_thumbs": "always",
+        "thumb_ratio": "natural",
+        "thumb_crop": "none",
+        "media_arrows": "mobile",
+        "show_slide_count": false,
+        "border_color": "#eeeeee",
+        "bg_color": "#f4f4f4",
+        "enable_media_grouping": true,
+        "media_grouping_option": "Color,Colour,Couleur,Farbe"
+      }
+    },
+    "details": {
+      "type": "product-details",
+      "blocks": {
+        "46b48d1c-a843-4dfc-a2ef-63fa84023b25": {
+          "type": "share",
+          "settings": {
+          }
+        },
+        "tabs": {
+          "type": "tabs",
+          "settings": {
+            "style": "tabs",
+            "show_description": false,
+            "show_specification": false,
+            "show_reviews": false,
+            "spec_metafields": "",
+            "spec_right_align": false,
+            "spec_show_empty_metafields": true,
+            "spec_empty_field_text": "-",
+            "tab_1_title": "DESCRIPTION",
+            "tab_1_text": "<h3>Bettinardi US Open Limited Edition Headcover Blade<\/h3><p>Bettinardi Golf is celebrating the 2023 U.S. Open with a patriotic L.A.-themed headcover release, as this year’s event will be held at The Los Angeles Country Club! The blade and mallet headcovers feature a “Bettinardi Hills” design, to highlight some of the iconic features of the host city.<\/p>",
+            "tab_1_page": "",
+            "tab_2_title": "TECH SPECS",
+            "tab_2_text": "<p>Not Available.<\/p>",
+            "tab_2_page": "",
+            "tab_3_title": "REVIEWS",
+            "tab_3_text": "<p>Not Available.<\/p>",
+            "tab_3_page": ""
+          }
+        }
+      },
+      "block_order": [
+        "46b48d1c-a843-4dfc-a2ef-63fa84023b25",
+        "tabs"
+      ],
+      "settings": {
+      }
+    },
+    "1694291224ef16ee1d": {
+      "type": "apps",
+      "settings": {
+        "full_width": false
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "Customer Also Purchased",
+        "heading_align": "text-center",
+        "layout": "carousel",
+        "card_size": "medium",
+        "products_to_show": 8
+      }
+    },
+    "b106db9b-f7be-4f74-8c74-f9a57dd7e4e0": {
+      "type": "slideshow-product",
+      "blocks": {
+        "template--20651224858899__b106db9b-f7be-4f74-8c74-f9a57dd7e4e0-slide-1": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Product-bottom.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile-Product-bottom.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "",
+            "heading_size": "h0",
+            "heading_h1": false,
+            "text": "",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        },
+        "template--20651224858899__b106db9b-f7be-4f74-8c74-f9a57dd7e4e0-slide-2": {
+          "type": "slide",
+          "settings": {
+            "image_desktop": "shopify:\/\/shop_images\/Product-bottom-1.png",
+            "image_mobile": "shopify:\/\/shop_images\/Mobile-Product-bottom-1.png",
+            "overlay_position": "justify-center items-center",
+            "overlay_text_align": "text-center",
+            "mob_center_text": false,
+            "subheading": "",
+            "heading": "",
+            "heading_size": "h6",
+            "heading_h1": false,
+            "text": "",
+            "enlarge_text": true,
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary",
+            "countdown_show": false,
+            "countdown_end_date": "",
+            "countdown_end_time": "",
+            "countdown_end_text": "",
+            "enlarge_end_text": false,
+            "countdown_hide_on_end": false,
+            "use_custom_colors": false,
+            "count_color": "#ffffff",
+            "bg_color": "#070707",
+            "bg_grad": ""
+          }
+        }
+      },
+      "block_order": [
+        "template--20651224858899__b106db9b-f7be-4f74-8c74-f9a57dd7e4e0-slide-1",
+        "template--20651224858899__b106db9b-f7be-4f74-8c74-f9a57dd7e4e0-slide-2"
+      ],
+      "settings": {
+        "height_mode": "auto",
+        "fixed_height_desktop": 440,
+        "fixed_height_mobile": 350,
+        "mobile_stacked": false,
+        "nav_style": "slideshow_nav_dots",
+        "nav_position": "justify-center",
+        "transition": "fade",
+        "autoplay": true,
+        "slider_pause": false,
+        "autoplay_speed": 5,
+        "color_scheme": "white",
+        "full_width": true,
+        "tint_color": "#000000",
+        "tint_opacity": 0,
+        "accessibility_info": "",
+        "prevent_animation": true
+      }
+    },
+    "613d1a86-f040-46d8-9ee1-e76aeb7bc1c7": {
+      "type": "faq",
+      "blocks": {
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-category-1": {
+          "type": "category",
+          "settings": {
+            "text": "Shipping"
+          }
+        },
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-1": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "What countries do you ship to?",
+            "text": "<p>We currently ship to the United States, Canada, Australia and the UK. To enquire about shipping to a different destination, please contact us.<\/p>"
+          }
+        },
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-2": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How long will it take to receive my order?",
+            "text": "<p>Standard shipping normally takes 3-5 days. Next day shipping is available on all domestic orders (for an additional charge). International shipping times depend on the products and destination (estimated at checkout).<\/p>"
+          }
+        },
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-category-2": {
+          "type": "category",
+          "settings": {
+            "text": "Returns and Refunds"
+          }
+        },
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-3": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How do I return a product?",
+            "text": "<p>Items must be returned within 30 days after receiving your order. Items must be returned in the same condition in which they were received, be unworn\/unused, have any tags still attached, and include all the original packaging.<\/p>"
+          }
+        },
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-4": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How long will it take to receive my refund?",
+            "text": "<p>Refunds are processed within 7 days from when we receive the item(s).<\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-category-1",
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-1",
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-2",
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-category-2",
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-3",
+        "template--20651224858899__613d1a86-f040-46d8-9ee1-e76aeb7bc1c7-question-4"
+      ],
+      "settings": {
+        "heading": "Common Questions",
+        "heading_align": "text-center",
+        "color_scheme": "none",
+        "full_width": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "details",
+    "1694291224ef16ee1d",
+    "recommendations",
+    "b106db9b-f7be-4f74-8c74-f9a57dd7e4e0",
+    "613d1a86-f040-46d8-9ee1-e76aeb7bc1c7"
+  ]
+}

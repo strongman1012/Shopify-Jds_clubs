@@ -1,0 +1,61 @@
+{%- comment -%}
+  Parameters:
+  - component_id {String} - Unique id for this instance of the component
+  - menu {Object} - Menu object
+  - image_ratio {Number} - Aspect ratio for the image (optional)
+  - image_fit {String} - Cover or contain (optional)
+  - use_product_image {String} - Whether the image for any collection should use the first product in the collection
+  - color_scheme {String} - Color scheme for the panel (optional)
+  - show_price {Boolean} - Whether the price range slider should be shown (collections only)
+  - title {String} - The title with the widget (Optional)
+  - menu_1_display {String} - The menu display type, e.g. "text"
+  - menu_1_boxed {Boolean} - If the menu option should be boxed, e.g. true
+  - menu_1_text {String} - The menu default option text, e.g. "Choose appliance"
+  - menu_2_display {String} - The menu display, e.g. "image"
+  - menu_2_boxed {Boolean} - If the menu option should be boxed, e.g. false
+  - menu_2_text {String} - The menu default option text, e.g. "Choose style"
+  - menu_3_display {String} - The menu display, e.g. "image_text"
+  - menu_3_boxed {Boolean} - If the menu option should be boxed, e.g. true
+  - menu_3_text {String} - The menu default option text, e.g. "Choose brand"
+
+  Usage:
+    {%
+      render 'quick-nav',
+        component_id: block.id,
+        menu: block.settings.quick_nav_menu,
+        image_ratio: block.settings.quick_nav_image_ratio,
+        image_fit: block.settings.quick_nav_image_fit,
+        use_product_image: block.settings.quick_nav_use_product_image,
+        color_scheme: block.settings.color_scheme,
+        animate: true,
+        show_price: true,
+        title: "Your title",
+        button_text: "Search",
+        menu_1_display: "text",
+        menu_1_boxed: true,
+        menu_1_text: "Choose appliance",
+        menu_2_display: "image",
+        menu_2_boxed: false,
+        menu_2_text: "Choose style",
+        menu_3_display: "image_text",
+        menu_3_boxed: true,
+        menu_3_text: "Choose brand"
+    %}
+{%- endcomment -%}
+
+{%- if menu != blank -%}
+  <quick-nav class="quick-nav no-js-hidden p-8{% if color_scheme == 'default' %} panel{% else %} color-scheme color-scheme--{{ color_scheme }}{% endif %} customize-select-board"{% if show_price == true %} data-show-price="true"{% endif %}{% if animate %} data-cc-animate{% endif %}>
+    {% if title %}<h3 class="quick-nav__heading h5 text-center mb-6">{{ title }}</h3>{% endif %}
+    {%- liquid
+      render 'quick-nav-select', component_id: component_id, menu: menu, use_product_image: use_product_image, level: 1, display: menu_1_display, boxed: menu_1_boxed, default_text: menu_1_text, image_ratio: image_ratio, image_fit: image_fit, condition: 0, name: "type"
+      render 'quick-nav-select', component_id: component_id, menu: menu, use_product_image: use_product_image, level: 2, display: menu_2_display, boxed: menu_2_boxed, default_text: menu_2_text, image_ratio: image_ratio, image_fit: image_fit, condition: 1, name: "brand"
+      render 'quick-nav-select', component_id: component_id, menu: menu, use_product_image: use_product_image, level: 3, display: menu_3_display, boxed: menu_3_boxed, default_text: menu_3_text, image_ratio: image_ratio, image_fit: image_fit, condition: 0, name: "model"
+    -%}
+    {%- if show_price == true -%}
+      <div class="quick-nav__price js-quick-nav-price"></div>
+    {%- endif -%}
+    <a href="#" class="btn btn--primary w-full js-submit quick-nav__submit customize-home-btn"{% if color_scheme == 'default' %} style="--btn-bg-color: var(--btn-bg-color-og); --btn-text-color: var(--btn-text-color-og)"{% endif %} aria-disabled="true">
+      Customize Now
+    </a>
+  </quick-nav>
+{%- endif -%}

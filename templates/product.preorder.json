@@ -1,0 +1,113 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor-sku": {
+          "type": "vendor-sku",
+          "settings": {
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+          }
+        },
+        "divider-0": {
+          "type": "divider",
+          "settings": {
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+          }
+        },
+        "divider-1": {
+          "type": "divider",
+          "settings": {
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_pickup_availability": false
+          }
+        },
+        "message-1": {
+          "type": "message",
+          "settings": {
+            "icon": "none",
+            "title": "<p><strong>Pre-order now to make sure you don't miss out!<\/strong><br\/><br\/>As soon as it's in stock, we will ship it to you.<\/p>",
+            "close": "once",
+            "show_over_media": false
+          }
+        },
+        "newsletter": {
+          "type": "newsletter-signup",
+          "settings": {
+            "heading": "Subscribe to our newsletter",
+            "text": "<p>Get the latest updates on all our new collections, sales, offers and product arrival dates.<\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "vendor-sku",
+        "title",
+        "price",
+        "divider-0",
+        "variant-picker",
+        "divider-1",
+        "buy-buttons",
+        "message-1",
+        "newsletter"
+      ],
+      "settings": {
+      }
+    },
+    "details": {
+      "type": "product-details",
+      "blocks": {
+        "highlight-text": {
+          "type": "highlight-text",
+          "settings": {
+          }
+        },
+        "tabs": {
+          "type": "tabs",
+          "settings": {
+            "style": "collapsible",
+            "show_description": true
+          }
+        },
+        "payment-methods": {
+          "type": "payment-methods",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "highlight-text",
+        "tabs",
+        "payment-methods"
+      ],
+      "settings": {
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+      }
+    }
+  },
+  "order": [
+    "main",
+    "details",
+    "recommendations"
+  ]
+}

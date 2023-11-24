@@ -1,0 +1,193 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+{%- comment -%}
+  Parameters:
+  - id {String} - Unique id for the form.
+  - hide_labels {Boolean} - Visually hide the selector labels (optional, default is false).
+  - include_native {Boolean} - Include a hidden native select element (optional, default is false).
+
+  Usage:
+  {% render 'localization-form',
+    id: 'header-localization',
+    hide_labels: true
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  assign form_class = 'form localization'
+
+  unless include_native
+    assign form_class = form_class | append: ' no-js-hidden'
+  endunless
+-%}
+
+{%- form 'localization', id: id, class: form_class -%}
+  <div class="localization__grid">
+    {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+      {%- capture country_names -%}
+        {{ localization.country.name }} ({{ localization.country.currency.iso_code }}&nbsp;{{ localization.country.currency.symbol }})|
+      {%- endcapture -%}
+
+      {%- liquid
+        assign country_id = id | append: '-country'
+        assign country_label = 'general.localization.country_label' | t
+        assign country_values = localization.country.iso_code | append: '|' | split: '|'
+        assign country_names = country_names | split: '|'
+      -%}
+
+      <div class="localization__selector">
+        <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+        {%- render 'custom-select',
+          id: country_id,
+          label: country_label,
+          hide_label: hide_labels,
+          option_values: country_values,
+          option_names: country_names,
+          selected_value: localization.country.iso_code,
+          country_selector: true
+        -%}
+
+        {%- if include_native -%}
+          {%- capture country_values -%}
+            {%- for country in localization.available_countries -%}
+              {{- country.iso_code -}}
+              {%- unless forloop.last -%}|{%- endunless -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+
+          {%- capture country_names -%}
+            {%- for country in localization.available_countries -%}
+              {{ country.name }} ({{ country.currency.iso_code }}&nbsp;{{ country.currency.symbol }})
+              {%- unless forloop.last -%}|{%- endunless -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+
+          {%- liquid
+            assign country_values = country_values | split: '|'
+            assign country_names = country_names | split: '|'
+          -%}
+
+          <noscript>
+            <label for="{{ country_id }}-native" class="label{% if hide_labels %} visually-hidden{% endif %}">
+              {{- country_label -}}
+            </label>
+            <div class="select inline-block relative">
+              <select class="custom-select__native" id="{{ country_id }}-native" name="country_code">
+                {%- for value in country_values -%}
+                  <option value="{{ value | escape }}"{% if value == localization.country.iso_code %} selected{% endif %}>
+                    {{- country_names[forloop.index0] -}}
+                  </option>
+                {%- endfor -%}
+              </select>
+            </div>
+          </noscript>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+      {%- capture language_values -%}
+        {%- for language in localization.available_languages -%}
+          {{- language.iso_code -}}
+          {%- unless forloop.last -%}|{%- endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {%- capture language_names -%}
+        {%- for language in localization.available_languages -%}
+          {{- language.endonym_name | capitalize -}}
+          {%- unless forloop.last -%}|{%- endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {%- liquid
+        assign language_id = id | append: '-language'
+        assign language_label = 'general.localization.language_label' | t
+        assign language_values = language_values | split: '|'
+        assign language_names = language_names | split: '|'
+      -%}
+
+      <div class="localization__selector">
+        <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
+        {%- render 'custom-select',
+          id: language_id,
+          label: language_label,
+          hide_label: hide_labels,
+          option_values: language_values,
+          option_names: language_names,
+          selected_value: localization.language.iso_code,
+          include_native: include_native,
+          native_name: 'locale_code'
+        -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if include_native -%}
+    <noscript>
+      <div class="mt-6">
+        <button class="btn btn--primary">{{ 'general.localization.update' | t }}</button>
+      </div>
+    </noscript>
+  {%- endif -%}
+
+  {%- if section.settings.enable_country_selector -%}
+    <script>
+      customElements.whenDefined('custom-select').then(() => {
+        if (!customElements.get('country-selector')) {
+          class CountrySelector extends customElements.get('custom-select') {
+            constructor() {
+              super();
+              this.loaded = false;
+            }
+
+            async showListbox() {
+              if (this.loaded) {
+                super.showListbox();
+                return;
+              }
+
+              this.button.classList.add('is-loading');
+              this.button.setAttribute('aria-disabled', 'true');
+
+              try {
+                const response = await fetch('{{ routes.root }}?section_id=country-selector');
+                if (!response.ok) throw new Error(response.status);
+
+                const tmpl = document.createElement('template');
+                tmpl.innerHTML = await response.text();
+
+                const el = tmpl.content.querySelector('.custom-select__listbox');
+                this.listbox.innerHTML = el.innerHTML;
+
+                this.options = this.querySelectorAll('.custom-select__option');
+                this.loaded = true;
+              } catch {
+                this.listbox.innerHTML = '<li>{{ "general.localization.countries_error" | t }}</li>';
+              } finally {
+                super.showListbox();
+                this.button.classList.remove('is-loading');
+                this.button.setAttribute('aria-disabled', 'false');
+              }
+            }
+
+            setButtonWidth() {
+              return;
+            }
+          }
+
+          customElements.define('country-selector', CountrySelector);
+        }
+      });
+    </script>
+  {%- endif -%}
+
+  <script>
+    document.getElementById('{{ id }}').addEventListener('change', (evt) => {
+      const input = evt.target.previousElementSibling;
+      if (input && input.tagName === 'INPUT') {
+        input.value = evt.detail.selectedValue;
+        evt.currentTarget.submit();
+      }
+    });
+  </script>
+{%- endform -%}

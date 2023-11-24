@@ -1,0 +1,113 @@
+.announcement__col--right > a:not(.no-spacer)::after, .announcement__localization .localization__selector:nth-child(2) .custom-select__btn::before {
+  content: "|";
+  padding: 0 12px;
+  opacity: 0.7;
+  font-weight: normal;
+}
+
+.cc-announcement {
+  position: relative;
+  z-index: 31;
+}
+.shopify-section + .cc-announcement, .overlay-predictive-search .cc-announcement {
+  position: static;
+  z-index: auto;
+}
+
+.announcement {
+  color: rgb(var(--announcement-text-color));
+  font-size: var(--font-size);
+  display: none;
+}
+.announcement a {
+  color: inherit;
+}
+
+.announcement__text {
+  justify-content: center;
+  padding: 6px 0;
+}
+.announcement__text a {
+  text-decoration: underline;
+}
+.announcement__text p {
+  margin-bottom: 0;
+}
+
+.announcement__localization {
+  display: inline-block;
+}
+.announcement__localization .custom-select__btn {
+  --input-text-color: var(--announcement-text-color);
+  --text-color: var(--announcement-text-color);
+  width: auto !important;
+  margin-inline-end: calc(2 * var(--space-unit));
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  color: currentColor;
+  font-size: inherit;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.announcement__localization .custom-select__btn > .icon {
+  right: 0;
+  width: 20px;
+  padding-inline-start: 0;
+}
+body:not(.tab-used) .announcement__localization .custom-select__btn:focus {
+  box-shadow: none;
+}
+.announcement__localization .localization__selector {
+  display: inline-block;
+}
+.announcement__localization .custom-select__listbox {
+  min-width: 100px;
+}
+
+.announcement__col--left {
+  flex: 1;
+}
+
+.announcement__col--right {
+  padding: 5px 0;
+}
+.announcement__slider {
+  display: flex;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.announcement__slider::-webkit-scrollbar {
+  display: none;
+}
+.announcement__slider .announcement__text {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+}
+.announcement__slider .announcement__text > p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mob__announcement-links {
+  list-style: none;
+}
+.secondary-nav-container + .mob__announcement-links {
+  margin-top: 0;
+}
+
+@media (min-width: 769px) {
+  .announcement__col--right {
+    padding-inline-start: 10px;
+  }
+  .announcement__text {
+    justify-content: flex-start;
+    padding-inline-end: calc(4 * var(--space-unit));
+  }
+}

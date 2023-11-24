@@ -1,0 +1,48 @@
+.promo-strip__discount .input-with-button {
+  display: inline-flex;
+  background-color: rgb(44, 126, 63);
+}
+
+.promo-strip__discount,
+.promo-strip__button,
+.promo-strip__rte {
+  margin-bottom: 0.8em;
+}
+
+.promo-strip__heading {
+  max-width: 100%;
+  margin-bottom: 0.2em;
+  color: #fff;
+}
+
+@media (max-width: 768.98px) {
+  .promo-strip__heading + .promo-strip__button {
+    margin-top: 0.8em;
+  }
+}
+@media (min-width: 769px) {
+  .promo-strip__container {
+    display: flex;
+    row-gap: calc(4 * var(--space-unit));
+  }
+  .promo-strip__container .section__block {
+    margin-bottom: 0;
+    color: #fff;
+  }
+  .promo-strip__button {
+    white-space: nowrap;
+  }
+}
+@media (min-width: 1024px) {
+  .promo-strip__container .rte {
+    flex-shrink: 0;
+    max-width: 100%;
+  }
+  .promo-strip__button {
+    width: auto;
+    margin-bottom: 0;
+  }
+  .promo-strip__discount {
+    width: auto;
+  }
+}

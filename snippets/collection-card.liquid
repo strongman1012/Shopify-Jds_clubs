@@ -1,0 +1,72 @@
+{%- comment -%}
+Parameters:
+- collection {Object} - Collection object.
+- image {Object} - Image object (optional).
+- image_ratio {Number} - Aspect ratio for the image (optional).
+- use_product_image {Boolean} - Uses the first product as the collection image (optional).
+- circle_image {Boolean} - Whether the collection card is a circle or not
+
+Usage:
+{% render 'collection-card', collection: collection %}
+{%- endcomment -%}
+{%- liquid
+  unless collection == empty
+    assign first_product_image = collection.all_products.first.featured_media.preview_image
+    if image == blank and use_product_image and first_product_image
+      assign image = first_product_image
+    elsif image == blank and collection.featured_image
+      assign image = collection.featured_image
+    endif
+  endunless
+
+  if image_ratio == nil
+    if section.settings.card_image_ratio == 'shortest' or section.settings.card_image_ratio == 'tallest' or section.settings.card_image_ratio == 'circle' or circle_image
+      assign image_ratio = 1
+    else
+      assign image_ratio = section.settings.card_image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  unless circle_image
+    if settings.coll_card_image_ratio == 'circle'
+      assign circle_image = true
+    endif
+  endunless
+-%}
+
+<div class="card hover:grow-media relative flex flex-col card__collection">
+  <div class="card__media relative{% if circle_image %} card__media--circle{% endif %}" id="home-collection-card">
+    <a
+      href="{{ collection.url }}"
+      aria-label="{{ collection.title | escape }}"
+      tabindex="-1">
+
+      {% render 'new-image'
+       , image: image,
+       title: title, %}
+    </a>
+  </div>
+  <div class="card__info relative{% if circle_image %} text-center{% endif %}">
+    <p class="card__title h6 mb-2 last:mb-0">
+      {%- if title != blank -%}
+        <a
+          href="{{ collection.url }}"
+          class="card-link text-current"
+          id="collection-list-new-title">{{ title | escape }}</a>
+      {%- else -%}
+        {{- 'onboarding.collection.title' | t -}}
+      {%- endif -%}
+    </p>
+
+    {%- if settings.coll_show_link -%}
+      <a href="{{ collection.url }}" class="text-theme-text inline-flex card__collection--arrow">
+        {{ 'sections.collection.view' | t }}
+        <span class="has-ltr-icon flex items-center mis-2">
+          {%- render 'icon-arrow-in-circle' -%}
+        </span>
+      </a>
+    {%- endif -%}
+  </div>
+</div>

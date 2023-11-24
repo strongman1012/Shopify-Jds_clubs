@@ -1,0 +1,80 @@
+{%- comment -%}
+Parameters:
+- paginate {Object} - Pagination object.
+- class {String} - Custom css class to add
+- prev_text {String} - Screen reader text for the previous button (optional, default is "Previous").
+- next_text {String} - Screen reader text for the next button (optional, default is "Next").
+- prev_icon {String} - Markup to use for the previous arrow button (optional, default is icon-chevron-left).
+- next_icon {String} - Markup to use for the next arrow button (optional, default is icon-chevron-right).
+
+Usage:
+{%- assign newer_articles = 'blogs.pagination.newer_articles' | t -%}
+{%- assign older_articles = 'blogs.pagination.older_articles' | t -%}
+{%- capture prev_icon -%}{% render 'icon-arrow-left' %}{%- endcapture -%}
+{%- capture next_icon -%}{% render 'icon-arrow-right' %}{%- endcapture -%}
+
+{% render 'pagination',
+paginate: paginate,
+class: 'custom-class',
+prev_text: newer_articles,
+prev_icon: prev_icon,
+next_text: older_articles,
+next_icon: next_icon
+%}
+{%- endcomment -%}
+
+{%- liquid
+  unless prev_icon
+    capture prev_icon
+      render 'icon-chevron-left'
+    endcapture
+  endunless
+
+  unless next_icon
+    capture next_icon
+      render 'icon-chevron-right'
+    endcapture
+  endunless
+-%}
+
+{%- if paginate.pages > 1 -%}
+  {%- liquid
+    assign default_prev_text = 'general.pagination.previous' | t
+    assign default_next_text = 'general.pagination.next' | t
+  -%}
+  <nav aria-label="{{ 'general.pagination.label' | t }}">
+    <ul class="pagination flex flex-wrap justify-center items-center justify-between w-full mt-8 mx-auto{% if class %} {{ class }}{% endif %}">
+      <li class="pagination__item pagination__item--arrow">
+        <a class="pagination__arrow pagination__arrow--prev hover:lighten flex text-current items-center has-ltr-icon" {% if paginate.previous.is_link %}href="{{ paginate.previous.url }}"{% else %}role="link"aria-disabled="true"{% endif %}{% if settings.preload_links %}data-instant{% endif %}>
+          <span class="pagination__arrow-icon" aria-hidden="true">{{ prev_icon }}</span>
+          <span class="pagination__prev-label mis-2">{{ prev_text | default: default_prev_text }}</span>
+        </a>
+      </li>
+      <li class="pagination__item text-center md:hidden font-bold">
+        {{ 'general.pagination.position' | t: current_page: paginate.current_page, total_pages: paginate.pages }}
+      </li>
+      {%- for part in paginate.parts -%}
+        <li class="hidden md:block">
+          {%- if part.is_link -%}
+            <a
+              class="pagination__page-link text-current block leading-none"
+              href="{{ part.url }}"
+              {% if settings.preload_links %}
+              data-instant
+              {% endif %}>{{ part.title }}</a>
+          {%- elsif part.title == paginate.current_page -%}
+            <span class="pagination__page-current font-bold block leading-none">{{ part.title }}</span>
+          {%- else -%}
+            <span class="block leading-none ml-2 mr-2">{{ part.title }}</span>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+      <li class="pagination__item pagination__item--arrow">
+        <a class="pagination__arrow pagination__arrow--next hover:lighten flex justify-end text-current items-center has-ltr-icon" {% if paginate.next.is_link %}href="{{ paginate.next.url }}"{% else %}role="link"aria-disabled="true"{% endif %}{% if settings.preload_links %}data-instant{% endif %}>
+          <span class="pagination__next-label text-end">{{ next_text | default: default_next_text }}</span>
+          <span class="pagination__arrow-icon" aria-hidden="true">{{ next_icon }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+{%- endif -%}

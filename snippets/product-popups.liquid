@@ -1,0 +1,46 @@
+{%- liquid
+  assign popups = section.blocks | where: 'type', 'pop-up'
+  assign show_size_chart = false
+  assign size_chart = section.blocks | where: 'type', 'variant-picker' | first
+  if size_chart and size_chart.settings.enable_size_chart and size_chart.settings.size_chart_page != blank
+    assign show_size_chart = true
+  endif
+-%}
+
+{%- if popups.size > 0 or show_size_chart -%}
+  <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+
+  {%- if popups.size > 0 -%}
+    {%- for block in popups -%}
+      <modal-dialog class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center" id="modal-{{ block.id }}" {{ block.shopify_attributes }}>
+        <div class="modal__window relative bg-theme-bg text-theme-text text-start overflow-hidden has-motion" role="dialog" aria-label="{{ block.settings.link_text }}" aria-modal="true" tabindex="-1">
+          <button type="button" class="modal__close-btn absolute js-close-modal">
+            {% render 'icon-close' %}
+            <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+          </button>
+          <div class="modal__content flex-auto h-full rte">
+            {%- if block.settings.page != blank -%}
+              <h1 class="h2">{{ block.settings.page.title }}</h1>
+            {%- endif -%}
+            {{ block.settings.text }}
+            {{ block.settings.page.content }}
+          </div>
+        </div>
+      </modal-dialog>
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- if show_size_chart -%}
+    <modal-dialog class="modal invisible fixed top-0 left-0 w-full h-full flex items-center justify-center" id="size-chart">
+      <div class="modal__window relative bg-theme-bg text-theme-text text-start overflow-hidden has-motion" role="dialog" aria-label="{{ pages[size_chart.settings.size_chart_page].title }}" aria-modal="true" tabindex="-1">
+        <button type="button" class="modal__close-btn absolute js-close-modal">
+          {% render 'icon-close' %}
+          <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+        </button>
+        <div class="modal__content flex-auto h-full rte">
+          {{ pages[size_chart.settings.size_chart_page].content }}
+        </div>
+      </div>
+    </modal-dialog>
+  {%- endif -%}
+{%- endif -%}

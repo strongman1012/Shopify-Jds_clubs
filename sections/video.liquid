@@ -1,0 +1,384 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+{%- unless section.settings.video_external == blank and section.settings.video_shopify == blank -%}
+  {{ 'video.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
+
+  {%- liquid
+    assign using_video_tag = false
+    assign autoplay = section.settings.video_autoplay
+    assign color_scheme = section.settings.color_scheme
+
+    if section.settings.video_shopify != blank
+      assign using_video_tag = true
+    endif
+  -%}
+
+  {%- capture video_component -%}
+    <video-component class="{% if using_video_tag %}has-video{% else %}has-iframe{% endif %} block w-full h-full"
+                     {%- unless using_video_tag %}data-video-url="{{ section.settings.video_external | escape }}" {% endunless -%}
+                     data-video-id="{{ section.id }}"
+                     data-autoplay="{% if autoplay %}true{% else %}false{% endif %}"
+                     data-background="false"
+                     data-description="{{ section.settings.video_description | escape }}">
+      {%- if using_video_tag -%}
+        {{ section.settings.video_shopify | video_tag: playsinline: true, autoplay: autoplay, muted: autoplay, controls: true, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+      {%- else -%}
+        <div></div>
+      {%- endif -%}
+    </video-component>
+  {%- endcapture -%}
+
+  <div class="section{% unless color_scheme == 'default' %} section--full-width section--padded color-scheme color-scheme--{{ color_scheme }}{% endunless %}" id="{{ section.id }}">
+    <div class="container">
+      <div class="video-section relative flex mx-auto overflow-hidden flex-col{% if section.settings.video_size == 'sm' %} max-w-screen-md{% elsif section.settings.video_size == 'md' %} max-w-screen-lg{% endif %}">
+        {%- if section.blocks.size > 0 -%}
+            <div class="video-section__text {{ section.settings.text_align }}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+              {%- for block in section.blocks -%}
+                {%- case block.type -%}
+                  {%- when 'heading' -%}
+                    {%- if block.settings.heading != blank -%}
+                      <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+                        {{- block.settings.heading | newline_to_br -}}
+                      </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+                    {%- endif -%}
+
+                  {%- when 'subheading' -%}
+                    {%- if block.settings.text != blank -%}
+                      <p class="section__block section__block--subheading subheading" {{ block.shopify_attributes }}>
+                        {{- block.settings.text | escape -}}
+                      </p>
+                    {%- endif -%}
+
+                  {%- when 'text' -%}
+                    {%- if block.settings.text != blank -%}
+                      <div class="section__block section__block--rte rte{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
+                        {{ block.settings.text }}
+                      </div>
+                    {%- endif -%}
+
+                  {%- when 'button' -%}
+                    {%- if block.settings.button_label != blank -%}
+                      <div class="section__block section__block--button" {{ block.shopify_attributes }}>
+                        <a class="{{ block.settings.button_style }}" {% if block.settings.button_link != blank %}href="{{ block.settings.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+                          {{- block.settings.button_label | escape -}}
+                        </a>
+                      </div>
+                    {%- endif -%}
+                {%- endcase -%}
+              {%- endfor -%}
+            </div>
+        {%- endif -%}
+
+        <div class="video-section__media block w-full relative"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          {%- if autoplay -%}
+            <deferred-media class="absolute block top-0 left-0 w-full h-full no-js-hidden">
+              <template>{{ video_component }}</template>
+            </deferred-media>
+
+            <noscript>
+              <div class="absolute top-0 left-0 w-full h-full">
+                {{ video_component }}
+              </div>
+            </noscript>
+          {%- else -%}
+            <deferred-media class="height-clip absolute top-0 left-0 w-full h-full no-js-hidden"{% if using_video_tag and autoplay == false %} data-hide-controls-instantly="true"{% endif %}>
+              <button type="button" class="video-section__play-btn absolute top-0 left-0 flex justify-center items-center w-full h-full video-played-hidden js-load-media">
+                <span class="visually-hidden">{{ 'general.icon_labels.play' | t }}</span>
+                {%- render 'icon-play' -%}
+              </button>
+              <template>
+                {{ video_component }}
+              </template>
+            </deferred-media>
+          {%- endif -%}
+
+          <div class="media media--has-overlay absolute top-0 left-0 w-full h-full video-played-hidden">
+            {%- liquid
+              assign sizes = false
+              assign class = 'img-fit object-center'
+            -%}
+            {%- if section.settings.poster_image != blank or section.settings.video_shopify != blank -%}
+              {%- assign poster_image = section.settings.poster_image | default: section.settings.video_shopify.preview_image -%}
+              {%- capture sizes -%}
+                {%- render 'sizes-attribute', min: '100vw', sm: 'page', md: false, lg: false, xl: 'page', max: 'page' -%}
+              {%- endcapture -%}
+              {% render 'image',
+                image: poster_image,
+                widths: '750, 856, 1440, 1680, 1920, 2560',
+                src_width: 1680,
+                src_placeholder: true,
+                sizes: sizes,
+                class: class
+              %}
+            {%- else -%}
+              {%- assign class = class | prepend: 'media__placeholder ' -%}
+              {{ 'lifestyle-1' | placeholder_svg_tag: class }}
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Video",
+  "class": "cc-video",
+  "settings": [
+    {
+      "type": "video",
+      "id": "video_shopify",
+      "label": "Video upload",
+      "info": "Hosted by Shopify. Replaces External video if both are set."
+    },
+    {
+      "type": "text",
+      "id": "video_external",
+      "label": "External video",
+      "info": "Supports YouTube and Vimeo. [Learn more](https://cleancanvas.co.uk/support/enterprise/using-videos)",
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+    },
+    {
+      "type": "text",
+      "id": "video_description",
+      "label": "Video description",
+      "info": "Describe the video for customers using screen readers. [Learn more](https://cleancanvas.co.uk/support/enterprise/using-videos)"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster_image",
+      "label": "Cover image",
+      "info": "Required. Shows while the video is loading, or if it cannot autoplay."
+    },
+    {
+      "type": "select",
+      "id": "video_size",
+      "label": "Video size",
+      "info": "Applies to large screens only.",
+      "options": [
+        {
+          "value": "sm",
+          "label": "Small"
+        },
+        {
+          "value": "md",
+          "label": "Medium"
+        },
+        {
+          "value": "lg",
+          "label": "Large"
+        }
+      ],
+      "default": "md"
+    },
+    {
+      "type": "checkbox",
+      "id": "video_autoplay",
+      "label": "Autoplay",
+      "info": "Some devices will not autoplay videos under certain circumstances. In accordance with Google's guidelines, autoplaying videos will be muted by default. [Learn more](https://cleancanvas.co.uk/support/enterprise/using-videos)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Text layout"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Video"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h5",
+              "label": "Extra small"
+            },
+            {
+              "value": "h4",
+              "label": "Small"
+            },
+            {
+              "value": "h3",
+              "label": "Medium"
+            },
+            {
+              "value": "h2",
+              "label": "Large"
+            },
+            {
+              "value": "h1",
+              "label": "Extra large"
+            },
+            {
+              "value": "h0",
+              "label": "Extra extra large"
+            }
+          ],
+          "default": "h1"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_h1",
+          "label": "Set as page heading (uses h1 tag)",
+          "info": "For optimum SEO, a page should only have one h1 and it should be the first heading on the page.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Add text to a video to showcase a detail of your brand or product line.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_text",
+          "label": "Enlarge text",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--secondary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

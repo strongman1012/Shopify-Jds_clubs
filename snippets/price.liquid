@@ -1,0 +1,47 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - use_variant {Boolean} - Use variant price instead of general (optional, default is false).
+
+  Usage:
+  {% render 'price', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  if use_variant
+    assign variant = product.selected_or_first_available_variant
+  else
+    assign use_variant = false
+    assign variant = product.variants | sort: 'price' | first
+  endif
+
+  assign available = variant.available | default: false
+  assign compare_at_price = variant.compare_at_price
+  assign price = variant.price | default: 1999
+  assign money_price = price | money
+
+  if settings.show_currency_code
+    assign money_price = price | money_with_currency
+  endif
+-%}
+
+<div class="price custom-price-text {%- if compare_at_price > price %} price--on-sale{% endif -%}
+                 {%- if available == false %} price--sold-out{% endif -%} ">
+  <div class="price__default">
+    {%- if product.price_varies and use_variant == false %}
+      <span class="price__from">{{ 'products.product.from' | t }}</span>
+    {%- endif %}
+    <strong class="bold_option_price_display price__current">{{ money_price }}</strong>
+    <s class="price__was">
+      {%- if compare_at_price and compare_at_price > price -%}
+        {{ compare_at_price | money }}
+      {%- endif -%}
+    </s>
+  </div>
+
+  <div class="unit-price relative"{% if variant.unit_price_measurement == nil %} hidden{% endif %}><span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span><span class="unit-price__price">{{ variant.unit_price | money }}</span><span class="unit-price__separator">{{ 'products.product.price.unit_price_separator' | t }}</span><span class="unit-price__unit">{%- if variant.unit_price_measurement.reference_value != 1 -%}{{- variant.unit_price_measurement.reference_value -}}{%- endif -%}{{ variant.unit_price_measurement.reference_unit }}</span></div>
+
+  <div class="price__no-variant" hidden>
+    <strong class="bold_option_price_display price__current">{{ 'products.variant.non_existent' | t }}</strong>
+  </div>
+</div>

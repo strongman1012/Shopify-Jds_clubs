@@ -1,0 +1,161 @@
+{%- comment -%}theme-check-disable NestedSnippet{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ 'cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
+<script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+
+<cart-drawer class="drawer drawer--cart fixed top-0 right-0 flex flex-col w-full has-motion" data-name="cart-drawer" id="cart-drawer" role="dialog" aria-label="{{ 'cart.general.title' | t }}" aria-modal="true" aria-hidden="true" tabindex="-1" data-shipping-calculator="{{ section.settings.show_shipping_calculator }}">
+  <header class="drawer__header flex justify-between items-center">
+    <h2 class="h5 mb-0">{{ 'cart.general.title' | t }}</h2>
+    <div class="flex items-center gap-x-theme">
+      {%- unless cart == empty -%}
+        <a class="cart-drawer__view-cart link block text-sm" href="{{ routes.cart_url }}"{% if settings.preload_links %} data-no-instant{% endif %}>{{ 'cart.general.view_cart' | t }}</a>
+      {%- endunless -%}
+      <button type="button" class="drawer__close-btn js-close-drawer">
+        <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+        {% render 'icon-close' %}
+      </button>
+    </div>
+  </header>
+
+  <div class="drawer__content {% if cart == empty %}drawer__content--flex {% endif %}flex-auto{% if section.settings.stick_footer == false %} shrink-0{% endif %} justify-center items-center">
+    <div class="cart-drawer__content">
+      {%- if cart != empty and settings.show_free_shipping_notice -%}
+        {% render 'free-shipping-notice' %}
+      {%- endif -%}
+
+      <form class="form" id="cart-drawer-form" action="{{ routes.cart_url }}" method="post">
+        {% render 'cart-items', is_drawer: true %}
+      </form>
+    </div>
+
+    {%- if settings.show_recommendations and cart != empty -%}
+      {%- liquid
+        if settings.recommendations_layout == 'carousel'
+          assign grid_classes = 'grid grid-flow-col auto-cols-1 gap-x-theme'
+        endif
+      -%}
+      {%- render 'recommendations',
+            is_cart: true,
+            products_to_show: settings.recommendations_to_show,
+            heading: settings.recommendations_heading,
+            layout: settings.recommendations_layout,
+            grid_classes: grid_classes
+      -%}
+    {%- endif -%}
+  </div>
+
+  <footer class="drawer__footer relative">
+    {%- if cart != empty -%}
+      <div class="flex flex-wrap justify-between items-center">
+        {%- if section.settings.show_order_note -%}
+          <script src="{{ 'cart-note.js' | asset_url }}" defer="defer"></script>
+          <cart-drawer-disclosure class="block mb-4">
+            <details class="cart-note-disclosure">
+              <summary>
+                <span class="link block text-sm js-show-note">
+                  {%- if cart.note == blank -%}
+                    {{- 'cart.note.add' | t -}}
+                  {%- else -%}
+                    {{- 'cart.note.edit' | t -}}
+                  {%- endif -%}
+                </span>
+              </summary>
+              <div class="cart-drawer-popup absolute bottom-0 left-0 w-full">
+                <div class="cart-drawer-popup__content">
+                  <cart-note class="block mb-6">
+                    <label class="h6 block" for="cart-note">{{ 'cart.note.label' | t }}</label>
+                    <textarea class="input w-full" id="cart-note" name="note" form="cart-drawer-form" rows="4">{{ cart.note }}</textarea>
+                  </cart-note>
+                  <button type="button" class="btn btn--primary js-close">{{ 'cart.note.save' | t }}</button>
+                  <button type="button" class="cart-drawer-popup__btn absolute end js-close">
+                    {% render 'icon-close' %}
+                    <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+                  </button>
+                </div>
+              </div>
+            </details>
+          </cart-drawer-disclosure>
+        {%- endif -%}
+
+        {%- if section.settings.show_shipping_calculator -%}
+          <cart-drawer-disclosure class="block mb-4">
+            <details>
+              <summary>
+                <span class="link block text-sm">{{ 'cart.shipping_calculator.title' | t }}</span>
+              </summary>
+              <div class="cart-drawer-popup absolute bottom-0 left-0 w-full">
+                <div class="cart-drawer-popup__content">
+                  {% render 'shipping-calculator',
+                    id: 'cart-drawer',
+                    default_country: section.settings.shipping_calculator_default_country
+                  %}
+                  <button type="button" class="cart-drawer-popup__btn absolute end js-close">
+                    {% render 'icon-close' %}
+                    <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+                  </button>
+                </div>
+              </div>
+            </details>
+          </cart-drawer-disclosure>
+        {%- endif -%}
+
+        {%- if section.settings.show_shipping_text_notice -%}
+          <p class="flex-auto text-center{% if section.settings.show_order_note and section.settings.show_shipping_calculator %} mb-2 w-full{% elsif section.settings.show_order_note or section.settings.show_shipping_calculator %} mb-4 sm:text-end{% endif %}">
+            <small class="text-sm rte">
+              {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                {{ 'cart.general.taxes_included_shipping_at_checkout_html' | t: link: shop.shipping_policy.url }}
+              {%- elsif cart.taxes_included -%}
+                {{ 'cart.general.taxes_included_shipping_at_checkout' | t }}
+              {%- elsif shop.shipping_policy.body != blank -%}
+                {{ 'cart.general.taxes_and_shipping_at_checkout_html' | t: link: shop.shipping_policy.url }}
+              {%- else -%}
+                {{ 'cart.general.taxes_and_shipping_at_checkout' | t }}
+              {%- endif -%}
+            </small>
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- capture icon -%}
+        {%- liquid
+          if settings.cart_icon == 'bag'
+            render 'icon-bag'
+          elsif settings.cart_icon == 'basket'
+            render 'icon-basket'
+          else
+            render 'icon-cart'
+          endif
+        -%}
+      {%- endcapture -%}
+
+      {%- if cart.cart_level_discount_applications.size > 0 -%}
+        <ul class="mb-5 font-bold text-center" aria-label="{{ 'customer.order.discount' | t }}" role="list">
+          {%- for discount in cart.cart_level_discount_applications -%}
+            <li class="mt-2">
+              <div class="discount text-sm inline-flex items-center">
+                {% render 'icon-tags' %} {{ discount.title | escape_once }} (-{{ discount.total_allocated_amount | money }})
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if section.settings.show_checkout_button -%}
+        <button type="submit" class="btn btn--primary btn--icon-with-text w-full" name="checkout" form="cart-drawer-form"{% if cart == empty %} disabled{% endif %}>
+          {{ icon }}<span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_total" style="display:none !important;"></span>{{ 'cart.summary.checkout' | t }} - {{ cart.total_price | money_with_currency }}
+        </button>
+      {%- else -%}
+        <a class="btn btn--primary btn--icon-with-text w-full" href="{{ routes.cart_url }}"{% if settings.preload_links %} data-no-instant{% endif %}>
+          {{ icon }}<span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_total" style="display:none !important;"></span>{{ 'cart.general.view_cart' | t }} - {{ cart.total_price | money_with_currency }}
+        </a>
+      {%- endif -%}
+
+      {%- if additional_checkout_buttons and section.settings.show_additional_checkout_buttons -%}
+        <div class="dynamic-cart-btns">
+          {{ content_for_additional_checkout_buttons }}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </footer>
+  <div class="overlay overlay--drawer absolute top-0 right-0 bottom-0 left-0 js-close"{% if section.settings.stick_footer == false %} hidden{% endif %}></div>
+</cart-drawer>

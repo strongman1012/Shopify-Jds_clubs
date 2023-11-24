@@ -1,0 +1,56 @@
+{%- liquid
+  assign is_link = false
+  if link_url != blank
+    unless content contains "<a"
+      assign is_link = true
+    endunless
+  endif
+
+  if image == blank and video_shopify
+    assign image = video_shopify.preview_image
+  endif
+-%}
+
+{%- if is_link -%}
+<a href="{{- link_url -}}" class="promo promo--border video-section relative flex h-full w-full hover:grow-media overflow-hidden {{ text_alignment }}">
+  {%- else -%}
+  <div class="promo promo--border video-section relative flex h-full w-full {{ text_alignment }}">
+    {%- endif -%}
+
+    {%- if image -%}
+      {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: 1, sm: col_span_two_col, md: col_span_three_col, lg: col_span_four_col %}{% endcapture -%}
+      <div class="media absolute top-0 left-0 w-full h-full">
+        {% render 'image',
+          image: image,
+          src_width: 460,
+          widths: '320, 460, 600, 700, 800, 900, 1200',
+          src_placeholder: true,
+          sizes: sizes,
+          class: 'img-fit'
+        -%}
+      </div>
+    {%- endif -%}
+
+    {%- if video_shopify != blank -%}
+      <deferred-media class="media absolute top-0 left-0 w-full h-full">
+        <template>
+          <video-component class="has-iframe absolute top-0 left-0 w-full h-full no-js-hidden"
+                           data-autoplay="true"
+                           data-background="true">
+            {{ video_shopify | video_tag: class: 'img-fit promo__mp4 pointer-events-none', playsinline: true, autoplay: true, muted: true, loop: true, controls: false, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+          </video-component>
+        </template>
+      </deferred-media>
+    {%- endif -%}
+
+    {%- if content != blank -%}
+      <div class="promo__content relative rte rte--inherit-heading-color" style="max-width: {{ text_width }}px; --font-size: var({{ text_type_scale }});">
+        {{- content -}}
+      </div>
+    {%- endif -%}
+
+    {%- if is_link -%}
+</a>
+{%- else -%}
+  </div>
+{%- endif -%}

@@ -1,0 +1,53 @@
+{%- comment -%}
+  Parameters:
+  - id {String} - Unique ID.
+  - default_country {String} - Country to select by default.
+
+  Usage:
+  {% render 'shipping-calculator', id: 'some-id', default_country: 'United States' %}
+{%- endcomment -%}
+
+<script src="{{ 'country-province-selector.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'shipping-calculator.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign grid_classes = 'grid-cols-1 sm:grid-cols-8 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-8'
+  if id == 'cart-drawer'
+    assign grid_classes = 'grid-cols-1 grid-cols-2'
+  endif
+-%}
+
+<shipping-calculator>
+  <h2 class="h5">{{ 'cart.shipping_calculator.title' | t }}</h2>
+  <country-province-selector class="grid {{ grid_classes }} gap-x-6 gap-y-6 items-end">
+    <div{% if id != 'cart-drawer' %} class="sm:col-span-3 md:col-span-1 lg:col-span-2 xl:col-span-3"{% endif %}>
+      <label class="regular-text block mb-2" for="{{ id }}-shipping-country">{{ 'cart.shipping_calculator.country' | t }}</label>
+      <div class="select relative">
+        <select class="w-full js-country-select" id="{{ id }}-shipping-country" data-default="{% if shop.customer_accounts_enabled and customer %}{{ customer.default_address.country }}{% elsif default_country != blank %}{{ default_country | escape }}{% endif %}" autocomplete="country">
+          {{ all_country_option_tags }}
+        </select>
+      </div>
+    </div>
+    <div class="{% if id != 'cart-drawer' %}sm:col-span-3 md:col-span-1 lg:col-span-2 xl:col-span-3 {% endif %}js-province-container" hidden>
+      <label class="regular-text block mb-2" for="{{ id }}-shipping-province">{{ 'cart.shipping_calculator.province' | t }}</label>
+      <div class="select relative">
+        <select class="w-full js-province-select" id="{{ id }}-shipping-province" data-default="{{ customer.default_address.province }}" autocomplete="address-level1"></select>
+      </div>
+    </div>
+    <div{% if id != 'cart-drawer' %} class="sm:col-span-2 md:col-span-1 xl:col-span-2"{% endif %}>
+      <label class="regular-text block mb-2" for="{{ id }}-shipping-zip">{{ 'cart.shipping_calculator.zip' | t }}</label>
+      <input type="text" class="input w-full js-zip-input" id="{{ id }}-shipping-zip" autocomplete="postal-code">
+    </div>
+    <button type="button" class="btn btn--primary{% if id != 'cart-drawer' %} sm:col-span-3 md:col-span-1 xl:col-span-3{% endif %}">
+      {{- 'cart.shipping_calculator.submit' | t -}}
+    </button>
+  </country-province-selector>
+  <div class="alert bg-success-bg text-success-text mt-6 js-rates" hidden>
+    <h3 class="regular-text text-current js-rates-heading"></h3>
+    <div class="js-rates-text"></div>
+  </div>
+  <div class="alert mt-6 bg-error-bg text-error-text js-errors" hidden>
+    <h3 class="regular-text text-current">{{ 'cart.shipping_calculator.error' | t }}</h3>
+    <div class="js-errors-text"></div>
+  </div>
+</shipping-calculator>

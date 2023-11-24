@@ -1,0 +1,226 @@
+{%- comment -%}
+Parameters:
+- product {Object} - Product object.
+- product_form_id {String} - Product form ID.
+- media_ratio {Number} - Media aspect ratio.
+- swatch_crop {Object} - Alignment of image in variant image swatches.
+- block {Object} - Block object.
+
+Dependencies:
+- Custom select component
+
+Usage:
+{% render 'variant-picker', product: product, product_form_id: product_form_id, block: block %}
+{%- endcomment -%}
+
+{%- if block.settings.enable_size_chart -%}
+  <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+{%- endif -%}
+
+<script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+
+{%- if block.settings.selector_style == 'dropdown' -%}
+  <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign update_url = false
+  if request.page_type == 'product'
+    assign update_url = true
+  endif
+-%}
+
+<variant-picker
+  class="no-js-hidden custom-product-variant-picker"
+  data-url="{{ product.url }}"
+  data-update-url="{{ update_url }}"
+  data-show-availability="{{ block.settings.enable_dynamic_availability }}">
+  {%- for option in product.options_with_values -%}
+    {%- capture option_id %}
+      {{ section.id }}-{{ option.name | handle }}{% endcapture -%}
+    {%- liquid
+      assign is_color_selector = false
+      assign is_swatch_style = false
+      assign is_variant_image_style = false
+      assign show_size_chart = false
+
+      if settings.swatch_option_name contains option.name
+        assign is_color_selector = true
+        if settings.variant_picker_color_style == 'swatches'
+          assign is_swatch_style = true
+        elsif settings.variant_picker_color_style == 'variant-images'
+          assign is_variant_image_style = true
+          assign option_index0 = forloop.index0
+        endif
+      endif
+
+      if block.settings.enable_size_chart and block.settings.size_chart_variant == option.name and block.settings.size_chart_page != blank
+        assign show_size_chart = true
+      endif
+    -%}
+
+    {%- if show_size_chart -%}
+      {%- capture size_chart_link -%}
+        <modal-opener class="no-js-hidden" data-modal="size-chart">
+          <button
+            type="button"
+            class="link block text-sm"
+            aria-haspopup="dialog">
+            {{- 'products.product.size_chart' | t -}}
+          </button>
+        </modal-opener>
+        <noscript>
+          <a href="{{ block.settings.size_chart_page.url }}" class="link">{{ 'products.product.size_chart' | t }}</a>
+        </noscript>
+      {%- endcapture -%}
+    {%- endif -%}
+
+    {%- if block.settings.selector_style == 'dropdown' and is_variant_image_style == false -%}
+      {%- capture selector_label -%}
+        <label class="label" id="{{ option_id }}-label">{{- option.name -}}</label>
+      {%- endcapture -%}
+      <div class="option-selector" data-selector-type="dropdown">
+        {%- if show_size_chart -%}
+          <div class="flex justify-between">
+            {{ selector_label }}
+            {{ size_chart_link }}
+          </div>
+        {%- else -%}
+          {{ selector_label }}
+        {%- endif -%}
+        {% render 'custom-select'
+         , id: option_id,
+         option_values: option.values,
+         selected_value: option.selected_value,
+         swatches: is_swatch_style %}
+      </div>
+    {%- else -%}
+      <fieldset class="option-selector {% if option.name == 'Dexterity *' %} custom-product-dexterity {% elsif option.name == 'Loft' %} custom-product-loft {% endif %} {% if is_color_selector and setting.variant_picker_color_style != 'text' %} custom-product-color-picker {% endif %}" data-selector-type="listed">
+        <div class="custom-product-variants-board {% if is_color_selector and setting.variant_picker_color_style != 'text' %} custom-product-variants-color {% endif %}">
+          <div>
+            {%- if show_size_chart -%}
+              <div class="flex justify-between">
+                <legend class="label custom-product-legend">{{- option.name -}}{% if is_color_selector and settings.variant_picker_color_style != 'text' %}:
+                    <span class="option-selector__label-value js-color-text">{{ option.selected_value }}</span>
+                  {% endif %}
+                </legend>
+                {{ size_chart_link }}
+              </div>
+            {%- else -%}
+              <legend class="label custom-product-legend">{{- option.name -}}{% if is_color_selector and settings.variant_picker_color_style != 'text' %}:
+                  <span class="option-selector__label-value js-color-text">{{ option.selected_value }}</span>
+                {% endif %}
+              </legend>
+            {%- endif -%}
+            <div class="option-selector__btns flex flex-wrap">
+              {%- for value in option.values -%}
+                {%- assign value_index0 = forloop.index0 -%}
+                <input
+                  type="radio"
+                  class="opt-btn visually-hidden focus-label js-option"
+                  name="{{ option_id }}-option"
+                  id="{{ option_id }}-opt-{{ value_index0 }}"
+                  value="{{ value | escape }}"
+                  {% if option.selected_value == value %}
+                  checked
+                  {% endif %}>
+                {%- if is_variant_image_style -%}
+                  {%- for variant in product.variants -%}
+                    {%- if variant.options[option_index0] == value -%}
+                      <label
+                        class="opt-label opt-label--image relative"
+                        {% if variant.featured_media == blank %}
+                        data-swatch="{{ value | replace: '"', '' | downcase }}"
+                        {% endif %}
+                        for="{{ option_id }}-opt-{{ value_index0 }}">
+                        <span class="visually-hidden js-value">{{- value | escape -}}</span>
+                        <div class="opt-label__media media relative" style="padding-top: 100%;">
+                          {%- liquid
+                        if swatch_crop == 'top'
+                          assign class = 'img-fit object-top bg-theme-bg'
+                        else
+                          assign class = 'img-fit bg-theme-bg'
+                        endif
+                      -%}
+                          {% render 'image', image: variant.featured_media, src_width: 128, lazy_load: false, class: class, disable_focal_point: true %}
+                        </div>
+                      </label>
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- else -%}
+                  {%- liquid
+                assign is_swatch = false
+                if is_color_selector and settings.variant_picker_color_style == 'swatches'
+                  assign is_swatch = true
+                endif
+              -%}
+                  <label class="opt-label {% if is_swatch %}opt-label--swatch{% else %}opt-label--btn{% endif %} btn relative text-center"{% if is_swatch %}data-swatch="{{ value | replace: '"', '' | downcase }}"{% endif %} for="{{ option_id }}-opt-{{ value_index0 }}">
+                    <span class="{% if is_swatch %}visually-hidden {% endif %}js-value">{{- value | escape -}}</span>
+                  </label>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+
+        </div>
+
+      </fieldset>
+    {%- endif -%}
+  {%- endfor -%}
+
+  <script type="application/json">
+    {
+    "product": {{- product | json -}},
+    "formatted": {
+    {%- for variant in product.variants -%}
+      "{{ variant.id }}":{"price":{% if settings.show_currency_code %}
+        {{ variant.price | money_with_currency | json }}
+      {% else %}
+        {{ variant.price | money | json }}{% endif %}
+      {%- if variant.compare_at_price and variant.compare_at_price > variant.price -%}
+        ,"compareAtPrice":{{ variant.compare_at_price | money | json -}}
+      {%- endif -%}
+      {%- if variant.unit_price_measurement -%}
+        ,"unitPrice":{{ variant.unit_price | money | json -}}
+      {%- endif -%}
+      {%- if variant.inventory_management != nil and variant.inventory_quantity <= 0 -%}
+        ,"inventory":"none"
+      {%- endif -%}
+      }{%- unless forloop.last %},{% endunless -%}
+    {%- endfor -%}
+    }
+    }
+  </script>
+</variant-picker>
+
+<noscript>
+  <div
+    class="product-info__select"
+    {% if product.has_only_default_variant %}
+    hidden
+    {% endif %}>
+    <label class="label" for="variants-{{ section.id }}">
+      {{- 'products.product.product_variants' | t -}}
+    </label>
+    <div class="select relative">
+      <select
+        class="select w-full"
+        id="variants-{{ section.id }}"
+        name="id"
+        form="{{ product_form_id }}">
+        {%- for variant in product.variants -%}
+          <option
+            value="{{ variant.id }}"
+            {% if variant == current_variant %}selected{% endif %}
+            {% if variant.available == false %}disabled{% endif %}>
+            {{- variant.title -}}
+            {%- if variant.available == false %}
+              - {{ 'products.product.sold_out' | t }}{% endif %}
+            - {{ variant.price | money | strip_html }}
+          </option>
+        {%- endfor -%}
+      </select>
+    </div>
+  </div>
+</noscript>

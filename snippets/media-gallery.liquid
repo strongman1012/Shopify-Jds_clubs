@@ -1,0 +1,300 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - media_ratio {Number} - Media aspect ratio.
+  - media_crop {String} - If media should crop to fill available spacfe (Options: none, top, center)
+  - first_3d_model {Boolean} - First 3d model (if applicable).
+  - featured_product {Boolean} - Gallery is for a 'Featured product' section (optional, default is false).
+  - zoom {String} - The level of zoom to apply to the image. (Options: off, medium, large, original)
+
+  Usage:
+  {% render 'media-gallery',
+    product: product,
+    media_ratio: section.settings.media_ratio,
+    media_crop: 'top',
+    thumb_ratio: thumb_ratio,
+    thumb_crop: section.settings.thumb_crop,
+    first_3d_model: first_3d_model
+    zoom: section.settings.hover_zoom
+  %}
+{%- endcomment -%}
+
+<script src="{{ 'media-gallery.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = current_variant.featured_media
+  assign variant_images = product.images | where: 'attached_to_variant?', true | map: 'src'
+  assign media_count = product.media.size
+
+  if section.settings.hide_variants and media_count > 1
+    assign media_count = media_count | minus: variant_images.size | plus: 1
+  endif
+
+  if featured_product
+    assign featured_product = true
+    assign layout = 'featured'
+  else
+    assign featured_product = false
+    assign layout = section.settings.media_layout
+  endif
+
+  if product.variants and product.variants.size > 1 and section.settings.underline_active
+    assign underline_active = true
+  else
+    assign underline_active = false
+  endif
+-%}
+
+<media-gallery
+    class="media-gallery"
+    role="region"
+    {% if featured_product %}
+      data-is-featured="true"
+    {% endif %}
+    data-layout="{{ layout }}"
+    {% if section.settings.media_layout == "stacked" %}
+      data-stacked-scroll="{{ section.settings.stacked_scroll }}"
+      data-stacked-underline="{{ underline_active }}"
+    {% endif %}
+    {% if section.settings.enable_media_grouping %}
+      data-media-grouping-enabled
+    {% endif %}
+    aria-label="{{ 'products.product.media.gallery_viewer' | t }}"
+    style="--gallery-bg-color:{{ section.settings.bg_color }};--gallery-border-color:{{ section.settings.border_color }};">
+  <div class="media-gallery__status visually-hidden" role="status"></div>
+
+  <div class="media-gallery__viewer relative">
+    <ul class="media-viewer flex" id="gallery-viewer" role="list" tabindex="0">
+    {%- for media in product.media -%}
+        {%- liquid
+          assign lazy_load = true
+          assign select_first_image = false
+
+          if featured_media == null and forloop.index == 1
+            assign lazy_load = false
+            assign select_first_image = true
+          endif
+
+          if section.settings.media_layout == 'stacked' and forloop.index <= 2
+            assign lazy_load = false
+          endif
+
+          if forloop.index == 1
+            assign lazy_load = false
+          endif
+        -%}
+        <li class="media-viewer__item{% if media.id == featured_media.id or select_first_image %} is-current-variant{% endif %}{% if section.settings.hide_variants and variant_images contains media.src %} media-viewer__item--variant{% endif %}{% if section.settings.media_layout == 'stacked' and media.id == featured_media.id %}{% if underline_active and section.settings.enable_media_grouping == false %} is-active{% endif %}{% endif %}{% if media_count == 1 %} media-viewer__item--single{% endif %}" data-media-id="{{ media.id }}" data-media-type="{{ media.media_type }}">
+          {% render 'product-media',
+            media: media,
+            media_ratio: media_ratio,
+            media_crop: media_crop,
+            loop: section.settings.enable_video_looping,
+            lazy_load: lazy_load,
+            zoom: zoom
+          %}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if media_count > 1 -%}
+      {%- if section.settings.media_arrows != 'never' or section.settings.show_slide_count -%}
+        <div class="media-ctrl{% unless section.settings.media_thumbs == 'always' %} media-ctrl--lg-down-static{% endunless %}{% if section.settings.media_layout == 'stacked' %} md:hidden{% endif %} no-js-hidden">
+          {% if section.settings.media_arrows != 'never' %}
+            <button type="button" class="media-ctrl__btn tap-target vertical-center btn{% if section.settings.media_arrows == 'desktop' %} visible-lg{% elsif section.settings.media_arrows == 'mobile' %} lg:hidden{% endif %}" name="prev" aria-controls="gallery-viewer" disabled>
+              <span class="visually-hidden">{{ 'products.product.media.previous' | t }}</span>
+              {% render 'icon-chevron-left' %}
+            </button>
+          {% endif %}
+          {% if section.settings.show_slide_count %}
+            <div class="media-ctrl__counter text-sm">
+              <span class="media-ctrl__current-item">1</span>
+              <span aria-hidden="true"> / </span>
+              <span class="visually-hidden">{{ 'products.product.media.of' | t }}</span>
+              <span class="media-ctrl__total-items">{{ media_count }}</span>
+            </div>
+          {% endif %}
+          {% if section.settings.media_arrows != 'never' %}
+            <button type="button" class="media-ctrl__btn tap-target vertical-center btn{% if section.settings.media_arrows == 'desktop' %} visible-lg{% elsif section.settings.media_arrows == 'mobile' %} lg:hidden{% endif %}" name="next" aria-controls="gallery-viewer">
+              <span class="visually-hidden">{{ 'products.product.media.next' | t }}</span>
+              {% render 'icon-chevron-right' %}
+            </button>
+          {% endif %}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- liquid
+      assign message_stagger = 1.5
+      assign messages = section.blocks | where: "type", "message"
+      assign message_is_over_image = false
+      for message in messages
+        assign stripped_title = message.settings.title | strip_html
+        if stripped_title != blank and message.settings.show_over_media
+          assign message_is_over_image = true
+          break
+        endif
+      endfor
+    -%}
+
+    {%- if message_is_over_image -%}
+      {%- assign num_messages = 0 -%}
+      <div class="product-messages absolute pointer-events-none">
+        {%- for message in messages -%}
+          {%- assign stripped_title = message.settings.title | strip_html -%}
+          {%- if stripped_title != blank and message.settings.show_over_media -%}
+            {%- assign num_messages = num_messages | plus: 1 -%}
+            <product-message class="product-message mt-4 mb-4 relative text-xs product-message--out no-js-hidden"
+                             style="--bg-color: {{ message.settings.bg_color }};--text-color: {{ message.settings.text_color }};transition-delay: {{ num_messages | times: message_stagger }}s"
+                             data-transient="{{ message.settings.visibility_duration }}" {% if message.settings.close == "persistent" %}data-persistent-close="true"{% endif %} data-block-id="{{ message.id }}"
+                             role="alert" aria-live="off" {{ message.shopify_attributes }}>
+              <div class="product-message__inner">
+                {%- if message.settings.icon != 'none' -%}
+                  {% render 'icon', icon: message.settings.icon, width: 32, height: 32 %}
+                {%- endif -%}
+
+                <div class="rte rte--inherit-heading-color">{{ message.settings.title }}</div>
+
+                {%- if message.settings.close != "none" -%}
+                  <button type="button" class="product-message__close tap-target text-current js-close-message">
+                    <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+                    {% render 'icon-close' %}
+                  </button>
+                {%- endif -%}
+              </div>
+            </product-message>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- if zoom != 'off' -%}
+      <div class="loading-spinner loading-spinner--out" role="status">
+        <span class="sr-only">{{ 'accessibility.loading' | t }}</span>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if first_3d_model -%}
+    <button type="button"
+            class="media-xr-button btn btn--primary btn--icon-with-text w-full mt-2{% if section.settings.media_layout == 'stacked' %} md:hidden{% endif %}"
+            data-shopify-model3d-id="{{ first_3d_model.id }}"
+            data-shopify-title="{{ product.title | escape }}"
+            data-shopify-xr
+            data-shopify-xr-hidden>
+      {% render 'icon-3d-model' %}
+      {{ 'products.product.xr_button' | t }}
+    </button>
+  {%- endif -%}
+
+  {%- if media_count > 1 and section.settings.media_thumbs != 'never' and featured_product == false -%}
+    {%- unless section.settings.media_layout == 'stacked' and section.settings.media_thumbs == 'desktop' -%}
+      <div class="media-gallery__thumbs{% if section.settings.media_thumbs == 'desktop' %} hidden md:block{% endif %}{% if section.settings.media_layout == 'stacked' %} md:hidden{% endif %} no-js-hidden">
+        <ul class="media-thumbs relative flex" role="list">
+          {%- for media in product.media -%}
+            {%- liquid
+              capture thumb_index
+                if media.media_type == 'model'
+                  increment model_index
+                elsif media.media_type == 'video' or media.media_type == 'external_video'
+                  increment video_index
+                elsif media.media_type == 'image'
+                  increment image_index
+                endif
+              endcapture
+
+              assign active = false
+              if media == current_variant.featured_media or current_variant.featured_media == null and forloop.index == 1
+                assign active = true
+              endif
+            -%}
+            <li class="media-thumbs__item{% if section.settings.hide_variants and variant_images contains media.src %} media-thumbs__item--variant{% endif %}" data-media-id="{{ media.id }}">
+              <button class="media-thumbs__btn media relative w-full{% if settings.blend_product_images %} image-blend{% endif %}{% if active and section.settings.enable_media_grouping == false %} is-active{% endif %}"{% if active %} aria-current="true"{% endif %} aria-controls="gallery-viewer"{% if section.settings.thumb_ratio != 'natural' %} style="padding-top: {{ 1 | divided_by: thumb_ratio | times: 100 }}%;"{% endif %}>
+                <span class="visually-hidden">
+                  {%- if media.media_type == 'image' -%}
+                    {{- 'products.product.media.load_image' | t: index: image_index -}}
+                  {%- elsif media.media_type == 'model' -%}
+                    {{- 'products.product.media.load_model' | t: index: model_index -}}
+                  {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+                    {{- 'products.product.media.load_video' | t: index: video_index -}}
+                  {%- endif -%}
+                </span>
+
+                {%- if media.media_type == 'model' -%}
+                  <span class="media-thumbs__badge absolute flex items-center justify-center pointer-events-none">
+                    {%- render 'icon-3d-model' -%}
+                  </span>
+                {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+                  <span class="media-thumbs__badge absolute flex items-center justify-center pointer-events-none">
+                    {%- render 'icon-video' -%}
+                  </span>
+                {%- endif -%}
+
+                {%- liquid
+                  assign src_width = 80
+                  if section.settings.thumb_ratio != 'natural'
+                    if thumb_crop == 'top'
+                      assign img_class = 'img-fit object-top w-full'
+                      assign src_width = 150
+                    elsif thumb_crop == 'center'
+                      assign img_class = 'img-fit w-full'
+                      assign src_width = 150
+                    else
+                      assign img_class = 'img-fit img-fit--contain w-full'
+                    endif
+                  endif
+                -%}
+
+                {% render 'image',
+                  image: media,
+                  src_width: src_width,
+                  srcset_2x: true,
+                  lazy_load: false,
+                  class: img_class,
+                  disable_focal_point: true
+                %}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endunless -%}
+  {%- endif -%}
+
+  {%- if section.settings.enable_media_grouping -%}
+    {%- liquid
+      assign media_grouping_options = section.settings.media_grouping_option | replace: ', ', ',' | split: ','
+      for option in product.options
+        if media_grouping_options contains option
+          assign groupOptionName = option
+          assign groupOptionIndex = forloop.index0
+          assign groupOptionProperty = 'option' | append: forloop.index
+          assign sortedVariants = product.variants | sort: groupOptionProperty
+          break
+        endif
+      endfor
+    -%}
+    {%- if groupOptionName -%}
+      <script class="js-data-variant-media" type="application/json">
+        {
+          "groupOptionName": {{- groupOptionName | json -}},
+          "groupOptionIndex": {{- groupOptionIndex }},
+          "variantMedia": [
+            {%- for variant in sortedVariants -%}
+              {%- if variant.featured_media -%}
+                {
+                  "variantId": {{- variant.id -}},
+                  "mediaId": {{- variant.featured_media.id -}},
+                  "option": {{- variant.options[groupOptionIndex] | json -}}
+                }
+              {%- endif -%}
+              {%- unless forloop.last -%},{%- endunless -%}
+            {%- endfor -%}
+          ]
+        }
+      </script>
+    {%- endif -%}
+  {%- endif -%}
+</media-gallery>

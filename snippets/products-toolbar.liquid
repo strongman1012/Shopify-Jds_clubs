@@ -1,0 +1,86 @@
+{%- comment -%}
+  Parameters:
+  - results {Object} - Results object (collection or search).
+
+  Usage:
+  {% render 'products-toolbar', results: collection %}
+{%- endcomment -%}
+{%- liquid
+  assign sort_or_filters_visible = false
+  if section.settings.enable_filtering or section.settings.enable_sorting
+    assign sort_or_filters_visible = true
+  endif
+%}
+<products-toolbar class="products-toolbar flex items-center mb-8{% if settings.enable_compare and settings.compare_toggle != "none" %} products-toolbar--compare{% if section.settings.show_layout_toggle and sort_or_filters_visible %} products-toolbar--compare-shift-xs mt-16{% endif %}{% endif %} no-js-hidden" id="products-toolbar">
+  {%- if section.settings.enable_filtering -%}
+    <div class="products-toolbar__filter">
+      <button type="button" class="products-toolbar__filter-btn flex justify-between items-center text-current font-bold {% if section.settings.filters_open_lg %}is-active {% endif %}js-toggle-filters" aria-controls="facet-filters" aria-expanded="false">
+        <span class="hidden md:block">{{ 'products.filtering.filter' | t }}</span>
+        {%- if section.settings.enable_sorting -%}
+          <span class="md:hidden">{{ 'products.filtering.filter_sort' | t }}</span>
+        {%- else -%}
+          <span class="md:hidden">{{ 'products.filtering.filter' | t }}</span>
+        {%- endif -%}
+        {% render 'icon-filter' %}
+      </button>
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.enable_sorting -%}
+    <div class="products-toolbar__sort{% if section.settings.enable_filtering %} hidden md:block{% endif %}">
+      {%- liquid
+        assign sort_by = results.sort_by | default: results.default_sort_by
+        assign option_names = ''
+        assign option_values = ''
+        for option in results.sort_options
+          unless option.value == 'manual' and section.settings.show_feat_sort_opt == false
+            assign option_names = option_names | append: option.name
+            assign option_values = option_values | append: option.value
+            unless forloop.last
+              assign option_names = option_names | append: '|'
+              assign option_values = option_values | append: '|'
+            endunless
+          endunless
+        endfor
+        assign option_names = option_names | split: '|'
+        assign option_values = option_values | split: '|'
+        assign label = 'products.sorting.sort_by_label' | t
+      -%}
+      {% render 'custom-select',
+        id: 'products-sort-by',
+        label: label,
+        native_name: 'sort_by',
+        native_form_id: 'facets',
+        selected_value: sort_by,
+        option_names: option_names,
+        option_values: option_values
+      %}
+    </div>
+    <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
+  {%- endif -%}
+
+  {%- if settings.enable_compare and settings.compare_toggle != "none" -%}
+    <div class="products-toolbar__compare end">
+      <input type="checkbox" class="switch" id="compare-switch" {% if settings.compare_toggle == "toggle_on" %}checked="checked"{% endif %}>
+      <label for="compare-switch">{{ 'products.compare.switch_label' | t }}</label>
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.show_layout_toggle -%}
+    <div class="products-toolbar__layout flex items-center mis-auto">
+      <span class="label label--inline">{{ 'sections.collection.layout_label' | t }}</span>
+      <input type="radio" class="focus-label visually-hidden" name="products-layout" id="list-layout-opt" value="list">
+      <label for="list-layout-opt" class="tap-target">
+        <span class="visually-hidden">{{ 'sections.collection.list_layout' | t }}</span>
+        {% render 'icon-list' %}
+      </label>
+      <input type="radio" class="focus-label visually-hidden" name="products-layout" id="grid-layout-opt" value="grid" checked>
+      <label for="grid-layout-opt" class="tap-target">
+        <span class="visually-hidden">{{ 'sections.collection.grid_layout' | t }}</span>
+        {% render 'icon-grid' %}
+      </label>
+    </div>
+  {%- endif -%}
+</products-toolbar>
+
+<hr class="js-hidden">

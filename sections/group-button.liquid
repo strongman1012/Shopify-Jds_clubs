@@ -1,0 +1,159 @@
+<div class="container group-button-section">
+  <a
+    href="/pages/rewards"
+    class="group-button"
+    style="border-right: 0;"
+    data-button-index="1">{{ section.settings.button_1_label }}</a>
+  <a
+    href="/pages/saved-cart"
+    class="group-button"
+    style="margin-left: 130px; border-left: 0; border-right: 0;"
+    data-button-index="2">{{ section.settings.button_2_label }}</a>
+  <a
+    href="/pages/order-history"
+    class="group-button"
+    style="margin-left: 260px; border-left: 0; border-right: 0;"
+    data-button-index="3">{{ section.settings.button_3_label }}</a>
+  <a
+    href="/pages/addresses"
+    class="group-button"
+    style="margin-left: 390px; border-left: 0; border-right: 0;"
+    data-button-index="4">{{ section.settings.button_4_label }}</a>
+  <a
+    href="#"
+    class="group-button"
+    style="margin-left: 520px; border-left: 0;"
+    id="signout-button"
+    data-button-index="5">{{ section.settings.button_5_label }}</a>
+  <!-- Add data-button-index attributes to other buttons -->
+</div>
+<!-- signout modal -->
+<div id="signout-myModal" class="signout-modal">
+  <div class="signout-modal-content">
+    <h2 class="signout-title">Are you sure want to sign out?</h2>
+    <a href="/">
+      <button class="btn--primary signout-btn-1">Sign Out Now</button>
+    </a>
+    <a href="/collections/all">
+      <button class="btn--primary signout-btn-2">Let me back to shopping</button>
+    </a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.group-button');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+
+// Remove the 'selected' class from all buttons
+        buttons.forEach(btn => btn.classList.remove('selected'));
+
+// Add the 'selected' class to the clicked button
+        button.classList.add('selected');
+
+// Store the index of the selected button in local storage
+//        const selectedIndex = button.getAttribute('data-button-index');
+//        localStorage.setItem('selectedButtonIndex', selectedIndex);
+      });
+    });
+
+// Retrieve the selected button index from local storage and apply 'selected' class
+    let selectedButtonIndex;
+    const pathname = window.location.pathname;
+    if (pathname == '/pages/rewards') 
+      selectedButtonIndex = 1;
+     else if (pathname == '/pages/saved-cart') 
+      selectedButtonIndex = 2;
+     else if (pathname == '/pages/order-history') 
+      selectedButtonIndex = 3;
+     else if (pathname == '/pages/addresses') 
+      selectedButtonIndex = 4;
+    
+
+
+    const selectedButton = document.querySelector(`[data-button-index="${selectedButtonIndex}"]`);
+    if (selectedButton) {
+      selectedButton.classList.add('selected');
+    }
+
+    var modal = document.getElementById("signout-myModal");
+    var openButton = document.getElementById("signout-button");
+
+// When the button is clicked, show the modal
+    openButton.addEventListener("click", function() {
+      modal.style.display = "block";
+    });
+
+// When the modal overlay is clicked, hide the modal
+    window.addEventListener("click", function(event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Group Button",
+    "settings": [
+      {
+        "type": "text",
+        "label": "Button 1 Label",
+        "id": "button_1_label",
+        "default": "Button 1"
+      },
+      {
+        "type": "url",
+        "label": "Button 1 Link",
+        "id": "button_1_link"
+      },
+      {
+        "type": "text",
+        "label": "Button 2 Label",
+        "id": "button_2_label",
+        "default": "Button 2"
+      },
+      {
+        "type": "url",
+        "label": "Button 2 Link",
+        "id": "button_2_link"
+      }, {
+        "type": "text",
+        "label": "Button 3 Label",
+        "id": "button_3_label",
+        "default": "Button 3"
+      }, {
+        "type": "url",
+        "label": "Button 3 Link",
+        "id": "button_3_link"
+      }, {
+        "type": "text",
+        "label": "Button 4 Label",
+        "id": "button_4_label",
+        "default": "Button 4"
+      }, {
+        "type": "url",
+        "label": "Button 4 Link",
+        "id": "button_4_link"
+      }, {
+        "type": "text",
+        "label": "Button 5 Label",
+        "id": "button_5_label",
+        "default": "Button 5"
+      }, {
+        "type": "url",
+        "label": "Button 5 Link",
+        "id": "button_5_link"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Group Button",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}

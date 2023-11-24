@@ -1,0 +1,113 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - classes {String} - CSS classes to add to the card
+  - id {String} - HTML id to add to the card
+  - show_close {Boolean} - Shows an X in the top right corner
+  - close_classes {String} - CSS classes to add to the close icon
+  - close_a11y_text {String} - A11y text to add to the close button
+  - disable_quickbuy {Boolean} - Force disables quickbuy (even if enabled in settings)
+  - always_open_quickbuy {Boolean} - If true, when a product only has a default variant the quickbuy drawer will still
+      open and not be directly added to cart
+
+  Usage:
+    {%- render 'product-card-mini',
+        product: product,
+        classes: 'card--compare-basket',
+        id: 'my-id',
+        show_close: true,
+        close_classes: 'js-compare-basket-remove',
+        close_a11y_text: 'Remove from compare',
+        disable_quickbuy: true,
+        always_open_quickbuy: false
+  -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign product_not_for_sale = false
+  if product.template_suffix contains 'coming-soon' or product.template_suffix contains 'countdown'
+    assign product_not_for_sale = true
+  endif
+  if product_not_for_sale and product.has_only_default_variant
+    assign always_open_quickbuy = true
+  endif
+-%}
+
+<div class="card card--row card--related {{ classes }} relative flex"{% if id %} id="{{ id }}"{% endif %}>
+  <div class="card__media">
+    {% if settings.blend_product_images %}<div class="image-blend">{% endif %}
+      {%- if product.featured_media -%}
+        <div class="media relative" style="padding-top: {{ 1 | divided_by: product.featured_media.preview_image.aspect_ratio | times: 100 }}%;">
+          {% render 'image', image: product.featured_media.preview_image, src_width: 88, srcset_2x: true, class: 'img-fit' %}
+        </div>
+      {%- else -%}
+        <div class="media relative">
+          {{ 'image' | placeholder_svg_tag: 'media__placeholder dark' }}
+        </div>
+      {%- endif -%}
+    {% if settings.blend_product_images %}</div>{% endif %}
+  </div>
+
+  <div class="card__info">
+    <p class="h6 regular-text mt-2 mb-1">
+      <a href="{{ product.url }}" class="card-link text-current">
+        {{ product.title | escape }}
+      </a>
+    </p>
+
+    {%- render 'price', product: product -%}
+
+    {%- unless disable_quickbuy or settings.enable_quick_add == false -%}
+      {%- if product.has_only_default_variant and always_open_quickbuy != true -%}
+        {%- assign item_form_id = 'related-product' | append: product.id -%}
+        <product-form>
+          <div class="alert mb-8 bg-error-bg text-error-text js-form-error text-start" role="alert" hidden></div>
+          {%- form 'product', product, class: 'js-product-form', id: item_form_id, novalidate: 'novalidate' -%}
+            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" disabled>
+
+            {%- capture add_to_cart_text -%}
+              {%- if product.template_suffix contains 'preorder' -%}
+                {{- 'products.product.preorder' | t -}}
+              {%- else -%}
+                {{- 'products.product.add_to_cart' | t -}}
+              {%- endif -%}
+            {%- endcapture -%}
+
+            <button class="btn btn--secondary btn--sm" name="add" aria-haspopup="dialog" data-add-to-cart-text="{{ add_to_cart_text }}"
+                    {%- if product.selected_or_first_available_variant.available == false %}disabled{%- endif %}>
+              {{- add_to_cart_text -}}
+            </button>
+          {%- endform -%}
+        </product-form>
+      {%- else -%}
+        {%- if settings.enable_quick_add -%}
+          <button type="button"
+                  class="btn btn--secondary btn--sm js-quick-add no-js-hidden"
+                  aria-haspopup="dialog"
+                  data-product-url="{{ product.url }}">
+            {% if product.has_only_default_variant and product_not_for_sale == false %}
+              {{- 'products.product.add_to_cart' | t -}}
+            {% else %}
+              {{- 'products.product.choose_options' | t -}}
+            {% endif %}
+          </button>
+        {% else %}
+          <a class="btn btn--secondary btn--sm" href="{{ product.url }}">
+            {% if product.has_only_default_variant and product_not_for_sale == false %}
+              {{- 'products.product.add_to_cart' | t -}}
+            {% else %}
+              {{- 'products.product.choose_options' | t -}}
+            {% endif %}
+          </a>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endunless -%}
+
+    {%- if show_close -%}
+      <button type="button" class="btn btn--icon text-current absolute top-0 end {{ close_classes }}" data-product-id="{{ product.id }}">
+        <span class="visually-hidden">{{ close_a11y_text }}</span>
+        {% render 'icon-close' %}
+      </button>
+    {%- endif -%}
+  </div>
+</div>

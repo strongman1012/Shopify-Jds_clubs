@@ -1,0 +1,393 @@
+{{ 'blog.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  if section.settings.image_ratio == 'shortest'
+    assign image_ratio = 0
+    for article in blog.articles
+      if article.image.aspect_ratio > image_ratio
+        assign image_ratio = article.image.aspect_ratio
+      endif
+    endfor
+  elsif section.settings.image_ratio == 'tallest'
+    assign image_ratio = 99
+    for article in blog.articles
+      if article.image.aspect_ratio < image_ratio
+        assign image_ratio = article.image.aspect_ratio
+      endif
+    endfor
+  else
+    assign image_ratio = section.settings.image_ratio
+  endif
+-%}
+
+<div class="container custom-main-blog-board">
+  {% if section.settings.show_blog_title or section.settings.description != blank or section.settings.show_share_links %}
+    <div class="gap-x-theme flex flex-col {{ section.settings.text_align }}{% unless section.settings.description == blank and section.settings.show_share_links == false %} mb-16{% endunless %}">
+      {%- if section.settings.show_blog_title -%}
+        <h1 class="last:mb-0">{{ blog.title | escape }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.description != blank -%}
+        <div class="rte reading-width--inline mb-8 last:mb-0">
+          {{ section.settings.description }}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_share_links -%}
+        <div class="social-share flex items-center">
+          <p class="social-share__heading mb-0 font-bold">{{ 'general.social.share_heading' | t }}:</p>
+          {% render 'social-share', share_title: blog.title, share_url: blog.url %}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+  <div class="custom-blog-main-container">
+    {%- if section.settings.show_tag_filter and blog.all_tags.size > 0 -%}
+      <script src="{{ 'blog-filter.js' | asset_url }}" defer="defer"></script>
+      <div class="custom-blog-main-left">
+        {%- liquid
+          assign filter_label = 'blogs.filtering.filter_by' | t
+          assign tag_values = blog.all_tags | join: ',' | prepend: "-," | split: ','
+          assign tag_names = blog.all_tags | join: ',' | prepend: "All," | split: ','
+  
+          if current_tags
+            assign selected_Value = current_tags | join
+          endif
+        -%}
+        <!--
+        <div class="md:hidden">
+        <div id="blog-filter-dropdown">
+        {% render 'custom-select'
+        , id: "blog_tags",
+        label: filter_label,
+        default_option: filter_label,
+        hide_label: true,
+        option_values: tag_values,
+        option_names: tag_names,
+        selected_value: selected_Value %}
+        <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
+        </div>
+        <hr class="md-down:-mx-gutter w-auto">
+        </div>
+        -->
+
+        <div class="custom-blog-main-tabs">
+          <div class="custom-blog-tabs-board">
+            <button id="blog-category-tab" class="btn--primary custom-blog-category-tab">Categories</button>
+            <button id="blog-tag-tab" class="btn--primary custom-blog-tag-tab active">Tags</button>
+          </div>
+          <div class="custom-blog-category-board">categories</div>
+          <div class="custom-blog-tag-board">
+            <ul class="list-none flex flex-wrap -blog-mx-2 lg:blog-text-lg custom-blog-tag-board-1" id="blog-filter-links">
+              <li>
+                <a
+                  href="{{ blog.url }}"
+                  class="pt-2 pb-2 pl-4 pr-4 text-theme-text block{% unless current_tags %} font-bold underline{% endunless %} custom-blog-tags-tag"
+                  data-tag="-">
+                  {{- 'blogs.filtering.all' | t -}}
+                </a>
+              </li>
+              {% for tag in blog.all_tags %}
+                <li>
+                  <a
+                    href="{{ tag | link_to_tag: tag | split: 'href="' | last | split: '"' | first }}"
+                    data-tag="{{ tag | escape }}"
+                    class="pt-2 pb-2 pl-4 pr-4 text-theme-text block{% if current_tags contains tag %} font-bold underline{% endif %} custom-blog-tags-tag">
+                    {{- tag -}}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              const categoryTab = document.getElementById("blog-category-tab");
+              const tagTab = document.getElementById("blog-tag-tab");
+              const categoryView = document.querySelector(".custom-blog-category-board");
+              const tagView = document.querySelector(".custom-blog-tag-board");
+              const mainContent = document.getElementById("main-content");
+              if (window.location.pathname == '/blogs/news') 
+                mainContent.style.background = '#f4f4f4';
+              
+
+
+
+              categoryView.style.display = 'none';
+              tagView.style.display = 'block';
+
+// Add your click event listeners here
+              categoryTab.addEventListener("click", function() {
+                categoryView.style.display = 'block';
+                tagView.style.display = 'none';
+                this.classList.add("active");
+                tagTab.classList.remove("active");
+              });
+
+              tagTab.addEventListener("click", function() {
+                categoryView.style.display = 'none';
+                tagView.style.display = 'block';
+                this.classList.add("active");
+                categoryTab.classList.remove("active");
+              });
+            });
+          </script>
+        </div>
+        <div class="custom-blog-main-latest">
+          <label class="custom-blog-main-latest-title">Latest Blog Post</label>
+          {% for article in blog.articles limit: 6 %}
+            {% render 'custom-article-card-latest'
+             , article: article %}
+          {% endfor %}
+        </div>
+      </div>
+    {%- endif -%}
+    <div class="custom-blog-main-right">
+      <!--
+      {%- if section.settings.show_featured_post -%}
+      {%- for article in blog.articles -%}
+      <div class="mt-6 mb-6 lg:blog-mb-16 lg:blog-mt-16 md-down:-mx-gutter featured-card">
+      {% render 'article-card'
+      , article: article,
+      blog_url: blog.url,
+      featured: true,
+      large_image: true,
+      color_scheme: section.settings.color_scheme,
+      show_image: section.settings.show_featured_image,
+      image_ratio: image_ratio,
+      show_author: section.settings.show_author,
+      show_date: section.settings.show_date,
+      show_tags: section.settings.show_tags,
+      show_excerpt: section.settings.show_excerpt,
+      show_button: section.settings.show_featured_button,
+      button_style: section.settings.featured_button_style %}
+      </div>
+      {%- break -%}
+      {%- endfor -%}
+      {%- endif -%}
+      -->
+      {%- paginate blog.articles by section.settings.posts_per_page -%}
+        {% assign per_page = section.settings.posts_per_page %}
+        {%- for article in blog.articles -%}
+          {% assign page_index = forloop.index | modulo: per_page %}
+          {% assign col_index = forloop.index | modulo: 3 %}
+          {% if page_index == 1 or col_index == 1 %}
+            {% assign condition = 1 %}
+          {% else %}
+            {% assign condition = 2 %}
+          {% endif %}
+          <div class="{% if condition == 1 %} custom-blog-main-right-1 {% else %} custom-blog-main-right-2 {% endif %}">
+            {% render 'custom-article-card'
+             , article: article,
+             blog_url: blog.url,
+             show_image: section.settings.show_featured_image,
+             image_ratio: image_ratio,
+             show_author: section.settings.show_author,
+             show_date: section.settings.show_date,
+             show_tags: section.settings.show_tags,
+             show_excerpt: section.settings.show_excerpt,
+             show_button: section.settings.show_button,
+             button_style: section.settings.button_style,
+             condition: condition %}
+          </div>
+        {%- endfor -%}
+        {%- if paginate.pages > 1 -%}
+          <hr/>
+          <div class="mx-auto w-full">
+            {% render 'pagination', paginate: paginate %}
+          </div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Blog page",
+    "class": "cc-main-blog section section--template",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_blog_title",
+        "label": "Show the default blog title",
+        "info": "If hidden, you should provide a primary page heading (h1 tag) in another section with h1 option (rich text, image banner, slideshow, video) for SEO purposes.",
+        "default": true
+      },
+      {
+        "type": "richtext",
+        "id": "description",
+        "label": "Description"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_share_links",
+        "label": "Show share links",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "text_align",
+        "label": "Content alignment",
+        "options": [
+          {
+            "value": "text-start",
+            "label": "Left"
+          }, {
+            "value": "items-center text-center",
+            "label": "Center"
+          }, {
+            "value": "items-end text-end",
+            "label": "Right"
+          }
+        ],
+        "default": "text-start"
+      }, {
+        "type": "header",
+        "content": "Results layout"
+      }, {
+        "type": "range",
+        "id": "posts_per_page",
+        "label": "Posts per page",
+        "min": 5,
+        "max": 50,
+        "step": 1,
+        "default": 13
+      }, {
+        "type": "checkbox",
+        "id": "three_columns",
+        "label": "Limit to 3 columns",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_tag_filter",
+        "label": "Show tag filter",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Cards"
+      }, {
+        "type": "checkbox",
+        "id": "show_featured_image",
+        "label": "Show featured image",
+        "default": true
+      }, {
+        "type": "select",
+        "id": "image_ratio",
+        "label": "Image aspect ratio",
+        "options": [
+          {
+            "value": "shortest",
+            "label": "Height of shortest image"
+          },
+          {
+            "value": "tallest",
+            "label": "Height of tallest image"
+          },
+          {
+            "value": "1.77",
+            "label": "Landscape"
+          },
+          {
+            "value": "1",
+            "label": "Square"
+          }, {
+            "value": "0.75",
+            "label": "Portrait"
+          }
+        ],
+        "default": "shortest"
+      }, {
+        "type": "checkbox",
+        "id": "show_tags",
+        "label": "Show tags",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_excerpt",
+        "label": "Show excerpt",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_author",
+        "label": "Show author",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_date",
+        "label": "Show published date",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_button",
+        "label": "Show button",
+        "default": false
+      }, {
+        "type": "select",
+        "id": "button_style",
+        "label": "Button style",
+        "options": [
+          {
+            "value": "btn btn--primary",
+            "label": "Primary button"
+          }, {
+            "value": "btn btn--secondary",
+            "label": "Secondary button"
+          }
+        ],
+        "default": "btn btn--secondary"
+      }, {
+        "type": "header",
+        "content": "Featured card"
+      }, {
+        "type": "checkbox",
+        "id": "show_featured_post",
+        "label": "Feature latest post",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_featured_excerpt",
+        "label": "Show excerpt",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_featured_button",
+        "label": "Show button",
+        "default": true
+      }, {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "options": [
+          {
+            "value": "none",
+            "label": "Default"
+          }, {
+            "value": "1",
+            "label": "Scheme 1"
+          }, {
+            "value": "2",
+            "label": "Scheme 2"
+          }, {
+            "value": "3",
+            "label": "Scheme 3"
+          }
+        ],
+        "default": "1"
+      }, {
+        "type": "select",
+        "id": "featured_button_style",
+        "label": "Button style",
+        "options": [
+          {
+            "value": "btn btn--primary",
+            "label": "Primary button"
+          }, {
+            "value": "btn btn--secondary",
+            "label": "Secondary button"
+          }
+        ],
+        "default": "btn btn--secondary"
+      }
+    ]
+  }
+{% endschema %}

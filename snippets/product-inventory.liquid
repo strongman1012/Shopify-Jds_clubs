@@ -1,0 +1,38 @@
+{{ 'product-inventory.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'product-inventory.js' | asset_url }}" defer="defer"></script>
+
+<product-inventory class="product-info__block product-info__block--sm product-inventory block no-js-hidden" {{ block.shopify_attributes }}
+     data-show-count="{{ settings.inventory_show_count }}"
+     data-show-notice="{{ settings.inventory_show_notice }}"
+     data-threshold-low="{{ settings.inventory_threshold_low }}"
+     data-threshold-very-low="{{ settings.inventory_threshold_very_low }}"
+     data-text-very-low="{{ block.settings.text_very_low | escape }}"
+     data-text-low="{{ block.settings.text_low | escape }}"
+     data-text-normal="{{ block.settings.text_normal | escape }}"
+     data-text-no-stock="{{ block.settings.text_no_stock | escape }}"
+     data-inventory-level=""
+     data-variant-available="{{ current_variant.available }}"
+     data-inventory-quantity="{{ current_variant.inventory_quantity | at_least: 0 }}"
+     data-scale="35">
+  {% if product and product != empty %}
+    <div class="product-inventory__text">
+      <span class="product-inventory__status js-inventory-notice"></span>
+      {% if block.settings.show_urgency_message %}
+        <span class="product-inventory__urgency js-inventory-urgency"></span>
+      {% endif %}
+    </div>
+    {% if block.settings.show_indicator_bar %}
+      <div class="product-inventory__indicator js-inventory-indicator" hidden>
+        <span style="width: 0%;"></span>
+      </div>
+    {% endif %}
+    <script type="application/json">
+      [
+        {%- for variant in product.variants -%}
+          {"id":{{- variant.id -}},"inventory_quantity":{{- variant.inventory_quantity | at_least: 0 -}},"available":{{- variant.available -}}}
+          {%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      ]
+    </script>
+  {% endif %}
+</product-inventory>

@@ -1,0 +1,820 @@
+{%- if section.blocks.size > 0 -%}
+  {{ 'promos.css' | asset_url | stylesheet_tag }}
+
+  {%- for block in section.blocks -%}
+    {%- if block.settings.video_shopify != blank -%}
+      {{ 'video.css' | asset_url | stylesheet_tag }}
+      <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- liquid
+  if section.settings.display_type == 'selected'
+    assign collections = section.settings.selected_collections
+  endif
+
+  if settings.coll_card_image_ratio == 'shortest'
+    assign image_ratio = 0
+    for collection in collections
+      if collection.featured_image.aspect_ratio > image_ratio and collection != blank
+        assign image_ratio = collection.featured_image.aspect_ratio
+      endif
+    endfor
+  elsif settings.coll_card_image_ratio == 'tallest'
+    assign image_ratio = 99
+    for collection in collections
+      if collection.featured_image.aspect_ratio < image_ratio and collection != blank
+        assign image_ratio = collection.featured_image.aspect_ratio
+      endif
+    endfor
+  elsif settings.coll_card_image_ratio == 'circle'
+    assign image_ratio = 1
+  else
+    assign image_ratio = settings.coll_card_image_ratio
+  endif
+
+  if section.settings.card_size == 'small'
+    assign grid_classes = 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+  elsif section.settings.card_size == 'medium'
+    assign grid_classes = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+  else
+    assign grid_classes = 'sm:grid-cols-3 xl:grid-cols-4'
+  endif
+-%}
+
+<div class="container">
+  {%- if section.settings.title != blank or section.settings.description != blank -%}
+    <div class="gap-x-theme flex flex-col {{ section.settings.text_align }}">
+      {%- if section.settings.title != blank -%}
+        <h1 class="last:mb-0">{{ section.settings.title | escape }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.description != blank -%}
+        <div class="rte reading-width--inline">
+          {{ section.settings.description }}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- capture top_promo -%}
+    {%- comment -%}Process wide promos aligned top{%- endcomment -%}
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign show_promo = false
+        if block.settings.position == "top"
+          assign show_promo = true
+        endif
+      -%}
+
+      {%- if show_promo -%}
+        <li class="col-span-full" style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});">
+          {%-
+                  render 'promo-image',
+                  link_url: block.settings.link_url,
+                  content: block.settings.content,
+                  text_alignment: block.settings.text_alignment,
+                  image: block.settings.image,
+                  video_shopify: block.settings.video_shopify,
+                  text_width: block.settings.text_width,
+                  text_type_scale: block.settings.text_type_scale,
+                  size: section.settings.card_size
+          -%}
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- capture end_promo -%}
+    {%- comment -%}Process wide promos aligned bottom{%- endcomment -%}
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign show_promo = false
+        if block.settings.position == "bottom"
+          assign show_promo = true
+        endif
+      -%}
+
+      {%- if show_promo -%}
+        <li class="col-span-full" style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});">
+          {%-
+                  render 'promo-image',
+                  link_url: block.settings.link_url,
+                  content: block.settings.content,
+                  text_alignment: block.settings.text_alignment,
+                  image: block.settings.image,
+                  video_shopify: block.settings.video_shopify,
+                  text_width: block.settings.text_width,
+                  text_type_scale: block.settings.text_type_scale,
+                  size: section.settings.card_size
+          -%}
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- if section.settings.display_type == 'all' -%}
+    {%- paginate collections by section.settings.collections_per_page -%}
+      <ul class="grid {{ grid_classes }} gap-x-theme gap-y-12 md:gap-y-16{% if section.settings.title != blank or section.settings.description != blank %} mt-10 md:mt-16{% endif %}" role="list"
+        {% if section.blocks.size > 0 %}style="--promo-border-color: {{ settings.coll_border_color }}"{% endif %}>
+
+        {{ top_promo }}
+
+        {%- assign rendered_collection_ids = "" -%}
+        {%- for collection in collections -%}
+          {%- assign collection_index = forloop.index -%}
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign is_last_position = false
+              if collection_index == paginate.page_size and paginate.current_page == 1 and block.settings.position > collection_index
+                assign is_last_position = true
+              endif
+            -%}
+
+            {%- if is_last_position -%}
+              {%- unless rendered_collection_ids contains collection.id -%}
+                {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
+                <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+              {%- endunless -%}
+            {%- endif -%}
+
+            {%- unless block.settings.position == "top" or block.settings.position == "bottom" -%}
+              {%- if collection_index == block.settings.position or is_last_position -%}
+                <li {% if block.type == "image-promotion" %}style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});"{% endif %}>
+                  {% if block.type == "image-promotion" or block.type == "wide-promotion" %}
+                    {%-
+                            render 'promo-image',
+                            link_url: block.settings.link_url,
+                            content: block.settings.content,
+                            text_alignment: block.settings.text_alignment,
+                            image: block.settings.image,
+                            video_shopify: block.settings.video_shopify,
+                            text_width: block.settings.text_width,
+                            text_type_scale: block.settings.text_type_scale,
+                            size: section.settings.card_size
+                    -%}
+                  {%- elsif block.type == "card-promotion" -%}
+                    {%-
+                            render 'promo-card',
+                            link_url: block.settings.link_url,
+                            title: block.settings.title,
+                            content: block.settings.content,
+                            image: block.settings.image,
+                            image_ratio: block.settings.image_ratio,
+                            button_label: block.settings.button_label,
+                            button_style: block.settings.button_style,
+                            color_scheme: block.settings.color_scheme,
+                            button_bottom_align: block.settings.button_bottom_align,
+                            size: section.settings.card_size
+                    -%}
+                  {%- endif -%}
+                </li>
+              {%- endif -%}
+            {%- endunless -%}
+          {%- endfor -%}
+
+          {%- unless is_last_position and rendered_collection_ids contains collection.id -%}
+            {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
+            <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+          {%- endunless -%}
+        {%- endfor -%}
+
+        {{ end_promo }}
+      </ul>
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endpaginate -%}
+  {%- else -%}
+    <ul class="grid {{ grid_classes }} gap-x-theme gap-y-12 md:gap-y-16{% if section.settings.title != blank or section.settings.description != blank %} mt-10 md:mt-16{% endif %}" role="list"
+      {% if section.blocks.size > 0 %}style="--promo-border-color: {{ settings.coll_border_color }}"{% endif %}>
+
+      {{ top_promo }}
+
+      {%- assign rendered_collection_ids = "" -%}
+      {%- for collection in collections -%}
+        {%- assign collection_index = forloop.index -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign is_last_position = false
+            if collection_index == paginate.page_size and paginate.current_page == 1 and block.settings.position > collection_index
+              assign is_last_position = true
+            endif
+          -%}
+
+          {%- if is_last_position -%}
+            {%- unless rendered_collection_ids contains collection.id -%}
+              {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
+              <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+            {%- endunless -%}
+          {%- endif -%}
+
+          {%- unless block.settings.position == "top" or block.settings.position == "bottom" -%}
+            {%- if collection_index == block.settings.position or is_last_position -%}
+              <li {% if block.type == "image-promotion" %}style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});"{% endif %}>
+                {% if block.type == "image-promotion" or block.type == "wide-promotion" %}
+                  {%-
+                          render 'promo-image',
+                          link_url: block.settings.link_url,
+                          content: block.settings.content,
+                          text_alignment: block.settings.text_alignment,
+                          image: block.settings.image,
+                          video_shopify: block.settings.video_shopify,
+                          text_width: block.settings.text_width,
+                          text_type_scale: block.settings.text_type_scale,
+                          size: section.settings.card_size
+                  -%}
+                {%- elsif block.type == "card-promotion" -%}
+                  {%-
+                          render 'promo-card',
+                          link_url: block.settings.link_url,
+                          title: block.settings.title,
+                          content: block.settings.content,
+                          image: block.settings.image,
+                          image_ratio: block.settings.image_ratio,
+                          button_label: block.settings.button_label,
+                          button_style: block.settings.button_style,
+                          color_scheme: block.settings.color_scheme,
+                          button_bottom_align: block.settings.button_bottom_align,
+                          size: section.settings.card_size
+                  -%}
+                {%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endunless -%}
+        {%- endfor -%}
+
+        {%- unless is_last_position and rendered_collection_ids contains collection.id -%}
+          {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
+          <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+        {%- endunless -%}
+      {%- endfor -%}
+
+      {{ end_promo }}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Collection list",
+  "class": "cc-list-collections section section--template",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Collections"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "items-center text-center",
+          "label": "Center"
+        },
+        {
+          "value": "items-end text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "paragraph",
+      "content": "All of your collections are listed by default. To show a custom list, choose 'Selected' and add collections."
+    },
+    {
+      "type": "radio",
+      "id": "display_type",
+      "label": "Collections to show",
+      "options": [
+        {
+          "value": "all",
+          "label": "All"
+        },
+        {
+          "value": "selected",
+          "label": "Selected"
+        }
+      ],
+      "default": "all"
+    },
+    {
+      "type": "collection_list",
+      "id": "selected_collections",
+      "label": "Custom collection list"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "min": 8,
+      "max": 50,
+      "step": 1,
+      "label": "Collections per page",
+      "info": "Only applies when \"Collections to show\" is \"All\"",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "card_size",
+      "label": "Card size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_product_image",
+      "label": "Use the first product image as the collection image",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "wide-promotion",
+      "name": "Wide promotion",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "Position in results",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ],
+          "default": "top"
+        },
+        {
+          "type": "range",
+          "id": "min_height",
+          "min": 50,
+          "max": 500,
+          "step": 10,
+          "unit": "px",
+          "label": "Minimum height",
+          "info": "Useful for controlling the height of the promo on mobile.",
+          "default": 150
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video_shopify",
+          "label": "Video upload",
+          "info": "Hosted by Shopify. Video will autoplay and be muted. [Read more](https://cleancanvas.co.uk/support/enterprise/using-videos)"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "default": "<p>Promotion text</p>",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "select",
+          "id": "text_type_scale",
+          "label": "Text size",
+          "info": "This is calculated from the Heading font size.",
+          "options": [
+            {
+              "value": "--h5-font-size",
+              "label": "Small"
+            },
+            {
+              "value": "--h4-font-size",
+              "label": "Medium"
+            },
+            {
+              "value": "--h3-font-size",
+              "label": "Large"
+            }
+          ],
+          "default": "--h4-font-size"
+        },
+        {
+          "type": "range",
+          "id": "text_width",
+          "min": 100,
+          "max": 800,
+          "step": 20,
+          "unit": "px",
+          "label": "Maximum text width",
+          "default": 400
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start text-center",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start text-right",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center text-right",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end text-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end text-right",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "tint_color",
+          "label": "Tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Tint opacity",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "image-promotion",
+      "name": "Media promotion",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "range",
+          "id": "position",
+          "label": "Position in results",
+          "info": "Inserts the promotion before the collection card in this position.",
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "min_height",
+          "min": 50,
+          "max": 500,
+          "step": 10,
+          "unit": "px",
+          "label": "Minimum height",
+          "info": "Useful for controlling the height of the promo on mobile.",
+          "default": 150
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video_shopify",
+          "label": "Video upload",
+          "info": "Video will autoplay and be muted. [Read more](https://cleancanvas.co.uk/support/enterprise/using-videos)"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "default": "<p>Promotion text</p>",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "select",
+          "id": "text_type_scale",
+          "label": "Text size",
+          "info": "This is calculated from the Heading font size.",
+          "options": [
+            {
+              "value": "--h5-font-size",
+              "label": "Small"
+            },
+            {
+              "value": "--h4-font-size",
+              "label": "Medium"
+            },
+            {
+              "value": "--h3-font-size",
+              "label": "Large"
+            }
+          ],
+          "default": "--h4-font-size"
+        },
+        {
+          "type": "range",
+          "id": "text_width",
+          "min": 100,
+          "max": 800,
+          "step": 20,
+          "unit": "px",
+          "label": "Maximum text width",
+          "default": 400
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Text alignment",
+          "default": "justify-center items-center text-center",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start text-center",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start text-right",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center text-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center text-right",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end text-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end text-right",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "tint_color",
+          "label": "Tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Tint opacity",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "card-promotion",
+      "name": "Card promotion",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "range",
+          "id": "position",
+          "label": "Position in results",
+          "info": "Inserts the promotion before the collection card in this position.",
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "default": 1
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "select",
+          "id": "color_scheme",
+          "label": "Color scheme",
+          "options": [
+            {
+              "value": "1",
+              "label": "Scheme 1"
+            },
+            {
+              "value": "2",
+              "label": "Scheme 2"
+            },
+            {
+              "value": "3",
+              "label": "Scheme 3"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "image_ratio",
+          "label": "Image aspect ratio",
+          "options": [
+            {
+              "value": "natural",
+              "label": "Natural"
+            },
+            {
+              "value": "fill",
+              "label": "Grow"
+            },
+            {
+              "value": "1.77",
+              "label": "Landscape"
+            },
+            {
+              "value": "1",
+              "label": "Square"
+            },
+            {
+              "value": "0.75",
+              "label": "Portrait"
+            }
+          ],
+          "default": "1"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Promotion title"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "default": "<p>Promotion text</p>",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "URL"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Button",
+          "info": "The button will link to the URL specified above."
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--secondary"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_bottom_align",
+          "label": "Bottom align button",
+          "default": true
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,363 @@
+<link rel="stylesheet" href="{{ 'slideshow.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'testimonials.css' | asset_url }}">
+
+{%- if section.blocks.size > 1 -%}
+  <script src="{{ 'slideshow.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme
+  assign bg_color = false
+
+  if color_scheme == '1'
+    assign bg_color = settings.color_scheme_1_bg
+  elsif color_scheme == '2'
+    assign bg_color = settings.color_scheme_2_bg
+  elsif color_scheme == '3'
+    assign bg_color = settings.color_scheme_3_bg
+  endif
+
+  if bg_color == settings.bg_color or bg_color == 'rgba(0,0,0,0)'
+    assign bg_color = false
+  endif
+-%}
+
+{%- if section.settings.autoplay -%}
+  {%- style -%}
+    #{{ section.id }} {
+      --duration: {{ section.settings.autoplay_speed }}s;
+      --play-state: paused;
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- unless section.settings.full_width -%}
+  <div class="container">
+{%- endunless -%}
+
+<div class="section{% unless bg_color == false %} section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% endunless %}{% unless color_scheme == 'default' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %} relative" id="{{ section.id }}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <div class="section__header">
+        <h2 class="h4 text-center">{{ section.settings.heading | escape }}</h2>
+      </div>
+    {%- endif -%}
+
+    <slide-show class="testimonials block reading-width overflow-hidden" role="region" aria-roledescription="{{ 'sections.slideshow.carousel' | t }}" aria-label="{{ 'sections.testimonials.title' | t }}" data-autoplay="{{ section.settings.autoplay }}" data-speed="{{ section.settings.autoplay_speed }}" data-transition="{{ section.settings.transition }}">
+      <div class="slideshow flex relative" id="slideshow-{{ section.id }}" aria-live="polite" aria-atomic="true">
+        {%- for block in section.blocks -%}
+          <div class="slideshow__slide{% if forloop.first %} is-active{% endif %}{% if forloop.length == 1 %} testimonials__slide--no-padding{% endif %} w-full"
+               role="group" aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
+               aria-label="{{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}"
+               {%- unless forloop.first %}tabindex="-1"{% endunless %}
+               {%- if request.design_mode %}data-index="{{ forloop.index0 }}"{% endif %}
+               {{ block.shopify_attributes }}>
+            <figure class="testimonial m-0 has-motion">
+              {%- if block.settings.testimonial != blank -%}
+                <blockquote class="testimonial__quote text-h3 rte{% if section.settings.show_quotes %} testimonial__quote--with-mark{% endif %} text-center m-0">
+                  {{ block.settings.testimonial }}
+                </blockquote>
+
+                {%- if block.settings.show_star_rating -%}
+                  <div class="testimonial-stars text-center mt-6 md:mt-8">
+                    <div class="rating inline-block align-middle" role="img" aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: block.settings.star_rating, rating_max: 5 }}">
+                      <span class="rating__stars" aria-hidden="true" style="--rating: {{ block.settings.star_rating }}; --rating-max: 5;">★★★★★</span>
+                    </div>
+                  </div>
+                {%- endif -%}
+
+                {%- if block.settings.author != blank or block.settings.author_image != blank -%}
+                  <div class="testimonial__author flex items-center justify-center mt-12 md:mt-14">
+                    {%- if block.settings.author_image != blank -%}
+                      <div class="testimonial__author-image overflow-hidden shrink-0">
+                        <div class="media relative" style="padding-top: 100%;">
+                          {% render 'image',
+                            image: block.settings.author_image,
+                            src_width: 48,
+                            srcset_2x: true,
+                            lazy_load: false,
+                            class: 'img-fit'
+                          %}
+                        </div>
+                      </div>
+                    {%- endif -%}
+
+                    <div class="testimonial__author-text{% if block.settings.author_image == blank %} text-center{% endif %}">
+                      <p class="font-bold mb-0">{{ block.settings.author | escape }}</p>
+                      <p class="mb-0">{{ block.settings.author_info | escape }}</p>
+                    </div>
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+            </figure>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if section.blocks.size > 1 -%}
+        <div class="slideshow-ctrl container absolute flex justify-center w-full pointer-events-none no-js-hidden">
+          {%- if section.settings.nav_style == 'slideshow_nav_dots' or section.settings.nav_style == 'slideshow_nav_lines' -%}
+            <div class="slideshow-pagination flex items-center">
+              {%- for block in section.blocks -%}
+                <button class="page-btn" data-index="{{ forloop.index0 }}" aria-controls="slideshow-{{ section.id }}"{% if forloop.first %} aria-current="true"{% endif %}>
+                  <span class="visually-hidden">{{ 'sections.slideshow.load_slide' | t }} {{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}</span>
+                  {%- if section.settings.nav_style == 'slideshow_nav_lines' -%}
+                    <span class="page-btn__line block relative overflow-hidden pointer-events-none"></span>
+                  {%- else -%}
+                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" class="page-btn__circle block pointer-events-none">
+                      <circle class="page-btn__fg-circle" cx="15" cy="15" r="3.5" />
+                      <circle class="page-btn__bg-circle" cx="15" cy="15" r="6" />
+                    </svg>
+                  {%- endif -%}
+                </button>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.nav_style == 'arrows' or section.settings.autoplay -%}
+            <div class="slideshow-nav flex items-center">
+              {%- if section.settings.nav_style == 'arrows' -%}
+                <button type="button" class="slideshow-nav__btn btn hidden md:block has-ltr-icon" name="prev" aria-controls="slideshow-{{ section.id }}">
+                  <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+                  {% render 'icon-chevron-left' %}
+                </button>
+
+                <div class="slideshow-nav__counter">
+                  <span class="slideshow-nav__counter-current">1</span>
+                  <span aria-hidden="true"> / </span>
+                  <span class="visually-hidden">{{ 'general.slider.of' | t }}</span>
+                  <span class="slideshow-nav__counter-total">{{ section.blocks.size }}</span>
+                </div>
+              {%- endif -%}
+
+              {%- if section.settings.autoplay -%}
+                <div class="slideshow-nav__autoplay flex items-center {% unless section.settings.slider_pause %}hidden{% endunless %}">
+                  <button type="button" class="slideshow-nav__btn autoplay-btn btn">
+                    <span class="pause-icon block pointer-events-none">
+                      <span class="visually-hidden">{{ 'sections.slideshow.pause' | t }}</span>
+                      {% render 'icon-pause' %}
+                    </span>
+                    <span class="play-icon block pointer-events-none">
+                      <span class="visually-hidden">{{ 'sections.slideshow.play' | t }}</span>
+                      {% render 'icon-video' %}
+                    </span>
+                  </button>
+                </div>
+              {%- endif -%}
+
+              {%- if section.settings.nav_style == 'arrows' -%}
+                <button type="button" class="slideshow-nav__btn btn hidden md:block has-ltr-icon" name="next" aria-controls="slideshow-{{ section.id }}">
+                  <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+                  {% render 'icon-chevron-right' %}
+                </button>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </slide-show>
+  </div>
+</div>
+
+{%- unless section.settings.full_width -%}
+  </div>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "tag": "section",
+  "class": "cc-testimonials",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quotes",
+      "label": "Show quote marks above each testimonial",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Slideshow appearance"
+    },
+    {
+      "type": "select",
+      "id": "nav_style",
+      "label": "Pagination style",
+      "options": [
+        {
+          "value": "arrows",
+          "label": "Arrows and numbers"
+        },
+        {
+          "value": "slideshow_nav_dots",
+          "label": "Dots"
+        },
+        {
+          "value": "slideshow_nav_lines",
+          "label": "Lines"
+        }
+      ],
+      "default": "slideshow_nav_lines"
+    },
+    {
+      "type": "select",
+      "id": "transition",
+      "label": "Transition",
+      "options": [
+        {
+          "value": "slide-fade",
+          "label": "Slide and fade"
+        },
+        {
+          "value": "fade",
+          "label": "Fade"
+        }
+      ],
+      "default": "slide-fade"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate testimonials",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "slider_pause",
+      "label": "Show pause button",
+      "info": "Only applies when auto-rotate is turned on.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change testimonials every",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "testimonial",
+          "label": "Testimonial",
+          "default": "<p>Add customer reviews and testimonials to showcase your store's happy customers.</p>",
+          "info": "For best results, keep the word count similar in each quote."
+        },
+        {
+          "type": "header",
+          "content": "Author"
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Name",
+          "default": "Author's name"
+        },
+        {
+          "type": "text",
+          "id": "author_info",
+          "label": "Location or other information",
+          "default": "Author information"
+        },
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Image",
+          "info": "Logo or profile photo."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_star_rating",
+          "label": "Show star rating",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "star_rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Star rating",
+          "default": 5
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

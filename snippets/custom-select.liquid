@@ -1,0 +1,115 @@
+{% comment %}
+  Parameters:
+  - id {String} - Unique ID.
+  - option_values {Array} - Option values.
+  - option_names {Array} - Option names. If not supplied, values will be used (optional).
+  - selected_value {String} - Value of the selected option (optional).
+  - default_option {String} - Name for the default option (optional, default is "Please select").
+  - label {String} - Label text. If not supplied, a label must be rendered separately with
+      an id that matches the 'id' parameter (optional).
+  - label_inside {Boolean} - Show label inside the select element (optional, default is false).
+  - hide_label {Boolean} - Visually hide the label (optional, default is false).
+  - swatches {Boolean} - Select element is a colour selector with swatches enabled (optional, default is false).
+  - country_selector {boolean} - Select element is a country selector (optional, default is false).
+  - include_native {Boolean} - Include a (hidden) native select element (optional, default is false).
+  - native_name {String} - Unique 'name' attribute for the native select element (optional).
+  - native_form_id {String} - Associated form for the native select element, if outside the form (optional).
+
+  Usage:
+  {%- assign values = 'Blue,Green,Red' | split: ',' -%}
+  {% render 'custom-select',
+    id: 'colour-selector',
+    option_values: values,
+    selected_value: 'Red',
+    label: 'Colour',
+    swatches: true
+  %}
+{% endcomment %}
+
+{%- liquid
+  assign label_id = id | append: '-label'
+
+  if option_names == blank
+    assign option_names = option_values
+  endif
+
+  if selected_value != blank
+    for value in option_values
+      if value == selected_value
+        assign selected_id = id | append: '-opt-' | append: forloop.index0
+        assign selected_name = option_names[forloop.index0]
+      endif
+    endfor
+  else
+    assign selected_id = id | append: '-opt-default'
+    if default_option
+      assign selected_name = default_option
+    else
+      assign selected_name = 'general.labels.please_select' | t
+    endif
+  endif
+-%}
+
+{%- if country_selector -%}
+  <country-selector>
+{%- else -%}
+  <custom-select>
+{%- endif -%}
+  {%- if label -%}
+    {%- capture label_html -%}
+      <label class="label{% if hide_label %} visually-hidden{% endif %} no-js-hidden" id="{{ label_id }}">{{ label }}</label>
+    {%- endcapture -%}
+    {%- unless label_inside -%}{{ label_html }}{%- endunless -%}
+  {%- endif -%}
+  <div class="custom-select{% if label_inside %} custom-select--label-inside{% endif %} relative w-full no-js-hidden" id="{{ id }}">
+    {%- if label and label_inside -%}{{ label_html }}{%- endif -%}
+    <button class="custom-select__btn input items-center" type="button"
+            aria-expanded="false" aria-haspopup="listbox" aria-labelledby="{{ label_id }}"
+            {% if swatches and selected_value %} data-swatch="{{ selected_value | escape | downcase }}"{% endif %}>
+      <span class="text-start">{{- selected_name -}}</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" class="icon" role="presentation" focusable="false" aria-hidden="true">
+        <path d="M20 8.5 12.5 16 5 8.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <ul class="custom-select__listbox absolute invisible" role="listbox" tabindex="-1"
+        aria-hidden="true" hidden{% if selected_value %} aria-activedescendant="{{ selected_id }}"{% endif %}>
+      {%- unless selected_value -%}
+        <li class="custom-select__option js-option" id="{{ id }}-opt-default" role="option" data-value="">
+          <span class="pointer-events-none">{{- default_option -}}</span>
+        </li>
+      {%- endunless -%}
+      {%- for value in option_values -%}
+        <li class="custom-select__option flex items-center js-option" id="{{ id }}-opt-{{ forloop.index0 }}" role="option"
+            data-value="{{ value | escape }}"
+            {% if swatches %} data-swatch="{{ value | escape | downcase }}"{% endif %}
+            {% if value == selected_value %} aria-selected="true"{% endif %}>
+          <span class="pointer-events-none">{{- option_names[forloop.index0] -}}</span>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- if country_selector -%}
+  </country-selector>
+{%- else -%}
+  </custom-select>
+{%- endif -%}
+
+{%- if include_native -%}
+  <noscript>
+    {%- if label -%}
+      <label for="{{ id }}-native" class="label{% if hide_label %} visually-hidden{% endif %}">{{ label }}</label>
+    {%- endif -%}
+    <div class="select inline-block relative">
+      <select class="custom-select__native" id="{{ id }}-native"{% if native_name %} name="{{ native_name }}"{% endif %}{% if native_form_id %} form="{{ native_form_id }}"{% endif %}>
+        {%- unless selected_value -%}
+          <option value="">{{ default_option }}</option>
+        {%- endunless -%}
+        {%- for value in option_values -%}
+          <option value="{{ value | escape }}"{% if value == selected_value %} selected{% endif %}>
+            {{- option_names[forloop.index0] -}}
+          </option>
+        {%- endfor -%}
+      </select>
+    </div>
+  </noscript>
+{%- endif -%}

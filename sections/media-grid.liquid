@@ -1,0 +1,523 @@
+{%- comment -%}
+  Build: lg:col-span-1 lg:col-span-2 lg:col-span-3 lg:col-span-4 row-span-2 row-span-3
+{%- endcomment -%}
+<link rel="stylesheet" href="{{ 'gallery.css' | asset_url }}">
+
+{%- for block in section.blocks -%}
+  {%- if block.settings.video_shopify != blank -%}
+    <link rel="stylesheet" href="{{ 'video.css' | asset_url }}">
+    <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- liquid
+  # constants
+  assign breakpoint_md = 769
+
+  if section.settings.gallery_cols_min == '1'
+    assign grid_classes = 'sm:grid-cols-2'
+  else
+    assign grid_classes = 'grid-cols-2'
+  endif
+
+  if section.settings.gallery_cols_max == 4
+    assign grid_classes = grid_classes | append: ' lg:grid-cols-4'
+  elsif section.settings.gallery_cols_max == 3
+    assign grid_classes = grid_classes | append: ' lg:grid-cols-3'
+  endif
+
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+{%- style -%}
+  {% for block in section.blocks %}
+    {%- if block.settings.tint_opacity > 0 -%}
+      .block-{{ block.id }} .media::after {
+        background-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});
+      }
+    {%- endif -%}
+  {% endfor %}
+
+  #{{ section.id }} .gallery-block { min-height: {{ section.settings.fixed_height_mobile }}px; }
+  #{{ section.id }} .gallery-block.row-span-2, #{{ section.id }} .gallery-block.row-span-3 { min-height: {{ section.settings.fixed_height_mobile | times: 1.75 }}px; }
+
+  @media (min-width: {{ breakpoint_md }}px) {
+    #{{ section.id }} .gallery-block { min-height: calc({{ section.settings.fixed_height_desktop }}px + 8vw); }
+    #{{ section.id }} .gallery-block.row-span-2 { min-height: calc(calc({{ section.settings.fixed_height_desktop }}px + 8vw) * 2); }
+    #{{ section.id }} .gallery-block.row-span-3 { min-height: calc(calc({{ section.settings.fixed_height_desktop }}px + 8vw) * 3); }
+  }
+{%- endstyle -%}
+
+<div class="section">
+  {%- if section.settings.title != blank or section.settings.button_label != blank -%}
+    <div class="container">
+      <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+        {%- if section.settings.title != blank -%}
+          <h2 class="h4 section__heading mb-0 flex-auto {{ section.settings.heading_align }}">
+            {{- section.settings.title | escape -}}
+          </h2>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank -%}
+          <a href="{{ section.settings.button_link }}" class="link">{{ section.settings.button_label | escape }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="container" id="{{ section.id }}">
+    <div class="gallery grid {{ grid_classes }}">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign img = block.settings.image
+          assign overlay_position = block.settings.overlay_position | split: ' '
+          assign is_link = true
+          if block.settings.title contains "<a" or block.settings.button_link != blank or block.settings.link_url == blank
+            assign is_link = false
+          endif
+        -%}
+        {% if is_link %}<a href="{{ block.settings.link_url }}" {% else %}<div {% endif %}class="block-{{ block.id }} block relative flex flex-col gallery-block h-full{% if section.settings.gallery_cols_min == '2' and block.settings.columns >= 2 %} md-down:col-span-2{% endif %} row-span-{{ block.settings.rows }} lg:col-span-{{ block.settings.columns }} {% if is_link %} hover:grow-media{% endif %}" {%- unless forloop.first %}tabindex="-1"{% endunless %} {{ block.shopify_attributes }}>
+
+            <div class="gallery-block__image{% if block.settings.video_shopify != blank %} video-section{% endif %} overflow-hidden flex relative w-full h-full {{ overlay_position | first }} {{ overlay_position | last }}{% if is_link %} card__media{% endif %}">
+              <div class="media media--has-overlay flex absolute top-0 left-0 w-full h-full has-motion">
+                {%- if img != blank -%}
+                  {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: section.settings.gallery_cols_min, sm: block.settings.columns %}{% endcapture -%}
+                  {% render 'image',
+                    image: img,
+                    widths: '480, 800, 980',
+                    src_width: 800,
+                    src_placeholder: true,
+                    sizes: sizes,
+                    quality: 1,
+                    class: 'img-fit'
+                  %}
+                {%- else -%}
+                  {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                {%- endif -%}
+              </div>
+
+              {%- if block.settings.video_shopify != blank -%}
+                <deferred-media class="video-section__media media media--has-overlay overflow-hidden absolute top-0 left-0 w-full h-full">
+                  <template>
+                    <video-component class="has-iframe absolute top-0 left-0 w-full h-full no-js-hidden"
+                                    data-autoplay="true"
+                                    data-background="true">
+                      {{ block.settings.video_shopify | video_tag: class: 'img-fit pointer-events-none', playsinline: true, autoplay: true, muted: true, loop: true, controls: false, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+                    </video-component>
+                  </template>
+                </deferred-media>
+              {%- endif -%}
+
+              {%- if block.settings.title != blank or block.settings.subheading != blank or block.settings.button_label != blank -%}
+                <div class="gallery-block__image-text{% if color_scheme == "white" %} gallery-block__image-text--transparent{% endif %} color-scheme color-scheme--{{ color_scheme }} text-overlay text-overlay--grow {{ block.settings.text_alignment }} relative"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+                  {%- if block.settings.subheading != blank -%}
+                    <p class="text-overlay__block subheading text-current">
+                      {{- block.settings.subheading | escape -}}
+                    </p>
+                  {%- endif -%}
+
+                  {%- if block.settings.title != blank -%}
+                    <h3 class="text-current mb-0 rte {{ block.settings.heading_size }}">
+                      {{- block.settings.title | newline_to_br -}}
+                    </h3>
+                  {%- endif -%}
+
+                  {%- if block.settings.button_label != blank -%}
+                    <div class="text-overlay__block text-overlay__buttons inline-flex flex-wrap mt-4{% if section.settings.text_alignment == 'text-start' %} justify-start{% elsif section.settings.text_alignment == 'text-end' %} justify-end{% else %} justify-center{% endif %}">
+                      <{% if block.settings.button_link == blank %}button{% else %}a{% endif %} class="{{ block.settings.button_style }}" {% if block.settings.button_link == blank and is_link == false %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_link }}"{% endif %}>
+                        {{- block.settings.button_label | escape -}}
+                      </{% if block.settings.button_link == blank %}button{% else %}a{% endif %}>
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+
+          {% if is_link %}</a>{% else %}</div>{% endif %}
+
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Media grid",
+  "tag": "section",
+  "class": "cc-gallery",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Media grid"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "View more label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "View more link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "gallery_cols_max",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Maximum columns on large screens",
+      "default": 4
+    },
+    {
+      "type": "radio",
+      "id": "gallery_cols_min",
+      "label": "Minimum columns on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Minimum row height on large screens",
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Minimum row height on mobile",
+      "default": 300
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "white"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media",
+      "name": "Media",
+      "limit": 16,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video_shopify",
+          "label": "Video upload (optional)",
+          "info": "Hosted by Shopify. Video will autoplay and be muted. [Read more](https://cleancanvas.co.uk/support/enterprise/using-videos)"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Media link",
+          "info": "Will not be applied if a button link is added."
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "paragraph",
+          "content": "Check out our user guides for more information on creating grid layouts. [Read more](https://cleancanvas.co.uk/support/enterprise/sections/media-grid)"
+        },
+        {
+          "type": "range",
+          "id": "columns",
+          "min": 1,
+          "max": 4,
+          "step": 1,
+          "label": "Number of columns wide",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "rows",
+          "min": 1,
+          "max": 3,
+          "step": 1,
+          "label": "Number of rows tall",
+          "default": 1
+        },
+        {
+          "type": "header",
+          "content": "Text overlay - Content"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "richtext",
+          "id": "title",
+          "label": "Heading",
+          "default": "<p>Media heading</p>"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra small"
+            },
+            {
+              "value": "h5",
+              "label": "Small"
+            },
+            {
+              "value": "h4",
+              "label": "Medium"
+            },
+            {
+              "value": "h3",
+              "label": "Large"
+            }
+          ],
+          "default": "h4"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "header",
+          "content": "Text overlay - Style"
+        },
+        {
+          "type": "select",
+          "id": "overlay_position",
+          "label": "Overlay position",
+          "options": [
+            {
+              "value": "justify-start items-start",
+              "label": "Top left"
+            },
+            {
+              "value": "justify-center items-start",
+              "label": "Top center"
+            },
+            {
+              "value": "justify-end items-start",
+              "label": "Top right"
+            },
+            {
+              "value": "justify-start items-center",
+              "label": "Middle left"
+            },
+            {
+              "value": "justify-center items-center",
+              "label": "Middle center"
+            },
+            {
+              "value": "justify-end items-center",
+              "label": "Middle right"
+            },
+            {
+              "value": "justify-start items-end",
+              "label": "Bottom left"
+            },
+            {
+              "value": "justify-center items-end",
+              "label": "Bottom center"
+            },
+            {
+              "value": "justify-end items-end",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "justify-start items-end"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "color",
+          "id": "tint_color",
+          "label": "Media tint color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "tint_opacity",
+          "min": 0,
+          "max": 60,
+          "step": 5,
+          "unit": "%",
+          "label": "Media tint opacity",
+          "default": 40
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Media grid",
+      "blocks": [
+        {
+          "type": "media",
+          "settings": {
+            "columns": 2,
+            "rows": 2,
+            "tint_opacity": 25
+          }
+        },
+        {
+          "type": "media",
+          "settings": {
+            "tint_opacity": 25
+          }
+        },
+        {
+          "type": "media",
+          "settings": {
+            "tint_opacity": 25
+          }
+        },
+        {
+          "type": "media",
+          "settings": {
+            "columns": 2,
+            "tint_opacity": 25
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

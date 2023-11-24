@@ -1,0 +1,145 @@
+<div class="container">
+  <div id="login">
+    <div class="section__header text-center">
+      <h1 class="h2">{{ 'customer.login.title' | t }}</h1>
+    </div>
+
+    {%- if recover_success == true -%}
+      <div class="alert reading-width mb-8 mx-auto bg-success-bg text-success-text" tabindex="-1" autofocus>
+        {{ 'customer.recover_password.success' | t }}
+      </div>
+    {%- endif -%}
+
+    {%- form 'customer_login', class: 'form form-width mx-auto', novalidate: 'novalidate' -%}
+      {%- if form.errors -%}
+        <div class="alert mb-8 bg-error-bg text-error-text" tabindex="-1" autofocus>
+          {{ form.errors | default_errors }}
+        </div>
+      {%- endif -%}
+
+      <div class="form__field required">
+        <label class="label" for="customer-email">{{ 'customer.login.email' | t }}</label>
+        <input type="email"
+               class="input w-full"
+               id="customer-email"
+               name="customer[email]"
+               autocomplete="email"
+               {%- if form.errors contains 'form' %}
+                 aria-invalid="true"
+               {%- endif %}
+               aria-required="true"
+               required>
+      </div>
+
+      {%- if form.password_needed -%}
+        <div class="form__field required">
+          <label class="label" for="customer-password">{{ 'customer.login.password' | t }}</label>
+          <div class="login-password relative">
+            <input type="password"
+                   class="login-password__input input w-full"
+                   id="customer-password"
+                   name="customer[password]"
+                   {%- if form.errors contains 'form' %}
+                     aria-invalid="true"
+                   {%- endif %}
+                   aria-required="true"
+                   required>
+            <a class="login-password__recover-link link flex items-center absolute text-sm js-recover" href="#recover">
+              {{- 'customer.login.forgot_password' | t -}}
+            </a>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="mt-6">
+        <button class="btn btn--primary w-full">{{ 'customer.login.sign_in' | t }}</button>
+      </div>
+
+      <p class="mt-8 mb-0 text-center">
+        {{ 'customer.login.new_customer' | t }}
+        <a class="link" href="{{ routes.account_register_url }}">{{ 'customer.login.create_account' | t }}</a>
+      </p>
+    {%- endform -%}
+  </div>
+
+  <div class="js-hidden" id="recover">
+    <div class="section__header reading-width text-center">
+      <h1>{{ 'customer.recover_password.title' | t }}</h1>
+      <p>{{ 'customer.recover_password.subtext' | t }}</p>
+    </div>
+
+    {%- form 'recover_customer_password', class: 'form form-width mx-auto' -%}
+      {%- assign recover_success = form.posted_successfully? -%}
+
+      <div class="form__field required">
+        <label class="label" for="recover-email">{{ 'customer.login.email' | t }}</label>
+        <input type="email"
+               class="input w-full"
+               id="recover-email"
+               name="email"
+               autocomplete="email"
+               {%- if form.errors %}
+                 aria-invalid="true"
+                 aria-describedby="recover-email-error"
+                 autofocus
+               {%- endif %}
+               aria-required="true"
+               required>
+        {%- if form.errors -%}
+          <p class="form__field-error" id="recover-email-error">
+            {{ form.errors.messages['form'] }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div class="mt-6">
+        <button class="btn btn--primary w-full">{{ 'customer.recover_password.submit' | t }}</button>
+      </div>
+
+      <p class="mt-8 text-center">
+        <a class="link js-login" href="#login">{{ 'customer.recover_password.cancel' | t }}</a>
+      </p>
+    {%- endform -%}
+  </div>
+
+  {%- if shop.checkout.guest_login -%}
+    <h2>{{ 'customer.login.guest_title' | t }}</h2>
+
+    {%- form 'guest_login', class: 'form form-width mx-auto' -%}
+      <button class="btn btn--secondary w-full">{{ 'customer.login.guest_continue' | t }}</button>
+    {%- endform -%}
+  {%- endif -%}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('login');
+    const recoverForm = document.getElementById('recover');
+
+    function toggleContent(recover) {
+      loginForm.classList.toggle('js-hidden', recover);
+      recoverForm.classList.toggle('js-hidden', !recover);
+    }
+
+    document.querySelector('.js-recover').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      toggleContent(true);
+      history.pushState('', document.title, `${window.location.pathname}#recover`);
+    });
+
+    document.querySelector('.js-login').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      toggleContent(false);
+      history.pushState('', document.title, window.location.pathname);
+    });
+
+    if (window.location.hash === '#recover') toggleContent(true);
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Login",
+  "class": "cc-main-login section section--template"
+}
+{% endschema %}

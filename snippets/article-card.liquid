@@ -1,0 +1,155 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+{%- comment -%}
+  Parameters:
+  - article {Object} - Article object.
+  - featured {Boolean} - Apply featured card style/layout (optional, default is false).
+  - featured_section: {Boolean} - Indiciates if the card is included in the 'Featured blog' section (optional).
+  - color_scheme {String} - Color scheme for the card (optional).
+  - image_ratio {Number} - Aspect ratio for the image (optional).
+  - show_image {Boolean} - Show the article image (optional, default is true).
+  - large_image {Boolean} - Whether to render a large image or not.
+  - show_author {Boolean} - Show the article author (optional, default is true).
+  - show_date {Boolean} - Show the article published date (optional, default is true).
+  - show_excerpt {Boolean} - Show the article excerpt (optional, default is true).
+  - show_tags {Boolean} - Show the article tags (optional, default is false).
+  - blog_url {String} - The URL to the blog. If this is passed, the tags (if shown) will display as links to that blog
+  - show_button {Boolean} - Show the call to action arrow (optional, default is false).
+  - button_style {String} - Style button as primary or secondary.
+
+  Usage:
+  {% render 'article-card',
+    article: article,
+    show_date: section.settings.show_date
+    show_author: section.settings.show_author
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  if image_ratio == nil
+    if section.settings.image_ratio == 'shortest' or section.settings.image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = section.settings.image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  if featured and section.settings.show_featured_excerpt == true
+    assign show_excerpt = true
+  elsif featured and section.settings.show_featured_excerpt == false
+    assign show_excerpt = false
+  endif
+
+  if article.image
+    if large_image
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1
+      endcapture
+    elsif section.settings.card_size == 'small'
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2, md: 3, lg: 4, xl: 5
+      endcapture
+    elsif section.settings.card_size == 'medium'
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3, xl: 4
+      endcapture
+    else
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3
+      endcapture
+    endif
+  endif
+-%}
+
+<article class="card hover:grow-media card--article h-full{% if featured %} card--featured card--wide{% endif %} relative flex{% unless featured %} flex-col{% endunless %}{% if featured_section %} justify-between{% endif %}{% if color_scheme and color_scheme != "none" %} color-scheme color-scheme--{{ color_scheme }}{% if featured_section %} h-full{% endif %}{% endif %}">
+  {%- unless show_image == false -%}
+    <a href="{{ article.url }}" class="card__media relative">
+      {%- if article and article.image -%}
+        {% unless featured %}<div class="media block relative h-full" tabindex="-1" style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">{% endunless %}
+        {%- liquid
+          assign class = "img-fit"
+          if featured
+            assign class = "md:img-fit"
+          endif
+
+          if featured
+            assign class = class | append: " media"
+          endif
+        -%}
+          {% render 'image',
+            image: article.image,
+            widths: '320, 460, 600, 700, 800, 900, 1200',
+            src_width: 460,
+            src_placeholder: true,
+            sizes: sizes,
+            class: class
+          %}
+        {% unless featured %}</div>{% endunless %}
+      {%- elsif article == blank -%}
+        <div class="media block relative" style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">
+          {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+        </div>
+      {%- endif -%}
+    </a>
+  {%- endunless -%}
+  <div class="card__info relative flex flex-col items-start grow">
+    <div class="flex-auto">
+      {%- if show_tags -%}
+        <div class="card__tags{% if blog_url %} card__tags--links{% endif %} relative text-sm{% if featured %} mb-3{% else %} mb-2{% endif %} text-current text-theme-light">
+          {%- for tag in article.tags -%}
+            {%- if blog.url -%}
+              <a href="{{ tag | link_to_tag: tag | split: 'href="' | last | split: '"' | first }}" class="text-current text-theme-light">
+                {{ tag }}{% unless forloop.last %}, {% endunless %}
+              </a>
+            {%- else -%}
+              {{ tag }}{% unless forloop.last %}, {% endunless %}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <h2 class="card__title {% if featured %}h4{% else %}h6{% endif %}">
+        {%- if article != blank -%}
+          <a href="{{ article.url }}" class="card-link text-current">{{ article.title | escape }}</a>
+        {%- else -%}
+          {{ 'onboarding.article.title' | t }}
+        {%- endif -%}
+      </h2>
+
+      {%- if article == blank -%}
+        {%- if show_excerpt -%}
+          <p>{{ 'onboarding.article.excerpt' | t }}</p>
+        {%- endif -%}
+      {%- elsif show_excerpt -%}
+        {%- if article.excerpt.size > 0 or article.content.size > 0 -%}
+          <p class="{% if featured or featured_section %} mb-5{% else %} mb-2{% endif %}">
+            {%- if article.excerpt.size > 0 -%}
+              {{ article.excerpt | strip_html | truncatewords: 30 }}
+            {%- else -%}
+              {{ article.content | strip_html | truncatewords: 30 }}
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if show_author or show_date -%}
+        <p class="text-theme-light mb-0">
+          {%- if show_author -%}
+            {{ article.author }}{% if show_date %} | {% endif %}
+          {%- endif -%}
+          {%- if show_date -%}
+            {{ article.published_at | time_tag: format: 'date' }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- if show_button -%}
+      <a href="{{ article.url }}" class="card__button btn {{ button_style }} btn--icon btn--lg has-ltr-icon mt-8">
+        <span class="visually-hidden">{{ article.title | escape }}</span>
+        {%- render 'icon-arrow-right' -%}
+      </a>
+    {%- endif -%}
+  </div>
+</article>

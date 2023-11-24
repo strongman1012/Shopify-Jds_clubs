@@ -1,0 +1,110 @@
+<div class="container image-section">
+  <div class="container rewards-sub-container">
+    <h3 class="rewards-product1-title">{{ section.settings.title }}</h3>
+    <p class="rewards-product1-content">{{ section.settings.content }}</p>
+  </div>
+  <div class="horizontal-product1-images">
+    <img src="{{ section.settings.image_desktop_1 | img_url : 'master' }}" alt="Image 1">
+    <img src="{{ section.settings.image_desktop_2 | img_url : 'master' }}" alt="Image 2">
+    <img src="{{ section.settings.image_desktop_3 | img_url : 'master' }}" alt="Image 3">
+  </div>
+  <div class="button-block rewards-product1-button-board  mt-5 pt-3">
+    <a href="{{ section.settings.button_link }}" class="{{ section.settings.button_style }} rewards-product1-button">{{ section.settings.button_text }}</a>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Rewards Product1",
+    "settings": [
+      {
+        "type": "text",
+        "label": "Title",
+        "id": "title",
+        "default": "Title"
+      },
+      {
+        "type": "text",
+        "id": "content",
+        "label": "Content",
+        "default": "Content"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop_1",
+        "label": "Image1",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile_1",
+        "label": "Mobile image1 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      }, {
+        "type": "url",
+        "id": "url_1",
+        "label": "Image1 link (optional)"
+      }, {
+        "type": "image_picker",
+        "id": "image_desktop_2",
+        "label": "Image2",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      }, {
+        "type": "image_picker",
+        "id": "image_mobile_2",
+        "label": "Mobile image2 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      }, {
+        "type": "url",
+        "id": "url_2",
+        "label": "Image2 link (optional)"
+      }, {
+        "type": "image_picker",
+        "id": "image_desktop_3",
+        "label": "Image3",
+        "info": "For best results, use a landscape shaped image with a width of 1400px."
+      }, {
+        "type": "image_picker",
+        "id": "image_mobile_3",
+        "label": "Mobile image3 (optional)",
+        "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
+      }, {
+        "type": "url",
+        "id": "url_3",
+        "label": "Image3 link (optional)"
+      }, {
+        "type": "text",
+        "label": "Button Text",
+        "id": "button_text",
+        "default": "SEE MORE"
+      }, {
+        "type": "url",
+        "label": "Button Link",
+        "id": "button_link"
+      }, {
+        "type": "select",
+        "id": "button_style",
+        "label": "Button style",
+        "options": [
+          {
+            "value": "link",
+            "label": "Link"
+          }, {
+            "value": "btn btn--primary",
+            "label": "Primary button"
+          }, {
+            "value": "btn btn--secondary",
+            "label": "Secondary button"
+          }
+        ],
+        "default": "btn btn--primary"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Rewards-Product1",
+        "category": "Custom"
+      }
+    ]
+  }
+{% endschema %}

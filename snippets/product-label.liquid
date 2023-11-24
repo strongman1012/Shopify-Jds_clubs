@@ -1,0 +1,179 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - variant {Object} - Variant object (for use on Product Pages for example)
+  - is_product_card {Boolean} - Whether the label is on a card or not
+  - limit {Number} - The number of product labels to show
+
+  Usage:
+  {%- render 'product-label', product: product, variant: variant, is_product_card: false, limit: 99 -%}
+{%- endcomment -%}
+
+{%- capture product_label -%}
+  {%- assign label_count = 0 -%}
+
+  {%- if label_count < limit and settings.show_custom_label and product.metafields.theme.label != blank -%}
+    {%- assign label_count = label_count | plus: 1 -%}
+    <div class="product-label-wrapper flex{% if settings.product_label_card_position contains "end" %} justify-end{% endif %}">
+      <span class="product-label product-label--custom">
+        {% if settings.custom_label_icon != "none" %}
+          {% render 'icon', icon: settings.custom_label_icon, width: 14, height: 14 %}
+        {% endif %}
+        {{ product.metafields.theme.label }}
+      </span>
+    </div>
+  {%- endif -%}
+
+  {%- if label_count < limit and product.template_suffix contains 'preorder' -%}
+    {%- assign label_count = label_count | plus: 1 -%}
+    <div class="product-label-wrapper flex{% if settings.product_label_card_position contains "end" %} justify-end{% endif %}">
+      <span class="product-label product-label--preorder">
+        {% if settings.preorder_label_icon != "none" %}
+          {% render 'icon', icon: settings.preorder_label_icon, width: 14, height: 14 %}
+        {% endif %}
+        {{- 'products.product.preorder' | t -}}
+      </span>
+    </div>
+  {%- endif -%}
+
+  {%- if label_count < limit and settings.show_sold_out_label -%}
+    {%- if is_product_card and product.available == false -%}
+      {%- assign label_count = label_count | plus: 1 -%}
+      <div class="product-label-wrapper flex{% if settings.product_label_card_position contains "end" %} justify-end{% endif %}">
+        <span class="product-label product-label--sold-out">
+          {% if settings.sold_out_label_icon != "none" %}
+            {% render 'icon', icon: settings.sold_out_label_icon, width: 14, height: 14 %}
+          {% endif %}
+          {{ 'products.product.sold_out' | t }}
+        </span>
+      </div>
+    {%- elsif is_product_card == false and variant and variant.available == false -%}
+      {%- assign label_count = label_count | plus: 1 -%}
+      <div class="product-label-wrapper flex{% if settings.product_label_card_position contains "end" %} justify-end{% endif %}">
+        <span class="product-label product-label--sold-out">
+          {% if settings.sold_out_label_icon != "none" %}
+            {% render 'icon', icon: settings.sold_out_label_icon, width: 14, height: 14 %}
+          {% endif %}
+          {{ 'products.product.sold_out' | t }}
+        </span>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if label_count < limit and settings.show_sale_label -%}
+    {%- liquid
+      assign discount = 0
+      if variant
+        if settings.sale_label_type == 'percent'
+          assign discount = 1.0 | times: variant.price | divided_by: variant.compare_at_price
+          assign discount = 1.0 | minus: discount
+          assign discount = discount | times: 100.0 | round
+        else
+          assign discount = variant.compare_at_price | minus: variant.price
+        endif
+      else
+        for variant in product.variants
+          if variant.compare_at_price > variant.price
+            if settings.sale_label_type == 'percent'
+              assign this_discount = 1.0 | times: variant.price | divided_by: variant.compare_at_price
+              assign this_discount = 1.0 | minus: this_discount
+              assign this_discount = this_discount | times: 100.0 | round
+              if this_discount > discount
+                assign discount = this_discount
+              endif
+            else
+              assign this_discount = variant.compare_at_price | minus: variant.price
+              if this_discount > discount
+                assign discount = this_discount
+              endif
+            endif
+          endif
+        endfor
+      endif
+    -%}
+    {%- if discount > 0 -%}
+      {%- liquid
+        if settings.sale_label_type == 'percent'
+          if variant
+            assign sale_label_text = 'products.product.percent_reduction' | t: amount: discount
+          else
+            assign sale_label_text = 'products.product.percent_reduction_up_to' | t: amount: discount
+          endif
+        elsif settings.sale_label_type == 'money'
+          assign discount_money = discount | money
+          if variant
+            assign sale_label_text = 'products.product.value_reduction_html' | t: amount: discount_money
+          else
+            assign sale_label_text = 'products.product.value_reduction_up_to_html' | t: amount: discount_money
+          endif
+        else
+          assign sale_label_text = 'products.product.sale' | t
+        endif
+        assign label_count = label_count | plus: 1
+      -%}
+      {%- if sale_label_text -%}
+        <div class="product-label-wrapper flex{% if settings.product_label_card_position contains "end" %} justify-end{% endif %}">
+          <span class="product-label product-label--sale">
+            {% if settings.sale_label_icon != "none" %}
+              {% render 'icon', icon: settings.sale_label_icon, width: 14, height: 14 %}
+            {% endif %}
+            {{ sale_label_text }}
+          </span>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if label_count < limit and settings.show_new_label -%}
+    {%- liquid
+      assign showing_new_label = false
+
+      if settings.show_new_label_collection
+        assign collection_handles = settings.new_label_collections | map: 'handle'
+        for collection in product.collections
+          if collection_handles contains collection.handle
+            assign new_label_text = 'products.product.new' | t
+            assign showing_new_label = true
+            break
+          endif
+        endfor
+      endif
+
+      if settings.show_new_label_tag and showing_new_label == false
+        assign product_tags_lowercase = product.tags | join: ',' | downcase | split: ','
+        assign new_tag_lowercase = settings.new_label_tag | downcase
+        if product_tags_lowercase contains new_tag_lowercase
+          assign new_label_text = 'products.product.new' | t
+          assign showing_new_label = true
+        endif
+      endif
+
+      if settings.show_new_label_days and showing_new_label == false
+        assign now_s = 'now' | date: '%s' | plus: 0
+        assign pub_s = product.created_at | date: '%s' | plus: 0
+        assign diff_days = now_s | minus: pub_s | divided_by: 86400
+
+        if diff_days < settings.new_label_date_limit
+          assign new_label_text = 'products.product.new' | t
+        endif
+      endif
+    -%}
+    {%- if new_label_text -%}
+      {%- assign label_count = label_count | plus: 1 -%}
+      <div class="product-label-wrapper flex{% if settings.product_label_card_position contains "end" %} justify-end{% endif %}">
+        <span class="product-label product-label--new">
+          {% if settings.new_label_icon != "none" %}
+            {% render 'icon', icon: settings.new_label_icon, width: 14, height: 14 %}
+          {% endif %}
+          {{ new_label_text }}
+        </span>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if product_label != blank -%}
+  <div class="product-label-container{% if position %} absolute {{ position }}{% endif %}">
+    {{- product_label -}}
+  </div>
+{%- endif -%}

@@ -1,0 +1,31 @@
+[data-swatch]::before {
+  background-color: rgba(var(--text-color) / 0.08);
+}
+
+{% liquid
+  assign swatch_lines = settings.swatch_colors | newline_to_br | strip_newlines | split: '<br />'
+  for line in swatch_lines
+    assign line_split = line | split: ':'
+    assign attr_val = line_split.first | replace: '"', '' | downcase
+    if line_split.last contains '#'
+      assign color_split = line_split.last | split: '#'
+      if color_split.size == 2
+        echo '[data-swatch="' | append: attr_val | append: '"]:before { background-color:' | append: line_split.last | append: '}'
+      else
+        assign bg_img = 'linear-gradient(to right, #' | append: color_split[1] | append: ', '
+        if color_split.size == 3
+          assign bg_img = bg_img | append: '#' | append: color_split[1] | append: ' 50%, #' | append: color_split[2] | append: ' 50%, '
+        elsif color_split.size >= 4
+          assign bg_img = bg_img | append: '#' | append: color_split[1] | append: ' 33.3%, #' | append: color_split[2] | append: ' 33.3%, '
+          assign bg_img = bg_img | append: '#' | append: color_split[2] | append: ' 66.6%, #' | append: color_split[3] | append: ' 66.6%, '
+        endif
+        assign bg_img = bg_img | append: '#' | append: color_split.last | append: ')'
+        echo '[data-swatch="' | append: attr_val | append: '"]:before { background-image: ' | append: bg_img | append: '; transform: rotate(-45deg) }'
+      endif
+    else
+      assign url = line_split.last | strip | file_img_url: '96x96', crop: settings.swatch_crop_align
+      echo '[data-swatch="' | append: attr_val | append: '"]:before { background-image: url(' | append: url | append: ') }'
+    endif
+  endfor
+%}
+

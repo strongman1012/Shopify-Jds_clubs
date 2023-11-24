@@ -1,0 +1,86 @@
+.discount-code .btn {
+  display: flex;
+  align-items: center;
+  border-radius: 0;
+}
+
+.discount-code .icon {
+  width: 22px;
+  height: 22px;
+  margin-inline-end: 4px;
+}
+
+.discount-code--xsmall .input-with-button > .btn,
+.discount-code--xsmall .discount-code__code.input,
+.discount-code--small .input-with-button > .btn,
+.discount-code--small .discount-code__code.input {
+  padding: 8px 16px;
+}
+.discount-code--xsmall .discount-code__btn .icon,
+.discount-code--small .discount-code__btn .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.discount-code__success {
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  border-radius: var(--input-border-radius, 0);
+  opacity: 0;
+  background-color: rgb(var(--input-bg-color));
+  box-shadow: inset 0 0 0 var(--input-border-width) rgba(var(--input-text-color)/0.2);
+  color: rgb(var(--input-text-color));
+  text-overflow: ellipsis;
+}
+.discount-code__success > span {
+  transform: translateY(100%);
+  transition: transform 0.3s, opacity 0.3s;
+  opacity: 0;
+}
+.discount-code__success.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+.discount-code__success.is-visible > span {
+  transform: translateY(0);
+  opacity: 1;
+}
+.discount-code__success.is-closing > span {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.discount-code__code.input {
+  max-width: 300px;
+  margin: 0;
+  padding: var(--input-padding-y, 11px) 26px;
+  border-radius: 0;
+}
+.promo-strip__discount .discount-code__code.input {
+  padding-top: var(--btn-padding-y, 12px);
+  padding-bottom: var(--btn-padding-y, 13px);
+  background: transparent;
+}
+
+.discount-code__btn {
+  max-width: 200px;
+  border-inline-start: var(--input-border-width) dashed rgba(var(--input-text-color)/0.2);
+}
+
+.discount-code__btn .icon {
+  flex-shrink: 0;
+  margin-inline-end: var(--space-unit);
+}
+
+.modal__window--side-image .input-with-button > .popup-discount-code__code,
+.modal__window--side-image .input-with-button > .popup-discount-code__btn {
+  padding-right: 18px;
+  padding-left: 18px;
+}
+
+@media (max-width: 768.98px) {
+  .discount-code__code.input {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+}

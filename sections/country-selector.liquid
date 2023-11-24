@@ -1,0 +1,28 @@
+{%- if localization.available_countries.size > 1 -%}
+  {%- capture country_values -%}
+    {%- for country in localization.available_countries -%}
+      {{- country.iso_code -}}
+      {%- unless forloop.last -%}|{%- endunless -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- capture country_names -%}
+    {%- for country in localization.available_countries -%}
+      {{ country.name }} ({{ country.currency.iso_code }}&nbsp;{{ country.currency.symbol }})
+      {%- unless forloop.last -%}|{%- endunless -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- liquid
+    assign id = section.id | append: '-country'
+    assign country_values = country_values | split: '|'
+    assign country_names = country_names | split: '|'
+  -%}
+
+  {%- render 'custom-select',
+    id: id,
+    option_values: country_values,
+    option_names: country_names,
+    selected_value: localization.country.iso_code
+  -%}
+{%- endif -%}

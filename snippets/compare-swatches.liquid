@@ -1,0 +1,37 @@
+{%- comment -%}
+  Parameters:
+  - product {Object} - Product object.
+  - option {Object} - The swatch option.
+  - section {Object} - The section.
+
+  Usage:
+  {%- render 'compare-swatches', product: product, option: option, section: section -%}
+{%- endcomment -%}
+{%- liquid
+  assign swatch_size = settings.card_swatch_size | times: 2
+  if settings.image_quality == 0.75
+    assign swatch_size = settings.card_swatch_size
+  endif
+-%}
+<div class="card__swatches mb-3 flex items-center relative pointer-events-none">
+  {%- capture option_id %}{{ section.id }}-{{ product.id }}-{{ option.name | handle }}{% endcapture -%}
+  {%- liquid
+    assign variant_key = 'option' | append: option.position
+    assign swatch_limit = 99
+  -%}
+
+  {%- for value in option.values limit: swatch_limit -%}
+    {%- assign variant_value = product.variants | where: variant_key, value | first -%}
+    <input type="radio" class="opt-btn visually-hidden js-option" name="{{ option_id }}-option" id="{{ option_id }}-opt-{{ forloop.index0 }}" value="{{ value | escape }}" data-variant-id="{{ variant_value.id }}"{% if variant_value.featured_media %} data-media-id="{{ variant_value.featured_media.id }}"{% endif %}}>
+    <label class="opt-label opt-label--swatch relative" title="{{ value | replace: '"', '`' }}" data-swatch="{% if settings.card_colors_style != 'variant-images' or variant_value.featured_media == blank %}{{ value | replace: '"', '' | downcase }}{% endif %}" for="{{ option_id }}-opt-{{ forloop.index0 }}">
+      {%- if settings.card_colors_style == 'variant-images' and variant_value.featured_media -%}
+        <img loading="lazy" class="img-fit bg-theme-bg" src="{{ variant_value.featured_media.preview_image | image_url: width: swatch_size, height: swatch_size, crop: 'center' }}" height="{{ swatch_size }}" width="{{ swatch_size }}" alt="{{ variant_value.featured_media.preview_image.alt | escape }}"/>
+      {%- endif -%}
+      <span class="visually-hidden">{{ value }}</span>
+    </label>
+  {%- endfor -%}
+
+  {%- if option.values.size > swatch_limit -%}
+    <span class="text-end text-sm">+{{ option.values.size | minus: swatch_limit }}</span>
+  {%- endif -%}
+</div>

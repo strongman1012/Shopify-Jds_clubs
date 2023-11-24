@@ -1,0 +1,88 @@
+@media (min-width: 769px) {
+  .mega-nav--pills:not(.mega-nav--no-grandchildren) .child-nav > li {
+    margin-bottom: calc(4 * var(--space-unit));
+    border-bottom: 1px solid var(--nav-line-color);
+  }
+  .mega-nav--pills:not(.mega-nav--no-grandchildren) .child-nav > li:last-child {
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+  .mega-nav--pills .child-nav__item--toggle .child-nav__item {
+    display: flex;
+    align-items: center;
+  }
+  .mega-nav--pills .child-nav__item--toggle .child-nav__item > .icon {
+    transform: rotate(-90deg) !important;
+  }
+  [dir=rtl] .mega-nav--pills .child-nav__item--toggle .child-nav__item > .icon {
+    transform: rotate(90deg) !important;
+  }
+  .mega-nav--pills .child-nav__item--toggle .icon {
+    width: 15px;
+    height: 15px;
+    margin-inline-start: calc(2 * var(--space-unit));
+    padding: 1px;
+    border: 1px solid;
+    border-radius: 50%;
+  }
+  .mega-nav--pills .main-nav__grandchild,
+.mega-nav--pills .child-nav__item {
+    padding-inline-start: 0;
+  }
+  .mega-nav--pills .main-nav__grandchild, .mega-nav--pills.mega-nav--no-grandchildren .child-nav {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .mega-nav--pills.mega-nav--no-grandchildren .mega-nav--promos-right {
+    align-items: flex-start;
+  }
+  .mega-nav--pills.mega-nav--no-grandchildren .child-nav {
+    margin-bottom: -6px;
+  }
+  .mega-nav--pills.mega-nav--no-grandchildren .child-promos {
+    margin-top: calc(4 * var(--space-unit));
+  }
+  .mega-nav--pills .main-nav__grandchild .main-nav__item, .mega-nav--pills.mega-nav--no-grandchildren .child-nav__item {
+    display: block;
+    margin-bottom: calc(2 * var(--space-unit));
+    margin-inline-end: calc(2 * var(--space-unit));
+    padding: 6px 16px;
+    transition: box-shadow 0.3s, border-color 0.3s;
+    border: 1px solid var(--nav-line-color);
+    border-radius: var(--btn-border-radius, 0);
+    font-size: 0.88em;
+  }
+  .mega-nav--pills .main-nav__grandchild .main-nav__item:hover,
+.mega-nav--pills .main-nav__grandchild .main-nav__item .is-active, .mega-nav--pills.mega-nav--no-grandchildren .child-nav__item:hover,
+.mega-nav--pills.mega-nav--no-grandchildren .child-nav__item .is-active {
+    border-color: rgb(var(--nav-child-text-color));
+    box-shadow: 0 2px 2px 0 var(--nav-line-color);
+  }
+  .mega-nav--pills .main-nav__item--go {
+    display: none;
+  }
+  .mega-nav--pills .main-nav__image-container {
+    display: flex;
+    align-items: flex-start;
+  }
+  .mega-nav--pills .main-nav__collection-image--standard {
+    --image-size: 60px;
+  }
+  .mega-nav--pills .main-nav__collection-image--large {
+    --image-size: 80px;
+  }
+  .mega-nav--pills .main-nav__collection-image {
+    height: auto;
+    margin-bottom: calc(4 * var(--space-unit));
+    margin-inline-end: calc(6 * var(--space-unit));
+  }
+  .md\:nav-pb-6 {
+    padding-bottom: calc(6 * var(--space-unit));
+  }
+}
+@media (min-width: 1024px) {
+  .mega-nav--pills.mega-nav--no-grandchildren .child-promos,
+.mega-nav--pills.mega-nav--no-grandchildren .main-nav__promos {
+    margin-top: 1.5em;
+  }
+}

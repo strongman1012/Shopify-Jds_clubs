@@ -1,0 +1,15 @@
+{%- if product -%}
+  {%- liquid
+    assign id = "compare-basket-" | append: product.id
+    assign close_a11y_text = 'products.compare.drawer.remove' | t
+  -%}
+  {%- render 'product-card-mini',
+        product: product,
+        classes: 'card--compare-basket',
+        id: id,
+        show_close: true,
+        close_classes: 'js-compare-basket-remove',
+        close_a11y_text: close_a11y_text,
+        disable_quickbuy: true
+  -%}
+{%- endif -%}

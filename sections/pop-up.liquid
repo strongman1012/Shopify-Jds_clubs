@@ -1,0 +1,721 @@
+{%- if section.blocks.size > 0 -%}
+  {%- unless section.settings.show_to_guests_only and customer and request.design_mode == false -%}
+    <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+    <script src="{{ 'pop-up.js' | asset_url }}" defer="defer"></script>
+
+    {%- liquid
+      # constants
+      assign breakpoint_md = 769
+
+      assign bg_color = section.settings.bg_color
+      assign bg = section.settings.bg_grad | default: bg_color
+      assign heading_color = section.settings.heading_color
+      assign text_color = section.settings.text_color
+      assign popup_image = false
+      assign image_block = section.blocks | where: 'type', 'image' | first
+      if image_block
+      assign popup_image_position = image_block.settings.image_position_desktop
+      assign popup_image_mobile = image_block.settings.image_position_mobile
+        if image_block.settings.image != blank
+          assign popup_image = image_block.settings.image
+        endif
+      endif
+    -%}
+
+    {%- style -%}
+      #{{ section.id }} .modal__window {
+        background: {{ bg }};
+        --bg-color: {{ bg_color.rgb }};
+        --heading-color: {{ heading_color.rgb }};
+        --text-color: {{ text_color.rgb }};
+        --link-color: {{ text_color.rgb }};
+      }
+
+      {%- if section.settings.bg_image != blank and bg != 'rgba(0,0,0,0)' -%}
+        #{{ section.id }} .popup-section__background-image::after {
+          background-color: {{ bg_color }};
+          opacity: {{ section.settings.tint_opacity }}%;
+        }
+      {%- endif -%}
+
+      {%- if popup_image != false -%}
+        {%- if popup_image_mobile == 'top' -%}
+          #{{ section.id }} .modal__image {
+            padding-top: min({{ 1 | divided_by: popup_image.aspect_ratio | times: 100 }}%, 45vh);
+          }
+          {%- unless popup_image_position == 'top' -%}
+            @media (min-width: {{ breakpoint_md }}px) {
+              #{{ section.id }} .modal__image {
+                padding-top: 0;
+              }
+            }
+          {%- endunless -%}
+        {%- endif -%}
+        {%- if popup_image_position == 'top' -%}
+        @media (min-width: {{ breakpoint_md }}px) {
+          #{{ section.id }} .modal__image {
+              padding-top: min({{ 1 | divided_by: popup_image.aspect_ratio | times: 100 }}%, 45vh);
+            }
+          }
+        {%- endif -%}
+      {%- endif -%}
+      {%- if image_block != blank and popup_image_mobile == 'top' -%}
+        @media (max-width: {{ breakpoint_md | minus: 1 }}px) {
+          #{{ section.id }} .modal__content {
+            padding-top: 32px;
+          }
+        }
+      {%- endif -%}
+    {%- endstyle -%}
+
+    <pop-up class="popup-section modal invisible fixed top-0 left-0 w-full h-full flex {{ section.settings.position }}"
+            id="{{ section.id }}"
+            data-delay="{{ section.settings.delay }}"
+            data-dismiss-days="{{ section.settings.dismiss_days }}"
+            data-mode="{{ section.settings.mode }}">
+      <div class="modal__window{% if popup_image == false %} modal__window--no-image-block{% endif %} flex relative bg-theme-bg text-theme-text text-start has-motion{% if image_block != blank %} flex flex-col{% if popup_image_position == 'left' %} md:flex-row modal__window--side-image{% endif %}{% if popup_image_position == 'right' %} md:flex-row-reverse modal__window--side-image{% endif %}{% endif %}" role="dialog" aria-labelledby="{{ section.id }}-heading" aria-modal="true" tabindex="-1">
+        <button type="button" class="modal__close-btn absolute text-current js-close-modal">
+          {% render 'icon-close' %}
+          <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+        </button>
+        {%- if image_block != blank -%}
+          <div class="modal__image media relative {{ popup_image_position }} {% if popup_image_mobile == 'hidden' %}hidden md:block{% endif %}">
+            {%- if popup_image != false -%}
+              {%- capture sizes -%}
+                {%- render 'sizes-attribute', min: 'page', sm: 'page', md: '800px', lg: '1200px', xl: false, max: false -%}
+              {%- endcapture -%}
+              {% render 'image',
+                image: popup_image,
+                widths: '460, 700, 860, 1296',
+                src_width: 400,
+                sizes: sizes,
+                class: 'img-fit'
+              %}
+            {%- else -%}
+              {%- liquid
+                assign class = 'media__placeholder'
+                if popup_image_position != 'top'
+                  assign class = class | append: ' img-fit'
+                endif
+              -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag: class }}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        <div class="flex-auto modal__content relative {{ section.settings.text_align }}">
+          {%- capture sizes %}{% render 'sizes-attribute' %}{% endcapture -%}
+          {%- if section.settings.bg_image != blank -%}
+            <div class="popup-section__background-image media media--has-overlay absolute top-0 left-0 h-full w-full">
+              {% render 'image',
+              image: section.settings.bg_image,
+              widths: '460, 700, 860, 1296',
+              src_width: 700,
+              sizes: sizes,
+              class: 'img-fit'
+              %}
+            </div>
+          {%- endif -%}
+
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'heading' -%}
+                {%- if block.settings.heading != blank -%}
+                  <h2 class="section__block section__block--heading {{ block.settings.heading_size }}" id="{{ section.id }}-heading" {{ block.shopify_attributes }}>
+                    {{- block.settings.heading | escape -}}
+                  </h2>
+                {%- endif -%}
+
+              {%- when 'subheading' -%}
+                {%- if block.settings.text != blank -%}
+                  <p class="section__block subheading" {{ block.shopify_attributes }}>
+                    {{- block.settings.text | escape -}}
+                  </p>
+                {%- endif -%}
+
+              {%- when 'text' -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="section__block rte {{ block.settings.text_size }}" {{ block.shopify_attributes }}>
+                    {{ block.settings.text }}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'newsletter-signup' -%}
+                <div class="section__block form-width{% if section.settings.text_align == 'text-start' %} mie-auto{% elsif section.settings.text_align == 'text-end' %} mis-auto{% else %} mx-auto{% endif %}" {{ block.shopify_attributes }}>
+                  {%- assign form_id = section.id | append: '-sign-up' -%}
+                  {% render 'newsletter-signup', id: form_id, tags: 'pop-up', arrow_button: true %}
+                </div>
+
+              {%- when 'countdown' -%}
+                {% style %}
+                  #{{ section.id }} .countdown__block {
+                    --countdown-size: {{ block.settings.countdown_size }};
+                  }
+                  {% if block.settings.use_custom_colors %}
+                    #{{ section.id }} .countdown__number {
+                      --text-color: {{ block.settings.count_bg_color.rgb }};
+                      --bg-color: {{ block.settings.count_color.rgb }};
+                    }
+                    {%- if block.settings.count_bg_grad -%}
+                      #{{ section.id }} .countdown__number {
+                        background: {{ block.settings.count_bg_grad }};
+                      }
+                    {%- endif -%}
+                  {% endif %}
+                {% endstyle %}
+                <script src="{{ 'countdown-timer.js' | asset_url }}" defer="defer"></script>
+                <div class="section__block countdown__block no-js-hidden{% if block.settings.enlarge_end_text %} countdown-large-endtext{% endif %}" id="{{ block.id }}" {{ block.shopify_attributes }}>
+                  {% render 'countdown-timer',
+                    end_date: block.settings.end_date,
+                    end_time: block.settings.end_time,
+                    end_text: block.settings.end_text,
+                    end_midnight: true,
+                    hide_on_end: block.settings.hide_on_end
+                  %}
+                </div>
+
+              {%- when 'discount' -%}
+                {%- if block.settings.discount_code != blank -%}
+                  {{ 'discount-code.css' | asset_url | stylesheet_tag }}
+                  <script src="{{ 'discount-code.js' | asset_url }}" defer="defer"></script>
+                  <div class="section__block promo-strip__discount form-width {% if section.settings.text_align == 'text-start' %} mie-auto{% elsif section.settings.text_align == 'text-end' %} mis-auto{% else %} mx-auto{% endif %}">
+                    <discount-code class="discount-code inline-flex" {{ block.shopify_attributes }}>
+                      <div class="input-with-button relative w-full">
+                        <span class="discount-code__code popup-discount-code__code input font-bold text-sm js-discount-code text-center">{{- block.settings.discount_code -}}</span>
+                        <button class="discount-code__btn popup-discount-code__btn h-full btn btn--sm no-js-hidden js-copy-button">{% render 'icon-copy' %}{{ 'general.discount_code.copy_button' | t }}</button>
+                        <div class="discount-code__success font-bold text-sm absolute top-0 left-0 right-0 bottom-0 overflow-hidden flex items-center justify-center text-theme-text js-copy-success" aria-hidden="true">
+                          <span class="flex items-center justify-center">{% render 'icon-check' %}{{ 'general.discount_code.copy_success' | t }}</span>
+                        </div>
+                      </div>
+                    </discount-code>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'social' -%}
+                <div class="section__block" {{ block.shopify_attributes }}>
+                  {%- assign social_class = section.settings.text_align | split: '-' | last | prepend: 'justify-' -%}
+                  {% render 'social-media', icon: settings.social_custom_icon, class: social_class %}
+                </div>
+
+              {%- when 'button' -%}
+                {% liquid
+                  assign btn_1_bg_color = block.settings.btn_1_bg_color
+                  assign btn_1_text_color = block.settings.btn_1_text_color
+                  assign btn_1_bg_color_hover = btn_1_bg_color | color_mix: btn_1_text_color, 85 | color_lighten: 3
+                  assign btn_2_bg_color = block.settings.btn_2_bg_color
+                  assign btn_2_text_color = block.settings.btn_2_text_color
+                  assign btn_2_bg_color_hover = btn_2_bg_color | color_mix: btn_2_text_color, 85 | color_lighten: 3
+                %}
+                {%- style -%}
+                  #{{ section.id }} .modal__window .btn--popup-1 {
+                    --btn-bg-color: {{ btn_1_bg_color.rgb }};
+                    --btn-text-color: {{ btn_1_text_color.rgb }};
+                    --btn-bg-hover-color: {{ btn_1_bg_color_hover.rgb }};
+                  }
+                  #{{ section.id }} .modal__window .btn--popup-2 {
+                    --btn-bg-color: {{ btn_2_bg_color.rgb }};
+                    --btn-text-color: {{ btn_2_text_color.rgb }};
+                    --btn-bg-hover-color: {{ btn_2_bg_color_hover.rgb }};
+                  }
+                {%- endstyle -%}
+                {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+                  <div class="section__block section__block--buttons inline-flex flex-wrap {% if section.settings.overlay_text_align == 'text-start' %} justify-start{% elsif section.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mobile_centered %} md-down:center{% endif %}" {{ block.shopify_attributes }}>
+                    {%- if block.settings.button_1_label != blank %}
+                      <a class="btn btn--primary btn--popup-1" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                        {{- block.settings.button_1_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                    {%- if block.settings.button_2_label != blank %}
+                      <a class="btn btn--primary btn--popup-2" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                        {{- block.settings.button_2_label | escape -}}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </pop-up>
+  {%- endunless -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Pop-up",
+  "tag": "section",
+  "class": "cc-pop-up",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_to_guests_only",
+      "label": "Show to guest users only",
+      "info": "Not shown to logged in customers.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "delay",
+      "label": "Delay",
+      "info": "Delay before showing the pop-up.",
+      "default": 5,
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "sec"
+    },
+    {
+      "type": "range",
+      "id": "dismiss_days",
+      "label": "Frequency",
+      "default": 30,
+      "info": "Number of days before showing the pop-up again after being dismissed.",
+      "min": 2,
+      "max": 30,
+      "step": 1,
+      "unit": "day"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        {
+          "value": "justify-center items-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-start items-end",
+          "label": "Bottom left"
+        },
+        {
+          "value": "justify-end items-end",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "justify-center items-center"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "header",
+      "content": "Background image (optional)"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Image",
+      "info": "If set, the background color below is used as the tint."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#070707"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#070707"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_background",
+      "id": "bg_grad",
+      "label": "Background gradient",
+      "info": "If set, replaces the background color."
+    },
+    {
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "%",
+      "label": "Background image tint opacity",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Sign up and save"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "h6",
+              "label": "Extra extra small"
+            },
+            {
+              "value": "h5",
+              "label": "Extra small"
+            },
+            {
+              "value": "h4",
+              "label": "Small"
+            },
+            {
+              "value": "h3",
+              "label": "Medium"
+            },
+            {
+              "value": "h2",
+              "label": "Large"
+            },
+            {
+              "value": "h1",
+              "label": "Extra large"
+            },
+            {
+              "value": "h0",
+              "label": "Extra extra large"
+            }
+          ],
+          "default": "h4"
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Entice customers to sign up for your mailing list with discounts or exclusive offers.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_size",
+          "label": "Text size",
+          "options": [
+            {
+              "value": "small-text",
+              "label": "Small"
+            },
+            {
+              "value": "",
+              "label": "Medium"
+            },
+            {
+              "value": "enlarge-text",
+              "label": "Large"
+            }
+          ],
+          "default": ""
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "image_position_desktop",
+          "label": "Image position on large screens",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "top",
+              "label": "Top"
+            }
+          ],
+          "default": "top",
+          "info": "Image may be cropped"
+        },
+        {
+          "type": "select",
+          "id": "image_position_mobile",
+          "label": "Image position on mobile",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "hidden",
+              "label": "Hidden"
+            }
+          ],
+          "default": "top"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Button 1"
+        },
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Button label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "Button link"
+        },
+        {
+          "type": "color",
+          "id": "btn_1_bg_color",
+          "label": "Button background color",
+          "default": "#555555"
+        },
+        {
+          "type": "color",
+          "id": "btn_1_text_color",
+          "label": "Button text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "header",
+          "content": "Button 2"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Button label",
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Button link"
+        },
+        {
+          "type": "color",
+          "id": "btn_2_bg_color",
+          "label": "Button background color",
+          "default": "#070707"
+        },
+        {
+          "type": "color",
+          "id": "btn_2_text_color",
+          "label": "Button text color",
+          "default": "#ffffff"
+        }
+      ]
+    },
+    {
+      "type": "newsletter-signup",
+      "name": "Email sign-up",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Customers who subscribe will have an account created for them. [Learn more](https://help.shopify.com/en/manual/customers/manage-customers)"
+        }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "Social links",
+      "limit": 1
+    },
+    {
+      "type": "countdown",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "end_date",
+          "label": "End date",
+          "info": "Format: YYYY-MM-DD. If you don't enter a date, midnight tonight will be used."
+        },
+        {
+          "type": "text",
+          "id": "end_time",
+          "label": "End time (optional)",
+          "info": "Format: 17:00 (24 hour clock). Uses the store's timezone."
+        },
+        {
+          "type": "richtext",
+          "id": "end_text",
+          "label": "End text",
+          "info": "This shows when the date and time elapses."
+        },
+        {
+          "type": "checkbox",
+          "id": "enlarge_end_text",
+          "label": "Enlarge end text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_end",
+          "label": "Hide the timer when the date and time elapses",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "countdown_size",
+          "label": "Count size",
+          "options": [
+            {
+              "value": "16",
+              "label": "Extra small"
+            },
+            {
+              "value": "18",
+              "label": "Small"
+            },
+            {
+              "value": "20",
+              "label": "Medium"
+            },
+            {
+              "value": "22",
+              "label": "Large"
+            },
+            {
+              "value": "24",
+              "label": "Extra large"
+            }
+          ],
+          "default": "18"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_custom_colors",
+          "label": "Use custom colors",
+          "info": "Uses colors specified below.",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "count_color",
+          "label": "Count number",
+          "default": "#fff"
+        },
+        {
+          "type": "color",
+          "id": "count_bg_color",
+          "label": "Count background/colon",
+          "default": "#070707"
+        },
+        {
+          "type": "color_background",
+          "id": "count_bg_grad",
+          "label": "Count background gradient",
+          "info": "If set, replaces background color."
+        }
+      ]
+    },
+    {
+      "type": "discount",
+      "name": "Discount code",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "discount_code",
+          "label": "Discount code",
+          "default": "DISCOUNTCODE"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pop-up",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "newsletter-signup"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  }
+}
+{% endschema %}

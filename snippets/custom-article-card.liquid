@@ -1,0 +1,137 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+{%- comment -%}
+Parameters:
+- article {Object} - Article object.
+- featured {Boolean} - Apply featured card style/layout (optional, default is false).
+- featured_section: {Boolean} - Indiciates if the card is included in the 'Featured blog' section (optional).
+- color_scheme {String} - Color scheme for the card (optional).
+- image_ratio {Number} - Aspect ratio for the image (optional).
+- show_image {Boolean} - Show the article image (optional, default is true).
+- large_image {Boolean} - Whether to render a large image or not.
+- show_author {Boolean} - Show the article author (optional, default is true).
+- show_date {Boolean} - Show the article published date (optional, default is true).
+- show_excerpt {Boolean} - Show the article excerpt (optional, default is true).
+- show_tags {Boolean} - Show the article tags (optional, default is false).
+- blog_url {String} - The URL to the blog. If this is passed, the tags (if shown) will display as links to that blog
+- show_button {Boolean} - Show the call to action arrow (optional, default is false).
+- button_style {String} - Style button as primary or secondary.
+
+Usage:
+{% render 'article-card',
+article: article,
+show_date: section.settings.show_date
+show_author: section.settings.show_author
+%}
+{%- endcomment -%}{%- liquid
+  if image_ratio == nil
+    if section.settings.image_ratio == 'shortest' or section.settings.image_ratio == 'tallest'
+      assign image_ratio = 1
+    else
+      assign image_ratio = section.settings.image_ratio
+    endif
+  elsif image_ratio == 0 or image_ratio == 99
+    assign image_ratio = 1
+  endif
+
+  if featured and section.settings.show_featured_excerpt == true
+    assign show_excerpt = true
+  elsif featured and section.settings.show_featured_excerpt == false
+    assign show_excerpt = false
+  endif
+
+  if article.image
+    if large_image
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1
+      endcapture
+    elsif section.settings.card_size == 'small'
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2, md: 3, lg: 4, xl: 5
+      endcapture
+    elsif section.settings.card_size == 'medium'
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3, xl: 4
+      endcapture
+    else
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 1, sm: 2, lg: 3
+      endcapture
+    endif
+  endif
+-%}
+
+  <article class="custom-card-article-board"> {%- unless show_image == false -%}
+    <a href="{{ article.url }}" class="card__media relative">
+      {%- if article and article.image -%}
+        {% unless featured %}
+          <div
+            class="media block relative h-full"
+            tabindex="-1"
+            style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">
+          {% endunless %}
+          {%- liquid
+          assign class = "img-fit"
+          if featured
+            assign class = "md:img-fit"
+          endif
+
+          if featured
+            assign class = class | append: " media"
+          endif
+        -%}
+          {% render 'image'
+           , image: article.image,
+           widths: '320, 460, 600, 700, 800, 900, 1200',
+           src_width: 460,
+           src_placeholder: true,
+           sizes: sizes,
+           class: class %}
+          {% unless featured %}
+          </div>
+        {% endunless %}
+      {%- elsif article == blank -%}
+        <div class="media block relative" style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;">
+          {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+        </div>
+      {%- endif -%}
+    </a>
+  {%- endunless -%}
+  <div class="{% if condition == 1 %} custom-card-article-board-detail1 {% else %} custom-card-article-board-detail2 {% endif %}">
+    {%- if show_button -%}
+      <a href="{{ article.url }}">
+        <button class="btn--primary custom-article-button">CUSTOM IRONS</button>
+      </a>
+    {%- endif -%}
+
+    <h2 class="{% if condition == 1 %} custom-card-article-title1 {% else %} custom-card-article-title2 {% endif %}">
+      {%- if article != blank -%}
+        <a href="{{ article.url }}">{{ article.title | escape }}</a>
+      {%- else -%}
+        {{ 'onboarding.article.title' | t }}
+      {%- endif -%}
+    </h2>
+
+    {%- if article == blank -%}
+      {%- if show_excerpt -%}
+        <p class="custom-card-article-excerpt">{{ 'onboarding.article.excerpt' | t }}</p>
+      {%- endif -%}
+    {%- elsif show_excerpt -%}
+      {%- if article.excerpt.size > 0 or article.content.size > 0 -%}
+        <p class="custom-card-article-excerpt">
+          {%- if article.excerpt.size > 0 -%}
+            {{ article.excerpt | strip_html | truncatewords: 30 }}
+          {%- else -%}
+            {{ article.content | strip_html | truncatewords: 30 }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if show_date -%}
+      <p class="custom-card-article-date">
+        {{ article.published_at | time_tag: format: 'date' }}
+      </p>
+    {%- endif -%}
+
+  </div>
+</article>

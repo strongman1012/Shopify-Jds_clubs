@@ -1,0 +1,210 @@
+
+{%- liquid
+  assign show_localization = false
+  if section.settings.enable_country_selector or section.settings.enable_language_selector
+    assign show_localization = true
+  endif
+
+  if section.settings.text_type_scale == "small"
+    assign text_type_scale = "0.9em"
+  elsif section.settings.text_type_scale == "medium"
+    assign text_type_scale = "1em"
+  elsif section.settings.text_type_scale == "large"
+    assign text_type_scale = "1.1em"
+  endif
+-%}
+
+{%- if section.settings.link1 or section.settings.link2 or show_localization or section.blocks.size > 0 -%}
+  {{ 'announcement.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'announcement.js' | asset_url }}" defer="defer"></script>
+
+  {%- style -%}
+    .announcement {
+      --font-size: {{ text_type_scale }};
+      --announcement-text-color: {{ section.settings.text_color.rgb }};
+      background-color: {{ section.settings.bg_color }};
+    }
+  {%- endstyle -%}
+
+  {%- if show_localization -%}
+    <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
+  {%- endif -%}
+
+  <announcement-bar class="announcement block" data-slide-delay="{{- section.settings.read_time | times: 1000 -}}">
+    <div class="container">
+      <div class="flex">
+        <div class="announcement__col--left{% if section.blocks.size > 1 %} announcement__slider{% endif %}"{% if section.blocks.size > 1 %} aria-roledescription="carousel" aria-live="off"{% endif %}>
+          {%- for block in section.blocks -%}
+            <div class="announcement__text flex items-center m-0" {{ block.shopify_attributes }}{% if section.blocks.size > 1 %} aria-roledescription="slide"{% endif %}>
+              <div class="rte">{{- block.settings.text -}}</div>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {% if section.settings.link1 or section.settings.link2 or show_localization %}
+          <div class="announcement__col--right hidden md:flex md:items-center">
+            {%- if section.settings.link1 or section.settings.link2 -%}
+              {%- if section.settings.link1 -%}
+                <a href="{{ section.settings.link1 }}" class="js-announcement-link font-bold{% if section.settings.link2 == blank and show_localization == false %} no-spacer{% endif %}">
+                  {%- if section.settings.link1_label != blank -%}
+                    {{- section.settings.link1_label | escape -}}
+                  {%- else -%}
+                    {{- section.settings.link1 -}}
+                  {%- endif -%}
+                </a>
+              {%- endif -%}
+
+              {%- if section.settings.link2 -%}
+                <a href="{{ section.settings.link2 }}" class="js-announcement-link font-bold{% unless show_localization %} no-spacer{% endunless %}">
+                  {%- if section.settings.link2_label != blank -%}
+                    {{- section.settings.link2_label | escape -}}
+                  {%- else -%}
+                    {{- section.settings.link2 -}}
+                  {%- endif -%}
+                </a>
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- if show_localization -%}
+              <div class="announcement__localization">
+                {% render 'localization-form', id: 'nav-localization', hide_labels: true %}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </announcement-bar>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement",
+  "class": "cc-announcement",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The links and country/currency selectors will appear inside the navigation menu on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Links"
+    },
+    {
+      "type": "url",
+      "id": "link1",
+      "label": "Link 1"
+    },
+    {
+      "type": "text",
+      "id": "link1_label",
+      "label": "Link 1 label"
+    },
+    {
+      "type": "url",
+      "id": "link2",
+      "label": "Link 2"
+    },
+    {
+      "type": "text",
+      "id": "link2_label",
+      "label": "Link 2 label"
+    },
+    {
+      "type": "paragraph",
+      "content": "Links will appear inside the mobile menu on smaller screens."
+    },
+    {
+      "type": "header",
+      "content": "Country/Region selector",
+      "info": "To add a country/region, go to your [payment settings](/admin/settings/payments)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "label": "Enable country/region selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Language selector",
+      "info": "To add a language, go to your [language settings](/admin/settings/languages)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "label": "Enable language selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_type_scale",
+      "label": "Text size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "range",
+      "id": "read_time",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "label": "Announcement read time",
+      "default": 7
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Welcome to our store. <a href='#' title='#'>Learn more</a></p>",
+          "info": "If you have multiple announcements, keep them short as they may wrap on smaller screens."
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "announcement"
+      }
+    ]
+  }
+}
+{% endschema %}

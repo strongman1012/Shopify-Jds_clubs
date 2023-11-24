@@ -1,0 +1,27 @@
+{%- comment -%}
+  Parameters:
+  - current_variant {Object} - Current product variant.
+
+  Usage:
+  {% render 'pickup-availability', current_variant: current_variant %}
+{%- endcomment -%}
+
+<script src="{{ 'pickup-availability.js' | asset_url }}" defer="defer"></script>
+
+{%- assign pick_up_availabilities = current_variant.store_availabilities | where: 'pick_up_enabled', true -%}
+
+<pickup-availability class="no-js-hidden"{% if current_variant.available and pick_up_availabilities.size > 0 %} available{% endif %} data-root-url="{{ routes.root_url }}" data-variant-id="{{ current_variant.id }}">
+  <template>
+    <div class="pickup-status flex mt-8 mb-8">
+      <div class="pickup-icon text-error-text">
+        {% render 'icon-unavailable' %}
+      </div>
+      <div>
+        <p class="mb-0">{{ 'products.product.pickup_availability.unavailable' | t }}</p>
+        <button class="link mt-2 text-sm js-refresh">
+          {{- 'products.product.pickup_availability.refresh' | t -}}
+        </button>
+      </div>
+    </div>
+  </template>
+</pickup-availability>

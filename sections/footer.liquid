@@ -1,0 +1,421 @@
+<link rel="stylesheet" href="{{ 'footer.css' | asset_url }}">
+
+{%- if section.settings.enable_country_selector or section.settings.enable_language_selector -%}
+  <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- style -%}
+  .footer {
+    --bg-color: {{ section.settings.bg_color.rgba }};
+    --heading-color: {{ section.settings.text_color.rgb }};
+    --text-color: {{ section.settings.text_color.rgb }};
+  }
+{%- endstyle -%}
+
+{%- if section.settings.show_back_to_top -%}
+  <a href="#" class="back-to-top text-sm block border-top font-bold text-center text-current p-6 border-bottom"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>{{ 'sections.footer.back_to_top' | t }}</a>
+{%- endif -%}
+<footer class="footer bg-theme-bg text-theme-text">
+  <div class="container" style="padding-left: 38px;">
+    {%- if section.blocks.size > 0 -%}
+      <div class="footer__main md:flex md:flex-wrap">
+        {%- assign is_first_disclosure = true -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'text' -%}
+              <div class="footer-col footer-col--text footer-col--not-collapsed{% if section.blocks.size == 1 %} footer-col--text-full-width{% endif %}" {{ block.shopify_attributes }}{% if settings.animations_enabled != "disabled" %} data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                <div class="footer-block mb-8 {{ block.settings.text_align }}">
+                  {%- if block.settings.image != blank -%}
+                    <div class="media relative" style="max-width: {{ block.settings.image_width }}px;">
+                      {% render 'image', class: "footer-block__image", image: block.settings.image, src_width: block.settings.image_width, srcset_2x: true %}
+                    </div>
+                  {%- endif -%}
+                  {%- if block.settings.show_social -%}
+                  {%- liquid
+                    if block.settings.text_align == "text-end"
+                      assign class = "justify-end"
+                    elsif block.settings.text_align == "text-center"
+                      assign class = "justify-center"
+                    else
+                      assign class = "justify-start"
+                    endif
+                  -%}
+                    <div class="footer-block__btns footer-block__social pt-3 pb-3">
+                      {% render 'social-media', icon: settings.social_custom_icon, icon_height: 24, class: class %}
+                    </div>
+                  {%- endif -%}
+
+                  {%- if block.settings.heading != blank -%}
+                    <h2 class="footer-block__heading font-body font-bold text-h6 pt-4 regular-text">{{ block.settings.heading | escape }}</h2>
+                  {%- endif -%}
+                  {%- if block.settings.text != blank -%}
+                    <div class="footer-block__text rte">
+                      {{ block.settings.text }}
+                    </div>
+                  {%- endif -%}
+                  {%- if block.settings.button_label != blank -%}
+                    <div class="footer-block__btns">
+                      <a class="btn btn--primary" {% if block.settings.button_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_link }}"{% endif %}>
+                        {{- block.settings.button_label | escape -}}
+                      </a>
+                    </div>
+                  {%- endif -%}
+
+                </div>
+              </div>
+
+            {%- when 'newsletter' -%}
+              <div class="footer-col footer-col--newsletter{% if block.settings.collapse_mobile %} footer-col--collapsed{% else %} footer-col--not-collapsed{% endif %}" {{ block.shopify_attributes }}{% if settings.animations_enabled != "disabled" %} data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                {%- if block.settings.collapse_mobile -%}
+                  <footer-menu>
+                    <details class="footer-menu disclosure{% if is_first_disclosure %} footer-menu--first{% endif %}" open>
+                      <summary tabindex="-1">
+                        <div class="flex justify-between items-center">
+                          <h2 class="disclosure__title font-body font-bold text-h6 regular-text">
+                            {{ block.settings.heading | escape }}
+                          </h2>
+                          <span class="disclosure__toggle">
+                            {%- if settings.disclosure_toggle == 'plus' -%}
+                              {% render 'icon-plus' %}
+                            {%- else -%}
+                              {% render 'icon-chevron-down' %}
+                            {%- endif -%}
+                          </span>
+                        </div>
+                      </summary>
+                      <div class="disclosure__panel">
+                        <div class="disclosure__content">
+                          {%- if block.settings.text != blank -%}
+                            {{ block.settings.text }}
+                          {%- endif -%}
+
+                          {% render 'footer-newsletter-signup', id: 'footer-signup', arrow_button: true %}
+                        </div>
+                      </div>
+                    </details>
+                  </footer-menu>
+                  {%- assign is_first_disclosure = false -%}
+                {%- else -%}
+                  <div class="footer-block">
+                    <h2 class="footer-block__heading font-body font-bold text-h6 regular-text">
+                      {%- if block.settings.heading != blank -%}
+                        {{ block.settings.heading | escape }}
+                      {%- endif -%}
+                    </h2>
+
+                    {%- if block.settings.text != blank -%}
+                      {{ block.settings.text }}
+                    {%- endif -%}
+
+                    {% render 'footer-newsletter-signup', id: 'footer-signup', arrow_button: true %}
+                  </div>
+                {%- endif -%}
+              </div>
+ 
+            {%- when 'link_list' -%}
+              {%- if block.settings.menu != blank and block.settings.heading != blank -%}
+                <div class="footer-col footer-col--links footer-col--collapsed" {{ block.shopify_attributes }}{% if settings.animations_enabled != "disabled" %} data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                  <footer-menu>
+                    <details class="footer-menu disclosure{% if is_first_disclosure %} footer-menu--first{% endif %}" open>
+                      <summary tabindex="-1">
+                        <div class="flex justify-between items-center">
+                          <h2 class="disclosure__title font-body font-bold text-h6 regular-text">
+                            {{- block.settings.heading | escape -}}
+                          </h2>
+                          <span class="disclosure__toggle">
+                            {%- if settings.disclosure_toggle == 'plus' -%}
+                              {% render 'icon-plus' %}
+                            {%- else -%}
+                              {% render 'icon-chevron-down' %}
+                            {%- endif -%}
+                          </span>
+                        </div>
+                      </summary>
+                      <div class="disclosure__panel has-motion">
+                        <ul class="footer-menu__links disclosure__content" role="list">
+                          {%- for link in block.settings.menu.links -%}
+                            <li>
+                              <a href="{{ link.url }}">{{ link.title }}</a>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    </details>
+                  </footer-menu>
+                </div>
+                {%- assign is_first_disclosure = false -%}
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.enable_country_selector or section.settings.enable_language_selector or section.settings.show_payment_icons -%}
+      <div class="footer__meta grid grid-cols-1 lg:grid-cols-2 gap-x-theme gap-y-10"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+        {%- if section.settings.show_payment_icons -%}
+          <div class="footer__payment{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} lg:col-start-2 lg:row-start-1 footer__payment--right{% endif %}">
+            <span class="visually-hidden">{{ 'sections.footer.payment_methods' | t }}</span>
+            <ul class="payment-icons flex flex-wrap" role="list">
+              {%- for type in shop.enabled_payment_types -%}
+                <li>{{ type | payment_type_svg_tag: class: 'payment-icon' }}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.enable_country_selector or section.settings.enable_language_selector -%}
+          <div class="lg:col-start-1 lg:row-start-1 footer__localization">
+            {% render 'localization-form', id: 'footer-localization', include_native: true, hide_labels: true %}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+<!--
+    {%- if section.blocks.size > 0 or section.settings.enable_country_selector or section.settings.enable_language_selector or section.settings.show_payment_icons -%}
+    <hr class="footer__hr"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+    {% endif %}
+ 
+
+    <div class="footer__base grid grid-cols-1 lg:grid-cols-2 gap-x-theme gap-y-6 text-xs"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %} style="background: #005B98;">
+      <div>
+        <span>&copy; {{ "now" | date: "%Y" }} {{ shop.name | link_to: routes.root_url }}</span>.
+        <span>{{ powered_by_link }}</span>
+      </div>
+      {%- if section.settings.secondary_menu != blank -%}
+        <div>
+          <ul class="footer-sublinks flex flex-wrap gap-x-theme" role="list">
+            {% for link in section.settings.secondary_menu.links %}
+              <li class="footer-sublinks__item">
+                <a href="{{ link.url }}">{{ link.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+   -->
+</footer>
+<div class="footer-final-end">
+  <span>© JD’s Clubs | Where Custom Means Performance | Privacy Policy | Terms & Conditions</span>
+</div>
+
+{% javascript %}
+  customElements.whenDefined('details-disclosure').then(() => {
+    class FooterMenu extends DetailsDisclosure {
+      constructor() {
+        super();
+        this.reset(false);
+        window.addEventListener('on:breakpoint-change', this.reset.bind(this));
+      }
+
+      reset() {
+        const isLargeScreen = window.matchMedia(theme.mediaQueries.md).matches;
+        const isConfirmNewsletter = !isLargeScreen &&
+          (window.location.hash === "#footer-signup_form" && this.querySelector('#footer-signup_form') !== null);
+
+        this.disclosure.open = isLargeScreen || isConfirmNewsletter;
+
+        if (isLargeScreen) {
+          this.toggle.setAttribute('tabindex', '-1');
+        } else {
+          this.toggle.removeAttribute('tabindex');
+        }
+      }
+    }
+
+    customElements.define('footer-menu', FooterMenu);
+  });
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "cc-footer",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_back_to_top",
+      "label": "Show 'Back to top'",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Show payment icons",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Country/Region selector",
+      "info": "To add a country/region, go to your [payment settings](/admin/settings/payments)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "label": "Enable country/region selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Language selector",
+      "info": "To add a language, go to your [language settings](/admin/settings/languages)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "label": "Enable language selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Secondary menu"
+    },
+    {
+      "type": "link_list",
+      "id": "secondary_menu",
+      "label": "Secondary menu",
+      "info": "This menu won't show dropdown items."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#070707"
+    }
+  ],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "link_list",
+      "name": "Footer menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading (required)",
+          "default": "Footer links"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "info": "This menu won't show dropdown items.",
+          "default": "footer"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Image, Text and Socials",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 50,
+          "max": 300,
+          "step": 10,
+          "unit": "px",
+          "label": "Maximum image width",
+          "default": 150
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Talk about your store"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share store details, promotions, or brand content with your customers.</p>"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "label": "Show social media links",
+          "info": "Add links to your social media accounts in theme settings.",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "text_align",
+          "label": "Content alignment",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-end",
+              "label": "Right"
+            }
+          ],
+          "default": "text-start"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Email signup",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Newsletter"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Sign up for exclusive offers, original stories, events and more.</p>"
+        },
+        {
+          "type": "paragraph",
+          "content": "Customers who subscribe will have their email address added to the \"accepts marketing\" [customer list](/admin/customers?query=&accepts_marketing=1)"
+        },
+        {
+          "type": "checkbox",
+          "id": "collapse_mobile",
+          "label": "Show as collapsible content on mobile",
+          "default": true
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

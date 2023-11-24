@@ -1,0 +1,6 @@
+[data-swatch]::before {
+  background-color: rgba(var(--text-color) / 0.08);
+}
+
+
+

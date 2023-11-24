@@ -1,0 +1,55 @@
+{%- if metafield_type == "url" -%}
+  <a href="{{- metafield_value -}}" class="link" target="_blank">{{- metafield_value -}}{{ comma }}</a>
+
+{%- elsif metafield_type == "boolean" -%}
+  {%- if metafield_value -%}
+    {{- 'products.compare.metafields.boolean_true' | t -}}
+  {%- else -%}
+    {{- 'products.compare.metafields.boolean_false' | t -}}
+  {%- endif -%}
+
+{%- elsif metafield_type == "file_reference" -%}
+  {%- if metafield_value.media_type == "image" -%}
+    <img src="{{ metafield_value | image_url }}" height="{{ metafield_value.height }}"
+         width="{{ metafield_value.width }}" loading="lazy" alt="{{ metafield_value.alt | json }}"/>
+
+  {%- else -%}
+
+    {%- liquid
+      assign download_url = metafield_value.url
+      assign additional_attrs = ""
+      if metafield_value.media_type == "video"
+        assign additional_attrs = "target = 'blank'"
+        for source in metafield_value.sources
+          if source != blank and source.format == "mp4"
+            assign download_url = source.url
+            break
+          endif
+        endfor
+      endif
+    -%}
+
+    <a href="{{- download_url -}}" download class="inline-flex items-center link" {{- additional_attrs -}}>
+      <img src="{{ metafield_value.preview_image | image_url: width: 80 }}" class="mr-2"
+           height="{{ 40 | divided_by: metafield_value.preview_image.aspect_ratio | round }}"
+           width="40" loading="lazy" alt="{{ metafield_value.alt | json }}"/>
+      {{- 'products.compare.metafields.file_download' | t -}}
+    </a>
+  {%- endif -%}
+
+{%- elsif metafield_type == "date_time" -%}
+  {{- metafield_value | date: format: 'date_at_time' -}}{{ comma }}
+
+{%- elsif metafield_type == "color" -%}
+  <div class="theme-metafield-color" style="background-color:{{- metafield_value -}}"></div>
+
+{%- elsif metafield_type == "page_reference" or metafield_type == "product_reference" or metafield_type == "variant_reference"or metafield_type == "collection_reference" -%}
+  <a href="{{- metafield_value.url -}}" class="link" target="_blank">{{- metafield_value.title -}}{{ comma }}</a>
+
+{%- elsif metafield.type contains "list." -%}
+  {{- metafield_value | newline_to_br -}}{{ comma }}
+
+{%- else -%}
+  {{- metafield | metafield_tag | replace: "metafield-rich_text_field", "metafield-rich_text_field rte" -}}{{ comma }}
+
+{%- endif -%}

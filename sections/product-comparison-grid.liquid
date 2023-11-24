@@ -1,0 +1,782 @@
+{%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+<link rel="stylesheet" href="{{ 'product-comparison-grid.css' | asset_url }}">
+
+{%- liquid
+  assign head_block = section.blocks | where: "type", "product" | first
+  if head_block.settings.show_image
+    if section.settings.product_list.count < 3
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2
+      endcapture
+    elsif section.settings.product_list.count == 3
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2, sm: 2, lg: 3
+      endcapture
+    elsif section.settings.product_list.count == 4
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2, md: 3, lg: 4
+      endcapture
+    elsif section.settings.product_list.count == 5
+      capture sizes
+        render 'sizes-attribute', grid: true, min: 2, md: 3, lg: 4, xl: 5
+      endcapture
+    endif
+
+    if section.settings.image_ratio != blank
+      if section.settings.image_ratio == 'shortest'
+        assign image_ratio = 0
+        for product in section.settings.product_list
+          if product.featured_media.preview_image.aspect_ratio > image_ratio
+            assign image_ratio = product.featured_media.preview_image.aspect_ratio
+          endif
+        endfor
+      elsif section.settings.image_ratio == 'tallest'
+        assign image_ratio = 99
+        for product in section.settings.product_list
+          if product.featured_media.preview_image.aspect_ratio < image_ratio
+            assign image_ratio = product.featured_media.preview_image.aspect_ratio
+          endif
+        endfor
+      else
+        assign image_ratio = section.settings.image_ratio
+      endif
+    endif
+  endif
+
+  if section.settings.product_list.count > 0
+    assign num_columns = section.settings.product_list.count
+  else
+    # number of columns for onboarding
+    assign num_columns = 4
+  endif
+-%}
+
+{%- if section.blocks.size > 0 -%}
+  <div class="section">
+    {%- if section.settings.heading != blank or section.settings.view_more_link -%}
+      <div class="container">
+        <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %}data-cc-animate{% endif %}>
+          {%- if section.settings.heading != blank -%}
+            <h2 class="h4 section__heading mb-0 flex-auto {{ section.settings.heading_align }}">
+              {{- section.settings.heading | escape -}}
+            </h2>
+          {%- endif -%}
+
+          {%- if section.settings.view_more_link -%}
+            <a href="{{ section.settings.view_more_link }}" class="link">{{ section.settings.view_more_label }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.text != blank -%}
+      <div class="container flex {{ section.settings.heading_align }}{% if section.settings.heading_align == "text-start" %} justify-start{% elsif section.settings.heading_align == "text-center" %} justify-center{% elsif section.settings.heading_align == "text-end" %} justify-end{% endif %}">
+        <div
+          class="rte product-comparison-text mb-6"
+          {% if settings.animations_enabled != "disabled" %}
+          data-cc-animate
+          {% endif %}>
+          {{- section.settings.text -}}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.product_list -%}
+      <product-comparison-grid class="carousel block" data-cc-animate>
+        <div class="container relative">
+          <div class="slider product-comparison-slider{% unless section.settings.color_scheme == 'none' %} color-scheme color-scheme--{{ section.settings.color_scheme }}{% endunless %}">
+            <div class="container product-comparison-container">
+              <table
+                class="product-comparison-grid{% if num_columns >= 3 %} product-comparison-grid--wide{% endif %}{% if section.settings.highlight_row %} product-comparison-grid--hover{% endif %} table-fixed w-full h-full mt-2 lg:mt-0"
+                data-num-products="{{ section.settings.product_list.count }}"
+                style="position: relative;">
+                <caption class="visually-hidden">
+                  {{- 'sections.product_comparison_grid.accessibility_caption' | t: count: num_columns -}}
+                </caption>
+
+                {%- if head_block -%}
+                  <thead>
+                    <tr class="custom-comparison-board">
+                      <th class="product-comparison-grid__th--left">
+                        <span class="visually-hidden">
+                          {{- 'sections.product_comparison_grid.accessibility_facet' | t -}}
+                        </span>
+                      </th>
+                      {%- if section.settings.product_list != blank -%}
+                        {%- for product in section.settings.product_list -%}
+                          <th>
+                            <div class="flex flex-col h-full">
+                              {%- if head_block.settings.show_image -%}
+                                <div class="relative mb-4 last:mb-0">
+                                  {%- liquid
+                                    if section.settings.image_ratio != blank
+                                      assign class = "img-fit"
+                                      if section.settings.image_crop == "top"
+                                        assign class = class | append: " object-top"
+                                      endif
+                                    endif
+                                  -%}
+                                  <div class="media w-full{% if settings.blend_product_images %} image-blend{% endif %}"{% if section.settings.image_ratio != blank %}style="padding-top: {{ 1 | divided_by: image_ratio | times: 100 }}%;"{% endif %}>
+                                    {% render 'image'
+                                     , image: product.featured_media.preview_image,
+                                     widths: '320, 460, 600, 700, 800, 900, 1200',
+                                     src_width: 460,
+                                     sizes: sizes,
+                                     class: class %}
+                                  </div>
+
+                                  <div class="absolute {{ settings.product_label_card_position }}">
+                                    {%- render 'product-label', product: product -%}
+                                  </div>
+                                </div>
+                              {%- endif -%}
+
+                              {%- if head_block.settings.show_title -%}
+                                <div class="mb-4 last:mb-0 flex-auto">{{ product.title }}</div>
+                              {%- endif -%}
+
+                              {%- if head_block.settings.show_button -%}
+                                <a href="{{ product.url }}" class="btn btn--primary w-full custom-comparison-button">
+                                  {{- 'products.product.view_details' | t -}}
+                                </a>
+                              {%- endif -%}
+                            </div>
+                          </th>
+                        {%- endfor -%}
+
+                      {%- else -%}
+                        {% # onboarding %}
+                        {%- for i in (1..num_columns) -%}
+                          <th>
+                            <div class="flex flex-col h-full">
+                              <div class="relative mb-4 last:mb-0">
+                                <div class="media w-full">{{ "product-" | append: i | placeholder_svg_tag: 'media__placeholder' }}</div>
+                              </div>
+                              <div class="mb-4 last:mb-0 flex-auto">{{ 'onboarding.product.title' | t }}</div>
+                              <a href="#" class="btn btn--primary w-full">{{ 'products.product.view_details' | t }}</a>
+                            </div>
+                          </th>
+                        {%- endfor -%}
+                      {%- endif -%}
+                    </tr>
+                  </thead>
+                {%- endif -%}
+
+                <tbody>
+                  {%- for block in section.blocks -%}
+                    {%- liquid
+                      assign tr_class = ""
+                      if section.settings.num_rows > 0 and forloop.index > section.settings.num_rows
+                        assign tr_class = "js-hidden"
+                      endif
+                    -%}
+
+                    {%- case block.type -%}
+                      {%- when 'vendor' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.vendor' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.vendor' | t }}</th>
+                        {%- if section.settings.product_list != blank -%}
+                          {%- for product in section.settings.product_list -%}
+                            <td>{{ product.vendor | default: section.settings.empty_field_text }}</td>
+                          {%- endfor -%}
+                        {%- else -%}
+                          {%- for i in (1..num_columns) -%}
+                            <td>{{ 'onboarding.product.vendor' | t }}</td>
+                          {%- endfor -%}
+                        {%- endif -%}
+                      </tr>
+
+                      {%- when 'title' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.title' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.title' | t }}</th>
+                        {%- if section.settings.product_list != blank -%}
+                          {%- for product in section.settings.product_list -%}
+                            <td>{{ product.title }}</td>
+                          {%- endfor -%}
+                        {%- else -%}
+                          {%- for i in (1..num_columns) -%}
+                            <td>{{ 'onboarding.product.title' | t }}</td>
+                          {%- endfor -%}
+                        {%- endif -%}
+                      </tr>
+
+                      {%- when 'type' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th
+                          class="product-comparison-grid__th--top relative"
+                          colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.type' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.type' | t }}</th>
+                        {%- if section.settings.product_list != blank -%}
+                          {%- for product in section.settings.product_list -%}
+                            <td>{{ product.type | default: section.settings.empty_field_text }}</td>
+                          {%- endfor -%}
+                        {%- else -%}
+                          {%- for i in (1..num_columns) -%}
+                            <td>{{ 'onboarding.product.type' | t }}</td>
+                          {%- endfor -%}
+                        {%- endif -%}
+                      </tr>
+
+                      {%- when 'price' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.price.label' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.price.label' | t }}</th>
+                        {%- if section.settings.product_list != blank -%}
+                          {%- for product in section.settings.product_list -%}
+                            <td>{% render 'price-comparison', product: product %}</td>
+                          {%- endfor -%}
+                        {%- else -%}
+                          {%- for i in (1..num_columns) -%}
+                            <td>
+                              <div class="price">
+                                <div class="price__default">
+                                  <strong class="price__current">{{ 99999 | money }}</strong>
+                                </div>
+                              </div>
+                            </td>
+                          {%- endfor -%}
+                        {%- endif -%}
+                      </tr>
+
+                      {%- when 'variants' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.product_variants' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.product_variants' | t }}</th>
+                        {%- for product in section.settings.product_list -%}
+                          <td>
+                            {%- if product.has_only_default_variant -%}
+                              {{- section.settings.empty_field_text -}}
+                            {%- else -%}
+                              {%- for option in product.options_with_values -%}
+                                <strong>{{ option.name }}</strong>
+                                <ul class="mb-4 last:mb-0">
+                                  {%- for value in option.values -%}
+                                    <li class="inline">{{ value | escape }}{% unless forloop.last %},
+                                      {% endunless %}
+                                    </li>
+                                  {%- endfor -%}
+                                </ul>
+                              {%- endfor -%}
+                            {%- endif -%}
+                          </td>
+                        {%- endfor -%}
+                      </tr>
+
+                      {%- when 'variant_option' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ block.settings.title }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ block.settings.title }}</th>
+                        {%- for product in section.settings.product_list -%}
+                          {%- liquid
+                              assign is_swatch = false
+                              if block.settings.title != blank and settings.swatch_option_name and settings.swatch_option_name contains block.settings.title and settings.card_colors_style != 'none'
+                                assign is_swatch = true
+                              endif
+                            -%}
+                          <td {% if is_swatch %}class="product-comparison-grid__swatch-td"{% endif %}>
+                            {%- if is_swatch -%}
+                              {%- capture swatches -%}
+                                {%- for option in product.options_with_values -%}
+                                  {%- if settings.swatch_option_name and settings.card_colors_style != 'none' and settings.swatch_option_name contains option.name -%}
+                                    {%- if settings.card_colors_style == 'swatches' or settings.card_colors_style == 'variant-images' -%}
+                                      {%- render 'compare-swatches', product: product, option: option, section: section -%}
+                                    {%- else -%}
+                                      {%- if option.values.size == 1 -%}
+                                        <p class="mt-2">{{ 'sections.collection.colors_single' | t }}</p>
+                                      {%- else -%}
+                                        <p class="mt-2">{{ 'sections.collection.colors_count' | t: count: option.values.size }}</p>
+                                      {%- endif -%}
+                                    {%- endif -%}
+                                  {%- endif -%}
+                                {%- endfor -%}
+                              {%- endcapture -%}
+
+                              {{- swatches | default: section.settings.empty_field_text -}}
+
+                            {%- elsif block.settings.title -%}
+                              {%- liquid
+                                  if product.has_only_default_variant
+                                    echo section.settings.empty_field_text
+                                  else
+                                    capture option_values
+                                      for option in product.options_with_values
+                                        if option.name == block.settings.title
+                                          for value in option.values
+                                            echo value | escape
+                                            unless forloop.last
+                                              echo ", "
+                                            endunless
+                                          endfor
+                                          break
+                                        endif
+                                      endfor
+                                    endcapture
+
+                                    echo option_values | default: section.settings.empty_field_text
+                                  endif
+                                -%}
+                            {%- endif -%}
+                          </td>
+                        {%- endfor -%}
+                      </tr>
+
+                      {%- when 'description' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.description' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.description' | t }}</th>
+                        {%- if section.settings.product_list != blank -%}
+                          {%- for product in section.settings.product_list -%}
+                            <td class="rte overflow-auto">
+                              {%- if block.settings.truncate_description -%}
+                                {{ product.description | strip_html | truncatewords: block.settings.words_to_show }}
+                              {%- else -%}
+                                {{ product.description }}
+                              {%- endif -%}
+                            </td>
+                          {%- endfor -%}
+                        {%- else -%}
+                          {%- for i in (1..num_columns) -%}
+                            <td>{{ 'onboarding.product.description' | t }}</td>
+                          {%- endfor -%}
+                        {%- endif -%}
+                      </tr>
+
+                      {%- when 'rating' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ 'products.product.rating' | t }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ 'products.product.rating' | t }}</th>
+                        {%- for product in section.settings.product_list -%}
+                          <td>
+                            <!--  {%- if product.metafields.reviews.rating.value != blank -%}
+                            {%- render 'rating'
+                            , rating_value: product.metafields.reviews.rating.value,
+                            rating_count: product.metafields.reviews.rating_count -%}
+                            {%- else -%}
+                            {{- section.settings.empty_field_text -}}
+                            {%- endif -%}
+                            -->
+                            <a href="{{ product.url }}#yotpoReviewsWidget">
+                              <div
+                                class="yotpo bottomLine"
+                                data-product-id="{{ product.id }}"
+                                data-url="{{ product.url }}"></div>
+                            </a>
+                          </td>
+                        {%- endfor -%}
+                      </tr>
+
+                      {%- when 'text' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ block.settings.title }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        <th class="product-comparison-grid__th--left">{{ block.settings.title }}</th>
+                        {%- for product in section.settings.product_list -%}
+                          <td>{{ block.settings.value | default: section.settings.empty_field_text }}</td>
+                        {%- endfor -%}
+                      </tr>
+
+                      {%- when 'metafield' -%}
+                      <tr class="lg:hidden {{ tr_class }}">
+                        <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                          <span class="product-comparison-grid__sticky">{{ block.settings.title }}</span>
+                        </th>
+                      </tr>
+
+                      <tr {% if tr_class %}class="{{ tr_class }}"{% endif %}{{ block.shopify_attributes }}>
+                        {%- liquid
+                            assign metafield_parts = block.settings.metafield_key | downcase | split: "."
+                            assign metafield_namespace = metafield_parts | first | strip
+                            assign metafield_key = metafield_parts | last | strip
+                          -%}
+
+                        <th class="product-comparison-grid__th--left">{{ block.settings.title }}</th>
+                        {%- for product in section.settings.product_list -%}
+                          <td>
+                            {%- liquid
+                                assign metafield = product.metafields[metafield_namespace][metafield_key]
+                                capture metafield_output
+                                  if metafield.type contains "list."
+                                    for item in metafield.value
+                                      assign metafield_type = metafield.type | replace: "list.", ""
+                                      assign comma = ""
+                                      if forloop.last == false
+                                        assign comma = ", "
+                                      endif
+                                      render 'render-metafield', metafield: metafield, metafield_type: metafield_type, metafield_value: item, comma: comma
+                                      if forloop.last == false and metafield_type == "file_reference"
+                                        echo "<div class='mt-2'></div>"
+                                      endif
+                                    endfor
+                                  elsif metafield.value
+                                    render 'render-metafield', metafield: metafield, metafield_type: metafield.type, metafield_value: metafield.value
+                                  endif
+                                endcapture
+                              -%}
+
+                            {%- unless metafield_output contains "Liquid error" -%}
+                              <div class="align-bottom {% if metafield.type contains "color" %}flex{% else %}block{% endif %}">
+                                {%- if metafield_output == blank -%}
+                                  {{- section.settings.empty_field_text -}}
+                                {%- else -%}
+                                  {{- metafield_output -}}
+                                {%- endif -%}
+                              </div>
+                            {%- endunless -%}
+                          </td>
+                        {%- endfor -%}
+                      </tr>
+                    {%- endcase -%}
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {% if section.settings.num_rows > 0 and section.blocks.size > section.settings.num_rows %}
+            {%- assign additional_row_count = section.blocks.size | minus: section.settings.num_rows -%}
+            <div class="text-center">
+              <button
+                type="button"
+                class="btn btn--secondary js-show-all mt-5"
+                data-toggle-text="{{ 'sections.product_comparison_grid.hide_rows' | t: count: additional_row_count }}">
+                {{- 'sections.product_comparison_grid.show_rows' | t: count: additional_row_count -}}
+              </button>
+            </div>
+            <script src="{{ 'product-comparison-grid.js' | asset_url }}" defer="defer"></script>
+          {% endif %}
+        </div>
+      </product-comparison-grid>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Product comparison grid",
+    "tag": "section",
+    "class": "cc-product-comparison-grid",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Section header"
+      },
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "Product comparison grid"
+      },
+      {
+        "type": "richtext",
+        "id": "text",
+        "label": "Text",
+        "default": "<p>Add content here to explain a bit about the range of products on offer and which ones may be most suitable for your customers.</p>"
+      },
+      {
+        "type": "select",
+        "id": "heading_align",
+        "label": "Heading alignment",
+        "options": [
+          {
+            "value": "text-start",
+            "label": "Left"
+          }, {
+            "value": "text-center",
+            "label": "Center"
+          }, {
+            "value": "text-end",
+            "label": "Right"
+          }
+        ],
+        "default": "text-center"
+      }, {
+        "type": "text",
+        "id": "view_more_label",
+        "label": "View more label",
+        "default": "View more"
+      }, {
+        "type": "url",
+        "id": "view_more_link",
+        "label": "View more link"
+      }, {
+        "type": "header",
+        "content": "Layout"
+      }, {
+        "type": "product_list",
+        "id": "product_list",
+        "label": "Products to compare",
+        "limit": 5
+      }, {
+        "type": "text",
+        "id": "empty_field_text",
+        "label": "Text to use for empty fields",
+        "default": "-"
+      }, {
+        "type": "select",
+        "id": "image_ratio",
+        "label": "Product image aspect ratio",
+        "options": [
+          {
+            "value": "",
+            "label": "Natural"
+          },
+          {
+            "value": "shortest",
+            "label": "Adapt (shortest image)"
+          },
+          {
+            "value": "tallest",
+            "label": "Adapt (tallest image)"
+          },
+          {
+            "value": "1.33",
+            "label": "Landscape"
+          }, {
+            "value": "1",
+            "label": "Square"
+          }, {
+            "value": "0.75",
+            "label": "Portrait"
+          }
+        ],
+        "default": "shortest"
+      }, {
+        "type": "select",
+        "id": "image_crop",
+        "label": "Image crop",
+        "options": [
+          {
+            "value": "top",
+            "label": "Top"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }
+        ],
+        "default": "center"
+      }, {
+        "type": "range",
+        "id": "num_rows",
+        "label": "Number of rows shown by default",
+        "info": "Set to 0 to show all.",
+        "min": 0,
+        "max": 50,
+        "step": 1,
+        "default": 0
+      }, {
+        "type": "header",
+        "content": "Style"
+      }, {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "options": [
+          {
+            "value": "none",
+            "label": "Default"
+          }, {
+            "value": "1",
+            "label": "Scheme 1"
+          }, {
+            "value": "2",
+            "label": "Scheme 2"
+          }, {
+            "value": "3",
+            "label": "Scheme 3"
+          }
+        ],
+        "default": "none"
+      }, {
+        "type": "checkbox",
+        "id": "highlight_row",
+        "label": "Highlight row on hover",
+        "info": "Applies to larger screens only.",
+        "default": false
+      }
+    ],
+    "blocks": [
+      {
+        "type": "product",
+        "name": "Product summary",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "paragraph",
+            "content": "This will always appear at the top of the grid."
+          }, {
+            "type": "checkbox",
+            "id": "show_image",
+            "label": "Show product image",
+            "default": true
+          }, {
+            "type": "checkbox",
+            "id": "show_title",
+            "label": "Show product title",
+            "default": true
+          }, {
+            "type": "checkbox",
+            "id": "show_button",
+            "label": "Show product info button",
+            "default": true
+          }
+        ]
+      },
+      {
+        "type": "vendor",
+        "name": "Vendor",
+        "limit": 1
+      },
+      {
+        "type": "title",
+        "name": "Title",
+        "limit": 1
+      },
+      {
+        "type": "type",
+        "name": "Type",
+        "limit": 1
+      }, {
+        "type": "price",
+        "name": "Price",
+        "limit": 1
+      }, {
+        "type": "variants",
+        "name": "All variant options",
+        "limit": 1
+      }, {
+        "type": "variant_option",
+        "name": "Variant option",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Option name",
+            "info": "This should be the name of the variant option."
+          }
+        ]
+      }, {
+        "type": "description",
+        "name": "Description",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "truncate_description",
+            "label": "Truncate description",
+            "info": "This will remove HTML from the description.",
+            "default": false
+          }, {
+            "type": "range",
+            "id": "words_to_show",
+            "label": "Words to show",
+            "min": 10,
+            "max": 100,
+            "step": 1,
+            "default": 20
+          }
+        ]
+      }, {
+        "type": "rating",
+        "name": "Rating",
+        "limit": 1
+      }, {
+        "type": "text",
+        "name": "Text",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Label",
+            "default": "Label"
+          }, {
+            "type": "text",
+            "id": "value",
+            "label": "Value",
+            "default": "Value",
+            "info": "This will be the same for every product."
+          }
+        ]
+      }, {
+        "type": "metafield",
+        "name": "Metafield",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Metafield label"
+          }, {
+            "type": "text",
+            "id": "metafield_key",
+            "label": "Metafield namespace and key",
+            "info": "Enter a product metafield namespace and key, e.g. custom.trim_color. 'List' metafields are unsupported. [Read more](https://cleancanvas.co.uk/support/enterprise/sections/comparison-grid)"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product comparison grid",
+        "blocks": [
+          {
+            "type": "product"
+          }, {
+            "type": "vendor"
+          }, {
+            "type": "price"
+          }, {
+            "type": "description"
+          }
+        ]
+      }
+    ],
+    "disabled_on": {
+      "groups": ["header", "footer", "aside"]
+    }
+  }
+{% endschema %}
